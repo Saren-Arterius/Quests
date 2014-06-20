@@ -136,7 +136,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
     public int                           totalQuestPoints          = 0;
     public Lang                          lang;
     private static Quests                instance                  = null;
-    public static final String           validVersion              = "1.7.9-R0.2";
+    public static final String           validVersion              = "1.7.5-R0.1-SNAPSHOT";
 
     @Override
     public void onEnable() {
