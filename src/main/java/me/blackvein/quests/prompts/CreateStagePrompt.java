@@ -5,14 +5,14 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import me.blackvein.quests.CustomObjective;
 
-import me.blackvein.quests.util.ColorUtil;
+import me.blackvein.quests.CustomObjective;
 import me.blackvein.quests.Event;
 import me.blackvein.quests.QuestFactory;
 import me.blackvein.quests.Quester;
 import me.blackvein.quests.Quests;
 import me.blackvein.quests.util.CK;
+import me.blackvein.quests.util.ColorUtil;
 import me.blackvein.quests.util.ItemUtil;
 import me.blackvein.quests.util.Lang;
 import me.blackvein.quests.util.MiscUtil;
@@ -33,18 +33,19 @@ import org.bukkit.inventory.ItemStack;
 
 public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
-    private final int stageNum;
-    private final String pref;
+    private final int            stageNum;
+    private final String         pref;
     private final CitizensPlugin citizens;
-    private final QuestFactory questFactory;
+    private final QuestFactory   questFactory;
 
     public CreateStagePrompt(int stageNum, QuestFactory qf, CitizensPlugin cit) {
 
-        super("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26");
+        super("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
+                "20", "21", "22", "23", "24", "25", "26");
         this.stageNum = stageNum;
-        this.pref = "stage" + stageNum;
-        this.citizens = cit;
-        this.questFactory = qf;
+        pref = "stage" + stageNum;
+        citizens = cit;
+        questFactory = qf;
 
     }
 
@@ -54,103 +55,130 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         context.setSessionData(pref, Boolean.TRUE);
 
-        String text = PINK + "- " + AQUA + (String) context.getSessionData(CK.Q_NAME) + PINK + " | " + Lang.get("stageEditorStage") + " " + PURPLE + stageNum + PINK + " -\n";
+        String text = ColorUtil.PINK + "- " + ColorUtil.AQUA + (String) context.getSessionData(CK.Q_NAME)
+                + ColorUtil.PINK + " | " + Lang.get("stageEditorStage") + " " + ColorUtil.PURPLE + stageNum
+                + ColorUtil.PINK + " -\n";
 
         if (context.getSessionData(pref + CK.S_BREAK_IDS) == null) {
-            text += PINK + "" + BOLD + "1 " + RESET + PURPLE + "- " + Lang.get("stageEditorBreakBlocks") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "1 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorBreakBlocks") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
         } else {
-            text += PINK + "" + BOLD + "1 " + RESET + PURPLE + "- " + Lang.get("stageEditorBreakBlocks") + "\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "1 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorBreakBlocks") + "\n";
 
-            LinkedList<Integer> ids = (LinkedList<Integer>) context.getSessionData(pref + CK.S_BREAK_IDS);
-            LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_BREAK_AMOUNTS);
+            final LinkedList<Integer> ids = (LinkedList<Integer>) context.getSessionData(pref + CK.S_BREAK_IDS);
+            final LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_BREAK_AMOUNTS);
 
             for (int i = 0; i < ids.size(); i++) {
-                text += GRAY + "    - " + BLUE + Quester.prettyItemString(ids.get(i)) + GRAY + " x " + DARKAQUA + amnts.get(i) + "\n";
+                text += ColorUtil.GRAY + "    - " + ColorUtil.BLUE + Quester.prettyItemString(ids.get(i))
+                        + ColorUtil.GRAY + " x " + ColorUtil.DARKAQUA + amnts.get(i) + "\n";
             }
 
         }
 
         if (context.getSessionData(pref + CK.S_DAMAGE_IDS) == null) {
-            text += PINK + "" + BOLD + "2 " + RESET + PURPLE + "- " + Lang.get("stageEditorDamageBlocks") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "2 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorDamageBlocks") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
         } else {
-            text += PINK + "" + BOLD + "2 " + RESET + PURPLE + "- " + Lang.get("stageEditorDamageBlocks") + "\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "2 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorDamageBlocks") + "\n";
 
-            LinkedList<Integer> ids = (LinkedList<Integer>) context.getSessionData(pref + CK.S_DAMAGE_IDS);
-            LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_DAMAGE_AMOUNTS);
+            final LinkedList<Integer> ids = (LinkedList<Integer>) context.getSessionData(pref + CK.S_DAMAGE_IDS);
+            final LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_DAMAGE_AMOUNTS);
 
             for (int i = 0; i < ids.size(); i++) {
-                text += GRAY + "    - " + BLUE + Quester.prettyItemString(ids.get(i)) + GRAY + " x " + DARKAQUA + amnts.get(i) + "\n";
+                text += ColorUtil.GRAY + "    - " + ColorUtil.BLUE + Quester.prettyItemString(ids.get(i))
+                        + ColorUtil.GRAY + " x " + ColorUtil.DARKAQUA + amnts.get(i) + "\n";
             }
 
         }
 
         if (context.getSessionData(pref + CK.S_PLACE_IDS) == null) {
-            text += PINK + "" + BOLD + "3 " + RESET + PURPLE + "- " + Lang.get("stageEditorPlaceBlocks") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "3 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorPlaceBlocks") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
         } else {
-            text += PINK + "" + BOLD + "3 " + RESET + PURPLE + "- " + Lang.get("stageEditorPlaceBlocks") + "\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "3 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorPlaceBlocks") + "\n";
 
-            LinkedList<Integer> ids = (LinkedList<Integer>) context.getSessionData(pref + CK.S_PLACE_IDS);
-            LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_PLACE_AMOUNTS);
+            final LinkedList<Integer> ids = (LinkedList<Integer>) context.getSessionData(pref + CK.S_PLACE_IDS);
+            final LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_PLACE_AMOUNTS);
 
             for (int i = 0; i < ids.size(); i++) {
-                text += GRAY + "    - " + BLUE + Quester.prettyItemString(ids.get(i)) + GRAY + " x " + DARKAQUA + amnts.get(i) + "\n";
+                text += ColorUtil.GRAY + "    - " + ColorUtil.BLUE + Quester.prettyItemString(ids.get(i))
+                        + ColorUtil.GRAY + " x " + ColorUtil.DARKAQUA + amnts.get(i) + "\n";
             }
 
         }
 
         if (context.getSessionData(pref + CK.S_USE_IDS) == null) {
-            text += PINK + "" + BOLD + "4 " + RESET + PURPLE + "- " + Lang.get("stageEditorUseBlocks") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "4 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorUseBlocks") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
         } else {
-            text += PINK + "" + BOLD + "4 " + RESET + PURPLE + "- " + Lang.get("stageEditorUseBlocks") + "\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "4 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorUseBlocks") + "\n";
 
-            LinkedList<Integer> ids = (LinkedList<Integer>) context.getSessionData(pref + CK.S_USE_IDS);
-            LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_USE_AMOUNTS);
+            final LinkedList<Integer> ids = (LinkedList<Integer>) context.getSessionData(pref + CK.S_USE_IDS);
+            final LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_USE_AMOUNTS);
 
             for (int i = 0; i < ids.size(); i++) {
-                text += GRAY + "    - " + BLUE + Quester.prettyItemString(ids.get(i)) + GRAY + " x " + DARKAQUA + amnts.get(i) + "\n";
+                text += ColorUtil.GRAY + "    - " + ColorUtil.BLUE + Quester.prettyItemString(ids.get(i))
+                        + ColorUtil.GRAY + " x " + ColorUtil.DARKAQUA + amnts.get(i) + "\n";
             }
 
         }
 
         if (context.getSessionData(pref + CK.S_CUT_IDS) == null) {
-            text += PINK + "" + BOLD + "5 " + RESET + PURPLE + "- " + Lang.get("stageEditorCutBlocks") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "5 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorCutBlocks") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
         } else {
-            text += PINK + "" + BOLD + "5 " + RESET + PURPLE + "- " + Lang.get("stageEditorCutBlocks") + "\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "5 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorCutBlocks") + "\n";
 
-            LinkedList<Integer> ids = (LinkedList<Integer>) context.getSessionData(pref + CK.S_CUT_IDS);
-            LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_CUT_AMOUNTS);
+            final LinkedList<Integer> ids = (LinkedList<Integer>) context.getSessionData(pref + CK.S_CUT_IDS);
+            final LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_CUT_AMOUNTS);
 
             for (int i = 0; i < ids.size(); i++) {
-                text += GRAY + "    - " + BLUE + Quester.prettyItemString(ids.get(i)) + GRAY + " x " + DARKAQUA + amnts.get(i) + "\n";
+                text += ColorUtil.GRAY + "    - " + ColorUtil.BLUE + Quester.prettyItemString(ids.get(i))
+                        + ColorUtil.GRAY + " x " + ColorUtil.DARKAQUA + amnts.get(i) + "\n";
             }
 
         }
 
         if (context.getSessionData(pref + CK.S_FISH) == null) {
-            text += PINK + "" + BOLD + "6 " + RESET + PURPLE + "- " + Lang.get("stageEditorCatchFish") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "6 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorCatchFish") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
         } else {
-            Integer fish = (Integer) context.getSessionData(pref + CK.S_FISH);
-            text += PINK + "" + BOLD + "6 " + RESET + PURPLE + "- " + Lang.get("stageEditorCatchFish") + " " + GRAY + "(" + AQUA + fish + " " + Lang.get("stageEditorFish") + GRAY + ")\n";
+            final Integer fish = (Integer) context.getSessionData(pref + CK.S_FISH);
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "6 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorCatchFish") + " " + ColorUtil.GRAY + "(" + ColorUtil.AQUA + fish + " "
+                    + Lang.get("stageEditorFish") + ColorUtil.GRAY + ")\n";
         }
 
         if (context.getSessionData(pref + CK.S_PLAYER_KILL) == null) {
-            text += PINK + "" + BOLD + "7 " + RESET + PURPLE + "- " + Lang.get("stageEditorKillPlayers") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "7 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorKillPlayers") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
         } else {
-            Integer players = (Integer) context.getSessionData(pref + CK.S_PLAYER_KILL);
-            text += PINK + "" + BOLD + "7 " + RESET + PURPLE + "- " + Lang.get("stageEditorKillPlayers") + GRAY + " (" + AQUA + players + " " + Lang.get("stageEditorPlayers") + GRAY + ")\n";
+            final Integer players = (Integer) context.getSessionData(pref + CK.S_PLAYER_KILL);
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "7 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorKillPlayers") + ColorUtil.GRAY + " (" + ColorUtil.AQUA + players + " "
+                    + Lang.get("stageEditorPlayers") + ColorUtil.GRAY + ")\n";
         }
 
         if (context.getSessionData(pref + CK.S_ENCHANT_TYPES) == null) {
-            text += PINK + "" + BOLD + "8 " + RESET + PURPLE + "- " + Lang.get("stageEditorEnchantItems") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "8 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorEnchantItems") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
         } else {
-            text += PINK + "" + BOLD + "8 " + RESET + PURPLE + "- " + Lang.get("stageEditorEnchantItems") + "\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "8 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorEnchantItems") + "\n";
 
-            LinkedList<String> enchants = (LinkedList<String>) context.getSessionData(pref + CK.S_ENCHANT_TYPES);
-            LinkedList<Integer> items = (LinkedList<Integer>) context.getSessionData(pref + CK.S_ENCHANT_IDS);
-            LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_ENCHANT_AMOUNTS);
+            final LinkedList<String> enchants = (LinkedList<String>) context.getSessionData(pref + CK.S_ENCHANT_TYPES);
+            final LinkedList<Integer> items = (LinkedList<Integer>) context.getSessionData(pref + CK.S_ENCHANT_IDS);
+            final LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_ENCHANT_AMOUNTS);
 
             for (int i = 0; i < enchants.size(); i++) {
-                text += GRAY + "    - " + BLUE + Quester.prettyItemString(items.get(i)) + GRAY + " with " + AQUA + Quester.prettyString(enchants.get(i)) + GRAY + " x " + DARKAQUA + amnts.get(i) + "\n";
+                text += ColorUtil.GRAY + "    - " + ColorUtil.BLUE + Quester.prettyItemString(items.get(i))
+                        + ColorUtil.GRAY + " with " + ColorUtil.AQUA + Quester.prettyString(enchants.get(i))
+                        + ColorUtil.GRAY + " x " + ColorUtil.DARKAQUA + amnts.get(i) + "\n";
             }
 
         }
@@ -158,84 +186,112 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         if (questFactory.quests.citizens != null) {
 
             if (context.getSessionData(pref + CK.S_DELIVERY_ITEMS) == null) {
-                text += PINK + "" + BOLD + "9 " + RESET + PURPLE + "- " + Lang.get("stageEditorDeliverItems") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.PINK + "" + ColorUtil.BOLD + "9 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                        + Lang.get("stageEditorDeliverItems") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
             } else {
-                text += PINK + "" + BOLD + "9 " + RESET + PURPLE + "- " + Lang.get("stageEditorDeliverItems") + "\n";
+                text += ColorUtil.PINK + "" + ColorUtil.BOLD + "9 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                        + Lang.get("stageEditorDeliverItems") + "\n";
 
-                LinkedList<Integer> npcs = (LinkedList<Integer>) context.getSessionData(pref + CK.S_DELIVERY_NPCS);
-                LinkedList<ItemStack> items = (LinkedList<ItemStack>) context.getSessionData(pref + CK.S_DELIVERY_ITEMS);
+                final LinkedList<Integer> npcs = (LinkedList<Integer>) context
+                        .getSessionData(pref + CK.S_DELIVERY_NPCS);
+                final LinkedList<ItemStack> items = (LinkedList<ItemStack>) context.getSessionData(pref
+                        + CK.S_DELIVERY_ITEMS);
 
                 for (int i = 0; i < npcs.size(); i++) {
-                    text += GRAY + "    - " + BLUE + ItemUtil.getName(items.get(i)) + GRAY + " x " + AQUA + items.get(i).getAmount() + GRAY + " to " + DARKAQUA + citizens.getNPCRegistry().getById(npcs.get(i)).getName() + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.BLUE + ItemUtil.getName(items.get(i))
+                            + ColorUtil.GRAY + " x " + ColorUtil.AQUA + items.get(i).getAmount() + ColorUtil.GRAY
+                            + " to " + ColorUtil.DARKAQUA + citizens.getNPCRegistry().getById(npcs.get(i)).getName()
+                            + "\n";
                 }
 
             }
 
         } else {
-            text += GRAY + "" + BOLD + "9 " + RESET + GRAY + "- " + Lang.get("stageEditorDeliverItems") + GRAY + " (Citizens not installed)\n";
+            text += ColorUtil.GRAY + "" + ColorUtil.BOLD + "9 " + ColorUtil.RESET + ColorUtil.GRAY + "- "
+                    + Lang.get("stageEditorDeliverItems") + ColorUtil.GRAY + " (Citizens not installed)\n";
         }
 
         if (questFactory.quests.citizens != null) {
 
             if (context.getSessionData(pref + CK.S_NPCS_TO_TALK_TO) == null) {
-                text += PINK + "" + BOLD + "10 " + RESET + PURPLE + "- " + Lang.get("stageEditorTalkToNPCs") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.PINK + "" + ColorUtil.BOLD + "10 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                        + Lang.get("stageEditorTalkToNPCs") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
             } else {
-                text += PINK + "" + BOLD + "10 " + RESET + PURPLE + "- " + Lang.get("stageEditorTalkToNPCs") + "\n";
+                text += ColorUtil.PINK + "" + ColorUtil.BOLD + "10 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                        + Lang.get("stageEditorTalkToNPCs") + "\n";
 
-                LinkedList<Integer> npcs = (LinkedList<Integer>) context.getSessionData(pref + CK.S_NPCS_TO_TALK_TO);
+                final LinkedList<Integer> npcs = (LinkedList<Integer>) context.getSessionData(pref
+                        + CK.S_NPCS_TO_TALK_TO);
 
                 for (int i = 0; i < npcs.size(); i++) {
-                    text += GRAY + "    - " + BLUE + citizens.getNPCRegistry().getById(npcs.get(i)).getName() + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.BLUE
+                            + citizens.getNPCRegistry().getById(npcs.get(i)).getName() + "\n";
                 }
 
             }
 
         } else {
-            text += GRAY + "" + BOLD + "10 " + RESET + GRAY + "- " + Lang.get("stageEditorTalkToNPCs") + GRAY + " (Citizens not installed)\n";
+            text += ColorUtil.GRAY + "" + ColorUtil.BOLD + "10 " + ColorUtil.RESET + ColorUtil.GRAY + "- "
+                    + Lang.get("stageEditorTalkToNPCs") + ColorUtil.GRAY + " (Citizens not installed)\n";
         }
 
         if (questFactory.quests.citizens != null) {
 
             if (context.getSessionData(pref + CK.S_NPCS_TO_KILL) == null) {
-                text += PINK + "" + BOLD + "11 " + RESET + PURPLE + "- " + Lang.get("stageEditorKillNPCs") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.PINK + "" + ColorUtil.BOLD + "11 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                        + Lang.get("stageEditorKillNPCs") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
             } else {
-                text += PINK + "" + BOLD + "11 " + RESET + PURPLE + "- " + Lang.get("stageEditorKillNPCs") + "\n";
+                text += ColorUtil.PINK + "" + ColorUtil.BOLD + "11 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                        + Lang.get("stageEditorKillNPCs") + "\n";
 
-                LinkedList<Integer> npcs = (LinkedList<Integer>) context.getSessionData(pref + CK.S_NPCS_TO_KILL);
-                LinkedList<Integer> amounts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_NPCS_TO_KILL_AMOUNTS);
+                final LinkedList<Integer> npcs = (LinkedList<Integer>) context.getSessionData(pref + CK.S_NPCS_TO_KILL);
+                final LinkedList<Integer> amounts = (LinkedList<Integer>) context.getSessionData(pref
+                        + CK.S_NPCS_TO_KILL_AMOUNTS);
 
                 for (int i = 0; i < npcs.size(); i++) {
-                    text += GRAY + "    - " + BLUE + citizens.getNPCRegistry().getById(npcs.get(i)).getName() + GRAY + " x " + AQUA + amounts.get(i) + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.BLUE
+                            + citizens.getNPCRegistry().getById(npcs.get(i)).getName() + ColorUtil.GRAY + " x "
+                            + ColorUtil.AQUA + amounts.get(i) + "\n";
                 }
 
             }
 
         } else {
-            text += GRAY + "" + BOLD + "11 " + RESET + GRAY + "- " + Lang.get("stageEditorKillNPCs") + GRAY + " (Citizens not installed)\n";
+            text += ColorUtil.GRAY + "" + ColorUtil.BOLD + "11 " + ColorUtil.RESET + ColorUtil.GRAY + "- "
+                    + Lang.get("stageEditorKillNPCs") + ColorUtil.GRAY + " (Citizens not installed)\n";
         }
 
         if (context.getSessionData(pref + CK.S_MOB_TYPES) == null) {
-            text += PINK + "" + BOLD + "12 " + RESET + PURPLE + "- " + Lang.get("stageEditorKillMobs") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "12 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorKillMobs") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
         } else {
-            text += PINK + "" + BOLD + "12 " + RESET + PURPLE + "- " + Lang.get("stageEditorKillMobs") + "\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "12 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorKillMobs") + "\n";
 
-            LinkedList<String> mobs = (LinkedList<String>) context.getSessionData(pref + CK.S_MOB_TYPES);
-            LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_MOB_AMOUNTS);
+            final LinkedList<String> mobs = (LinkedList<String>) context.getSessionData(pref + CK.S_MOB_TYPES);
+            final LinkedList<Integer> amnts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_MOB_AMOUNTS);
 
             if (context.getSessionData(pref + CK.S_MOB_KILL_LOCATIONS) == null) {
 
                 for (int i = 0; i < mobs.size(); i++) {
-                    text += GRAY + "    - " + AQUA + Quester.prettyString(mobs.get(i)) + GRAY + " x " + DARKAQUA + amnts.get(i) + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + Quester.prettyString(mobs.get(i))
+                            + ColorUtil.GRAY + " x " + ColorUtil.DARKAQUA + amnts.get(i) + "\n";
                 }
 
             } else {
 
-                LinkedList<String> locs = (LinkedList<String>) context.getSessionData(pref + CK.S_MOB_KILL_LOCATIONS);
-                LinkedList<Integer> radii = (LinkedList<Integer>) context.getSessionData(pref + CK.S_MOB_KILL_LOCATIONS_RADIUS);
-                LinkedList<String> names = (LinkedList<String>) context.getSessionData(pref + CK.S_MOB_KILL_LOCATIONS_NAMES);
+                final LinkedList<String> locs = (LinkedList<String>) context.getSessionData(pref
+                        + CK.S_MOB_KILL_LOCATIONS);
+                final LinkedList<Integer> radii = (LinkedList<Integer>) context.getSessionData(pref
+                        + CK.S_MOB_KILL_LOCATIONS_RADIUS);
+                final LinkedList<String> names = (LinkedList<String>) context.getSessionData(pref
+                        + CK.S_MOB_KILL_LOCATIONS_NAMES);
 
                 for (int i = 0; i < mobs.size(); i++) {
-                    text += GRAY + "    - " + BLUE + Quester.prettyString(mobs.get(i)) + GRAY + " x " + DARKAQUA + amnts.get(i) + GRAY + " within " + PURPLE + radii.get(i) + GRAY + " blocks of " + YELLOW + names.get(i) + " (" + locs.get(i) + ")\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.BLUE + Quester.prettyString(mobs.get(i))
+                            + ColorUtil.GRAY + " x " + ColorUtil.DARKAQUA + amnts.get(i) + ColorUtil.GRAY + " within "
+                            + ColorUtil.PURPLE + radii.get(i) + ColorUtil.GRAY + " blocks of " + ColorUtil.YELLOW
+                            + names.get(i) + " (" + locs.get(i) + ")\n";
                 }
 
             }
@@ -243,122 +299,167 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         }
 
         if (context.getSessionData(pref + CK.S_REACH_LOCATIONS) == null) {
-            text += PINK + "" + BOLD + "13 " + RESET + PURPLE + "- " + Lang.get("stageEditorReachLocs") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "13 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorReachLocs") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
         } else {
-            text += PINK + "" + BOLD + "13 " + RESET + PURPLE + "- " + Lang.get("stageEditorReachLocs") + "\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "13 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorReachLocs") + "\n";
 
-            LinkedList<String> locations = (LinkedList<String>) context.getSessionData(pref + CK.S_REACH_LOCATIONS);
-            LinkedList<Integer> radii = (LinkedList<Integer>) context.getSessionData(pref + CK.S_REACH_LOCATIONS_RADIUS);
-            LinkedList<String> names = (LinkedList<String>) context.getSessionData(pref + CK.S_REACH_LOCATIONS_NAMES);
+            final LinkedList<String> locations = (LinkedList<String>) context.getSessionData(pref
+                    + CK.S_REACH_LOCATIONS);
+            final LinkedList<Integer> radii = (LinkedList<Integer>) context.getSessionData(pref
+                    + CK.S_REACH_LOCATIONS_RADIUS);
+            final LinkedList<String> names = (LinkedList<String>) context.getSessionData(pref
+                    + CK.S_REACH_LOCATIONS_NAMES);
 
             for (int i = 0; i < locations.size(); i++) {
-                text += GRAY + "    - " + Lang.get("stageEditorReachRadii1") + " " + BLUE + radii.get(i) + GRAY + " " + Lang.get("stageEditorReachRadii2") + " " + AQUA + names.get(i) + GRAY + " (" + DARKAQUA + locations.get(i) + GRAY + ")\n";
+                text += ColorUtil.GRAY + "    - " + Lang.get("stageEditorReachRadii1") + " " + ColorUtil.BLUE
+                        + radii.get(i) + ColorUtil.GRAY + " " + Lang.get("stageEditorReachRadii2") + " "
+                        + ColorUtil.AQUA + names.get(i) + ColorUtil.GRAY + " (" + ColorUtil.DARKAQUA + locations.get(i)
+                        + ColorUtil.GRAY + ")\n";
             }
 
         }
 
         if (context.getSessionData(pref + CK.S_TAME_TYPES) == null) {
-            text += PINK + "" + BOLD + "14 " + RESET + PURPLE + "- " + Lang.get("stageEditorTameMobs") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "14 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorTameMobs") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
         } else {
 
-            text += PINK + "" + BOLD + "14 " + RESET + PURPLE + "- " + Lang.get("stageEditorTameMobs") + "\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "14 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorTameMobs") + "\n";
 
-            LinkedList<String> mobs = (LinkedList<String>) context.getSessionData(pref + CK.S_TAME_TYPES);
-            LinkedList<Integer> amounts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_TAME_AMOUNTS);
+            final LinkedList<String> mobs = (LinkedList<String>) context.getSessionData(pref + CK.S_TAME_TYPES);
+            final LinkedList<Integer> amounts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_TAME_AMOUNTS);
 
             for (int i = 0; i < mobs.size(); i++) {
-                text += GRAY + "    - " + BLUE + mobs.get(i) + GRAY + " x " + AQUA + amounts.get(i) + "\n";
+                text += ColorUtil.GRAY + "    - " + ColorUtil.BLUE + mobs.get(i) + ColorUtil.GRAY + " x "
+                        + ColorUtil.AQUA + amounts.get(i) + "\n";
             }
 
         }
 
         if (context.getSessionData(pref + CK.S_SHEAR_COLORS) == null) {
-            text += PINK + "" + BOLD + "15 " + RESET + PURPLE + "- " + Lang.get("stageEditorShearSheep") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "15 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorShearSheep") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
         } else {
-            text += PINK + "" + BOLD + "15 " + RESET + PURPLE + "- " + Lang.get("stageEditorShearSheep") + "\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "15 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorShearSheep") + "\n";
 
-            LinkedList<String> colors = (LinkedList<String>) context.getSessionData(pref + CK.S_SHEAR_COLORS);
-            LinkedList<Integer> amounts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_SHEAR_AMOUNTS);
+            final LinkedList<String> colors = (LinkedList<String>) context.getSessionData(pref + CK.S_SHEAR_COLORS);
+            final LinkedList<Integer> amounts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_SHEAR_AMOUNTS);
 
             for (int i = 0; i < colors.size(); i++) {
-                text += GRAY + "    - " + BLUE + colors.get(i) + GRAY + " x " + AQUA + amounts.get(i) + "\n";
+                text += ColorUtil.GRAY + "    - " + ColorUtil.BLUE + colors.get(i) + ColorUtil.GRAY + " x "
+                        + ColorUtil.AQUA + amounts.get(i) + "\n";
             }
 
         }
 
-        text += PINK + "" + BOLD + "16 " + RESET + PURPLE + "- " + Lang.get("stageEditorEvents") + "\n";
+        text += ColorUtil.PINK + "" + ColorUtil.BOLD + "16 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                + Lang.get("stageEditorEvents") + "\n";
 
         if (context.getSessionData(pref + CK.S_DELAY) == null) {
-            text += PINK + "" + BOLD + "17 " + RESET + PURPLE + "- " + Lang.get("delay") + GRAY + "  (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "17 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("delay") + ColorUtil.GRAY + "  (" + Lang.get("noneSet") + ")\n";
         } else {
-            long time = (Long) context.getSessionData(pref + CK.S_DELAY);
-            text += PINK + "" + BOLD + "17 " + RESET + PURPLE + "- " + Lang.get("delay") + GRAY + "(" + AQUA + Quests.getTime(time) + GRAY + ")\n";
+            final long time = (Long) context.getSessionData(pref + CK.S_DELAY);
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "17 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("delay") + ColorUtil.GRAY + "(" + ColorUtil.AQUA + Quests.getTime(time) + ColorUtil.GRAY
+                    + ")\n";
         }
 
         if (context.getSessionData(pref + CK.S_DELAY) == null) {
-            text += GRAY + "" + BOLD + "18 " + RESET + GRAY + "- " + Lang.get("stageEditorDelayMessage") + GRAY + " (" + Lang.get("noDelaySet") + ")\n";
+            text += ColorUtil.GRAY + "" + ColorUtil.BOLD + "18 " + ColorUtil.RESET + ColorUtil.GRAY + "- "
+                    + Lang.get("stageEditorDelayMessage") + ColorUtil.GRAY + " (" + Lang.get("noDelaySet") + ")\n";
         } else if (context.getSessionData(pref + CK.S_DELAY_MESSAGE) == null) {
-            text += PINK + "" + BOLD + "18 " + RESET + PURPLE + "- " + Lang.get("stageEditorDelayMessage") + GRAY + " (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "18 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorDelayMessage") + ColorUtil.GRAY + " (" + Lang.get("noneSet") + ")\n";
         } else {
-            text += PINK + "" + BOLD + "18 " + RESET + PURPLE + "- " + Lang.get("stageEditorDelayMessage") + GRAY + " (" + AQUA + "\"" + context.getSessionData(pref + CK.S_DELAY_MESSAGE) + "\"" + GRAY + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "18 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorDelayMessage") + ColorUtil.GRAY + " (" + ColorUtil.AQUA + "\""
+                    + context.getSessionData(pref + CK.S_DELAY_MESSAGE) + "\"" + ColorUtil.GRAY + ")\n";
         }
 
         if (questFactory.quests.denizen == null) {
-            text += GRAY + "" + BOLD + "19 " + RESET + GRAY + "- " + Lang.get("stageEditorDenizenScript") + GRAY + " (Denizen not installed)\n";
+            text += ColorUtil.GRAY + "" + ColorUtil.BOLD + "19 " + ColorUtil.RESET + ColorUtil.GRAY + "- "
+                    + Lang.get("stageEditorDenizenScript") + ColorUtil.GRAY + " (Denizen not installed)\n";
         } else {
 
             if (context.getSessionData(pref + CK.S_DENIZEN) == null) {
-                text += PINK + "" + BOLD + "19 " + RESET + PURPLE + "- " + Lang.get("stageEditorDenizenScript") + GRAY + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.PINK + "" + ColorUtil.BOLD + "19 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                        + Lang.get("stageEditorDenizenScript") + ColorUtil.GRAY + " (" + Lang.get("noneSet") + ")\n";
             } else {
-                text += PINK + "" + BOLD + "19 " + RESET + PURPLE + "- " + Lang.get("stageEditorDenizenScript") + GRAY + " (" + AQUA + context.getSessionData(pref + CK.S_DENIZEN) + GRAY + "\n";
+                text += ColorUtil.PINK + "" + ColorUtil.BOLD + "19 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                        + Lang.get("stageEditorDenizenScript") + ColorUtil.GRAY + " (" + ColorUtil.AQUA
+                        + context.getSessionData(pref + CK.S_DENIZEN) + ColorUtil.GRAY + "\n";
             }
 
         }
-        
+
         if (context.getSessionData(pref + CK.S_PASSWORD_PHRASES) == null) {
-            text += PINK + "" + BOLD + "20 " + RESET + PURPLE + "- Password Objectives" + GRAY + " (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "20 " + ColorUtil.RESET + ColorUtil.PURPLE
+                    + "- Password Objectives" + ColorUtil.GRAY + " (" + Lang.get("noneSet") + ")\n";
         } else {
-            LinkedList<LinkedList<String>> passPhrases = (LinkedList<LinkedList<String>>) context.getSessionData(pref + CK.S_PASSWORD_PHRASES);
-            LinkedList<String> passDisplays = (LinkedList<String>) context.getSessionData(pref + CK.S_PASSWORD_DISPLAYS);
-            text += PINK + "" + BOLD + "20 " + RESET + PURPLE + "- Password Objectives\n";
-            for(int i = 0; i < passPhrases.size(); i++){
-                text += AQUA + "    - \"" + passDisplays.get(i) + "\"\n";
-                LinkedList<String> phrases = passPhrases.get(i);
-                for(String phrase : phrases)
-                    text += DARKAQUA + "      - " + phrase + "\n";
+            final LinkedList<LinkedList<String>> passPhrases = (LinkedList<LinkedList<String>>) context
+                    .getSessionData(pref + CK.S_PASSWORD_PHRASES);
+            final LinkedList<String> passDisplays = (LinkedList<String>) context.getSessionData(pref
+                    + CK.S_PASSWORD_DISPLAYS);
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "20 " + ColorUtil.RESET + ColorUtil.PURPLE
+                    + "- Password Objectives\n";
+            for (int i = 0; i < passPhrases.size(); i++) {
+                text += ColorUtil.AQUA + "    - \"" + passDisplays.get(i) + "\"\n";
+                final LinkedList<String> phrases = passPhrases.get(i);
+                for (final String phrase: phrases) {
+                    text += ColorUtil.DARKAQUA + "      - " + phrase + "\n";
+                }
             }
         }
-        
+
         if (context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES) == null) {
-            text += PINK + "" + BOLD + "21 " + RESET + PINK + "- Custom Objectives" + GRAY + " (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "21 " + ColorUtil.RESET + ColorUtil.PINK
+                    + "- Custom Objectives" + ColorUtil.GRAY + " (" + Lang.get("noneSet") + ")\n";
         } else {
-            LinkedList<String> customObjs = (LinkedList<String>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES);
-            text += PINK + "" + BOLD + "21 " + RESET + PINK + "- Custom Objectives\n";
-            for(String s : customObjs){
-                text += PINK + "    - " + GOLD + s + "\n";
+            final LinkedList<String> customObjs = (LinkedList<String>) context.getSessionData(pref
+                    + CK.S_CUSTOM_OBJECTIVES);
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "21 " + ColorUtil.RESET + ColorUtil.PINK
+                    + "- Custom Objectives\n";
+            for (final String s: customObjs) {
+                text += ColorUtil.PINK + "    - " + ColorUtil.GOLD + s + "\n";
             }
         }
 
         if (context.getSessionData(pref + CK.S_START_MESSAGE) == null) {
-            text += PINK + "" + BOLD + "22 " + RESET + PURPLE + "- " + Lang.get("stageEditorStartMessage") + GRAY + " (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "22 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorStartMessage") + ColorUtil.GRAY + " (" + Lang.get("noneSet") + ")\n";
         } else {
-            text += PINK + "" + BOLD + "22 " + RESET + PURPLE + "- " + Lang.get("stageEditorStartMessage") + GRAY + "(" + AQUA + "\"" + context.getSessionData(pref + CK.S_START_MESSAGE) + "\"" + GRAY + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "22 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorStartMessage") + ColorUtil.GRAY + "(" + ColorUtil.AQUA + "\""
+                    + context.getSessionData(pref + CK.S_START_MESSAGE) + "\"" + ColorUtil.GRAY + ")\n";
         }
 
         if (context.getSessionData(pref + CK.S_COMPLETE_MESSAGE) == null) {
-            text += PINK + "" + BOLD + "23 " + RESET + PURPLE + "- " + Lang.get("stageEditorCompleteMessage") + GRAY + " (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "23 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorCompleteMessage") + ColorUtil.GRAY + " (" + Lang.get("noneSet") + ")\n";
         } else {
-            text += PINK + "" + BOLD + "23 " + RESET + PURPLE + "- " + Lang.get("stageEditorCompleteMessage") + GRAY + "(" + AQUA + "\"" + context.getSessionData(pref + CK.S_COMPLETE_MESSAGE) + "\"" + GRAY + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "23 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                    + Lang.get("stageEditorCompleteMessage") + ColorUtil.GRAY + "(" + ColorUtil.AQUA + "\""
+                    + context.getSessionData(pref + CK.S_COMPLETE_MESSAGE) + "\"" + ColorUtil.GRAY + ")\n";
         }
 
         if (context.getSessionData(pref + CK.S_OVERRIDE_DISPLAY) == null) {
-            text += PINK + "" + BOLD + "24 " + RESET + PURPLE + "- Objective Display Override " + GRAY + " (" + Lang.get("noneSet") + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "24 " + ColorUtil.RESET + ColorUtil.PURPLE
+                    + "- Objective Display Override " + ColorUtil.GRAY + " (" + Lang.get("noneSet") + ")\n";
         } else {
-            text += PINK + "" + BOLD + "24 " + RESET + PURPLE + "- Objective Display Override " + GRAY + "(" + DARKAQUA + "\"" + context.getSessionData(pref + CK.S_OVERRIDE_DISPLAY) + "\"" + GRAY + ")\n";
+            text += ColorUtil.PINK + "" + ColorUtil.BOLD + "24 " + ColorUtil.RESET + ColorUtil.PURPLE
+                    + "- Objective Display Override " + ColorUtil.GRAY + "(" + ColorUtil.DARKAQUA + "\""
+                    + context.getSessionData(pref + CK.S_OVERRIDE_DISPLAY) + "\"" + ColorUtil.GRAY + ")\n";
         }
-        
-        text += RED + "" + BOLD + "25 " + RESET + PURPLE + "- " + Lang.get("stageEditorDelete") + "\n";
-        text += GREEN + "" + BOLD + "26 " + RESET + PURPLE + "- " + Lang.get("done") + "\n";
+
+        text += ColorUtil.RED + "" + ColorUtil.BOLD + "25 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                + Lang.get("stageEditorDelete") + "\n";
+        text += ColorUtil.GREEN + "" + ColorUtil.BOLD + "26 " + ColorUtil.RESET + ColorUtil.PURPLE + "- "
+                + Lang.get("done") + "\n";
 
         return text;
 
@@ -386,24 +487,21 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         } else if (input.equalsIgnoreCase("9")) {
             if (questFactory.quests.citizens != null) {
                 return new DeliveryListPrompt();
-            } else {
-                context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoCitizens"));
-                return new CreateStagePrompt(stageNum, questFactory, citizens);
             }
+            context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoCitizens"));
+            return new CreateStagePrompt(stageNum, questFactory, citizens);
         } else if (input.equalsIgnoreCase("10")) {
             if (questFactory.quests.citizens != null) {
                 return new NPCIDsToTalkToPrompt();
-            } else {
-                context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoCitizens"));
-                return new CreateStagePrompt(stageNum, questFactory, citizens);
             }
+            context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoCitizens"));
+            return new CreateStagePrompt(stageNum, questFactory, citizens);
         } else if (input.equalsIgnoreCase("11")) {
             if (questFactory.quests.citizens != null) {
                 return new NPCKillListPrompt();
-            } else {
-                context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoCitizens"));
-                return new CreateStagePrompt(stageNum, questFactory, citizens);
             }
+            context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoCitizens"));
+            return new CreateStagePrompt(stageNum, questFactory, citizens);
         } else if (input.equalsIgnoreCase("12")) {
             return new MobListPrompt();
         } else if (input.equalsIgnoreCase("13")) {
@@ -418,18 +516,16 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
             return new DelayPrompt();
         } else if (input.equalsIgnoreCase("18")) {
             if (context.getSessionData(pref + CK.S_DELAY) == null) {
-                context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoDelaySet"));
+                context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoDelaySet"));
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
-            } else {
-                return new DelayMessagePrompt();
             }
+            return new DelayMessagePrompt();
         } else if (input.equalsIgnoreCase("19")) {
             if (questFactory.quests.denizen == null) {
-                context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoDenizen"));
+                context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoDenizen"));
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
-            } else {
-                return new DenizenPrompt();
             }
+            return new DenizenPrompt();
         } else if (input.equalsIgnoreCase("20")) {
             return new PasswordListPrompt();
         } else if (input.equalsIgnoreCase("21")) {
@@ -449,9 +545,9 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         }
 
     }
-    
+
     private class PasswordListPrompt extends FixedSetPrompt {
-        
+
         public PasswordListPrompt() {
 
             super("1", "2", "3", "4");
@@ -461,42 +557,49 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GOLD + "- Password Objectives -\n";
+            String text = ColorUtil.GOLD + "- Password Objectives -\n";
             if (context.getSessionData(pref + CK.S_PASSWORD_DISPLAYS) == null) {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - Add password display (" + Lang.get("noneSet") + ")\n";
-                text += GRAY + "2 - " + "Add password phrase(s) (No password displays set)\n";
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW
+                        + " - Add password display (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.GRAY + "2 - " + "Add password phrase(s) (No password displays set)\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
             } else {
 
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - Add password display\n";
-                for (String display : getPasswordDisplays(context)) {
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW
+                        + " - Add password display\n";
+                for (final String display: getPasswordDisplays(context)) {
 
-                    text += GRAY + "    - " + AQUA + display + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + display + "\n";
 
                 }
 
                 if (context.getSessionData(pref + CK.S_PASSWORD_PHRASES) == null) {
-                    text += YELLOW + "2 - " + "Add password phrase(s) (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.YELLOW + "2 - " + "Add password phrase(s) (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += YELLOW + "2 - " + "Add password phrase(s)\n";
-                    for (LinkedList<String> phraseList : getPasswordPhrases(context)) {
-                        
-                        text += GRAY + "    - ";
-                        for(String s : phraseList){
-                            if(phraseList.getLast().equals(s) == false)
-                                text += DARKAQUA + s + GRAY + "|";
-                            else
-                                text += DARKAQUA + s + "\n";
+                    text += ColorUtil.YELLOW + "2 - " + "Add password phrase(s)\n";
+                    for (final LinkedList<String> phraseList: getPasswordPhrases(context)) {
+
+                        text += ColorUtil.GRAY + "    - ";
+                        for (final String s: phraseList) {
+                            if (phraseList.getLast().equals(s) == false) {
+                                text += ColorUtil.DARKAQUA + s + ColorUtil.GRAY + "|";
+                            } else {
+                                text += ColorUtil.DARKAQUA + s + "\n";
+                            }
                         }
 
                     }
 
                 }
 
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
 
             }
 
@@ -504,6 +607,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String input) {
 
@@ -511,13 +615,13 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new PasswordDisplayPrompt();
             } else if (input.equalsIgnoreCase("2")) {
                 if (context.getSessionData(pref + CK.S_PASSWORD_DISPLAYS) == null) {
-                    context.getForWhom().sendRawMessage(RED + "You must add at least one password display first!");
+                    context.getForWhom().sendRawMessage(
+                            ColorUtil.RED + "You must add at least one password display first!");
                     return new PasswordListPrompt();
-                } else {
-                    return new PasswordPhrasePrompt();
                 }
+                return new PasswordPhrasePrompt();
             } else if (input.equalsIgnoreCase("3")) {
-                context.getForWhom().sendRawMessage(YELLOW + "Password Objectives cleared.");
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + "Password Objectives cleared.");
                 context.setSessionData(pref + CK.S_PASSWORD_DISPLAYS, null);
                 context.setSessionData(pref + CK.S_PASSWORD_PHRASES, null);
                 return new PasswordListPrompt();
@@ -533,122 +637,133 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 }
 
                 if (context.getSessionData(pref + CK.S_PASSWORD_PHRASES) != null) {
-                    two = ((LinkedList<LinkedList<String>>) context.getSessionData(pref + CK.S_PASSWORD_PHRASES)).size();
+                    two = ((LinkedList<LinkedList<String>>) context.getSessionData(pref + CK.S_PASSWORD_PHRASES))
+                            .size();
                 } else {
                     two = 0;
                 }
 
                 if (one == two) {
                     return new CreateStagePrompt(stageNum, questFactory, citizens);
-                } else {
-                    context.getForWhom().sendRawMessage(RED + "The password display and password phrase lists are not the same size!");
-                    return new PasswordListPrompt();
                 }
+                context.getForWhom().sendRawMessage(
+                        ColorUtil.RED + "The password display and password phrase lists are not the same size!");
+                return new PasswordListPrompt();
             }
             return null;
 
         }
-        
+
+        @SuppressWarnings("unchecked")
         private List<String> getPasswordDisplays(ConversationContext context) {
             return (List<String>) context.getSessionData(pref + CK.S_PASSWORD_DISPLAYS);
         }
 
+        @SuppressWarnings("unchecked")
         private LinkedList<LinkedList<String>> getPasswordPhrases(ConversationContext context) {
             return (LinkedList<LinkedList<String>>) context.getSessionData(pref + CK.S_PASSWORD_PHRASES);
         }
-        
+
     }
-    
+
     private class PasswordDisplayPrompt extends StringPrompt {
 
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = YELLOW + "Enter a password display, or 'cancel' to return\n";
-            text += ITALIC + "" + GOLD + "(This is the text that will be displayed to the player as their objective)";
+            String text = ColorUtil.YELLOW + "Enter a password display, or 'cancel' to return\n";
+            text += ColorUtil.ITALIC + "" + ColorUtil.GOLD
+                    + "(This is the text that will be displayed to the player as their objective)";
 
             return text;
 
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
             if (input.equalsIgnoreCase("cancel") == false) {
-                
-                if(context.getSessionData(pref + CK.S_PASSWORD_DISPLAYS) != null) {
-                    
-                    List<String> displays = (List<String>) context.getSessionData(pref + CK.S_PASSWORD_DISPLAYS);
+
+                if (context.getSessionData(pref + CK.S_PASSWORD_DISPLAYS) != null) {
+
+                    final List<String> displays = (List<String>) context.getSessionData(pref + CK.S_PASSWORD_DISPLAYS);
                     displays.add(input);
                     context.setSessionData(pref + CK.S_PASSWORD_DISPLAYS, displays);
-                    
+
                 } else {
-                    
-                    List<String> displays = new LinkedList<String>();
+
+                    final List<String> displays = new LinkedList<String>();
                     displays.add(input);
                     context.setSessionData(pref + CK.S_PASSWORD_DISPLAYS, displays);
-                    
+
                 }
-                
+
             }
-            
+
             return new PasswordListPrompt();
 
         }
-        
+
     }
-    
+
     private class PasswordPhrasePrompt extends StringPrompt {
 
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = YELLOW + "Enter a password phrase, or 'cancel' to return\n";
-            text += ITALIC + "" + GOLD + "(This is the text that a player has to say to complete the objective)\n";
-            text += RESET + "" + YELLOW + "If you want multiple password phrases, seperate them by a | (pipe)";
+            String text = ColorUtil.YELLOW + "Enter a password phrase, or 'cancel' to return\n";
+            text += ColorUtil.ITALIC + "" + ColorUtil.GOLD
+                    + "(This is the text that a player has to say to complete the objective)\n";
+            text += ColorUtil.RESET + "" + ColorUtil.YELLOW
+                    + "If you want multiple password phrases, seperate them by a | (pipe)";
 
             return text;
 
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
             if (input.equalsIgnoreCase("cancel") == false) {
-                
-                if(context.getSessionData(pref + CK.S_PASSWORD_PHRASES) != null) {
-                    
-                    LinkedList<LinkedList<String>> phrases = (LinkedList<LinkedList<String>>) context.getSessionData(pref + CK.S_PASSWORD_PHRASES);
-                    LinkedList<String> newPhrases = new LinkedList<String>();
+
+                if (context.getSessionData(pref + CK.S_PASSWORD_PHRASES) != null) {
+
+                    final LinkedList<LinkedList<String>> phrases = (LinkedList<LinkedList<String>>) context
+                            .getSessionData(pref + CK.S_PASSWORD_PHRASES);
+                    final LinkedList<String> newPhrases = new LinkedList<String>();
                     newPhrases.addAll(Arrays.asList(input.split("\\|")));
                     phrases.add(newPhrases);
                     context.setSessionData(pref + CK.S_PASSWORD_PHRASES, phrases);
-                    
+
                 } else {
-                    
-                    LinkedList<LinkedList<String>> phrases = new LinkedList<LinkedList<String>>();
-                    LinkedList<String> newPhrases = new LinkedList<String>();
+
+                    final LinkedList<LinkedList<String>> phrases = new LinkedList<LinkedList<String>>();
+                    final LinkedList<String> newPhrases = new LinkedList<String>();
                     newPhrases.addAll(Arrays.asList(input.split("\\|")));
                     phrases.add(newPhrases);
                     context.setSessionData(pref + CK.S_PASSWORD_PHRASES, phrases);
-                    
+
                 }
-                
+
             }
-            
+
             return new PasswordListPrompt();
 
         }
-        
+
     }
-    
+
     private class OverrideDisplayPrompt extends StringPrompt {
 
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = YELLOW + "Enter objective display override, or 'clear' to clear the override, or 'cancel' to return.\n";
-            text += ITALIC + "" + GOLD + "(The objective display override will show up as the players current objective)";
+            String text = ColorUtil.YELLOW
+                    + "Enter objective display override, or 'clear' to clear the override, or 'cancel' to return.\n";
+            text += ColorUtil.ITALIC + "" + ColorUtil.GOLD
+                    + "(The objective display override will show up as the players current objective)";
 
             return text;
 
@@ -658,20 +773,20 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         public Prompt acceptInput(ConversationContext context, String input) {
 
             if (input.equalsIgnoreCase("clear") == false && input.equalsIgnoreCase("cancel") == false) {
-                
+
                 context.setSessionData(pref + CK.S_OVERRIDE_DISPLAY, input);
-                
-            }else if(input.equalsIgnoreCase("clear")) {
-                
+
+            } else if (input.equalsIgnoreCase("clear")) {
+
                 context.setSessionData(pref + CK.S_OVERRIDE_DISPLAY, null);
-                context.getForWhom().sendRawMessage(YELLOW + "Objective display override cleared.");
-                
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + "Objective display override cleared.");
+
             }
-            
+
             return new CreateStagePrompt(stageNum, questFactory, citizens);
 
         }
-        
+
     }
 
     private class BreakBlockListPrompt extends FixedSetPrompt {
@@ -685,36 +800,45 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GOLD + "- " + Lang.get("stageEditorBreakBlocks") + " -\n";
+            String text = ColorUtil.GOLD + "- " + Lang.get("stageEditorBreakBlocks") + " -\n";
             if (context.getSessionData(pref + CK.S_BREAK_IDS) == null) {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetBlockIds") + " (" + Lang.get("noneSet") + ")\n";
-                text += GRAY + "2 - " + Lang.get("stageEditorSetBlockAmounts") + " (" + Lang.get("noIdsSet") + ")\n";
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetBlockIds") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.GRAY + "2 - " + Lang.get("stageEditorSetBlockAmounts") + " (" + Lang.get("noIdsSet")
+                        + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
             } else {
 
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetBlockIds") + "\n";
-                for (Integer i : getBlockIds(context)) {
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetBlockIds") + "\n";
+                for (final Integer i: getBlockIds(context)) {
 
-                    text += GRAY + "    - " + AQUA + Quester.prettyItemString(i) + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + Quester.prettyItemString(i) + "\n";
 
                 }
 
                 if (context.getSessionData(pref + CK.S_BREAK_AMOUNTS) == null) {
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetBlockAmounts") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetBlockAmounts") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetBlockAmounts") + "\n";
-                    for (Integer i : getBlockAmounts(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetBlockAmounts") + "\n";
+                    for (final Integer i: getBlockAmounts(context)) {
 
-                        text += GRAY + "    - " + AQUA + i + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + i + "\n";
 
                     }
 
                 }
 
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
 
             }
 
@@ -722,6 +846,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String input) {
 
@@ -729,13 +854,12 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new BreakBlockIdsPrompt();
             } else if (input.equalsIgnoreCase("2")) {
                 if (context.getSessionData(pref + CK.S_BREAK_IDS) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoBlockIds"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoBlockIds"));
                     return new BreakBlockListPrompt();
-                } else {
-                    return new BreakBlockAmountsPrompt();
                 }
+                return new BreakBlockAmountsPrompt();
             } else if (input.equalsIgnoreCase("3")) {
-                context.getForWhom().sendRawMessage(YELLOW + Lang.get("stageEditorBreakBlocksCleared"));
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + Lang.get("stageEditorBreakBlocksCleared"));
                 context.setSessionData(pref + CK.S_BREAK_IDS, null);
                 context.setSessionData(pref + CK.S_BREAK_AMOUNTS, null);
                 return new BreakBlockListPrompt();
@@ -758,19 +882,20 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
                 if (one == two) {
                     return new CreateStagePrompt(stageNum, questFactory, citizens);
-                } else {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorListNotSameSize"));
-                    return new BreakBlockListPrompt();
                 }
+                context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorListNotSameSize"));
+                return new BreakBlockListPrompt();
             }
             return null;
 
         }
 
+        @SuppressWarnings("unchecked")
         private List<Integer> getBlockIds(ConversationContext context) {
             return (List<Integer>) context.getSessionData(pref + CK.S_BREAK_IDS);
         }
 
+        @SuppressWarnings("unchecked")
         private List<Integer> getBlockAmounts(ConversationContext context) {
             return (List<Integer>) context.getSessionData(pref + CK.S_BREAK_AMOUNTS);
         }
@@ -780,17 +905,18 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorEnterBlockIds");
+            return ColorUtil.YELLOW + Lang.get("stageEditorEnterBlockIds");
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> ids = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> ids = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
@@ -799,17 +925,20 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                             if (ids.contains(Integer.parseInt(s)) == false) {
                                 ids.add(Integer.parseInt(s));
                             } else {
-                                context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorContainsDuplicates"));
+                                context.getForWhom().sendRawMessage(
+                                        ColorUtil.RED + Lang.get("stageEditorContainsDuplicates"));
                                 return new BreakBlockIdsPrompt();
                             }
 
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + s + RED + " " + Lang.get("stageEditorInvalidBlockID"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + s + ColorUtil.RED + " " + Lang.get("stageEditorInvalidBlockID"));
                             return new BreakBlockIdsPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
-                        context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNotListofNumbers") + "\n" + PINK + s);
+                    } catch (final NumberFormatException e) {
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.RED + Lang.get("stageEditorNotListofNumbers") + "\n" + ColorUtil.PINK + s);
                         return new BreakBlockIdsPrompt();
                     }
 
@@ -828,7 +957,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorBreakBlocksPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorBreakBlocksPrompt");
         }
 
         @Override
@@ -836,21 +965,24 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> amounts = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> amounts = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
                         if (Integer.parseInt(s) > 0) {
                             amounts.add(Integer.parseInt(s));
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + s + RED + " " + Lang.get("stageEditortNotGreaterThanZero"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + s + ColorUtil.RED + " "
+                                            + Lang.get("stageEditortNotGreaterThanZero"));
                             return new BreakBlockAmountsPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                    } catch (final NumberFormatException e) {
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new BreakBlockAmountsPrompt();
                     }
 
@@ -876,36 +1008,45 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GOLD + "- " + Lang.get("stageEditorDamageBlocks") + " -\n";
+            String text = ColorUtil.GOLD + "- " + Lang.get("stageEditorDamageBlocks") + " -\n";
             if (context.getSessionData(pref + CK.S_DAMAGE_IDS) == null) {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetBlockIds") + " (" + Lang.get("noneSet") + ")\n";
-                text += GRAY + "2 - " + Lang.get("stageEditorSetDamageAmounts") + " (" + Lang.get("noIdsSet") + ")\n";
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetBlockIds") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.GRAY + "2 - " + Lang.get("stageEditorSetDamageAmounts") + " (" + Lang.get("noIdsSet")
+                        + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
             } else {
 
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetBlockIds") + "\n";
-                for (Integer i : getBlockIds(context)) {
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetBlockIds") + "\n";
+                for (final Integer i: getBlockIds(context)) {
 
-                    text += GRAY + "    - " + AQUA + Quester.prettyItemString(i) + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + Quester.prettyItemString(i) + "\n";
 
                 }
 
                 if (context.getSessionData(pref + CK.S_DAMAGE_AMOUNTS) == null) {
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetDamageAmounts") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetDamageAmounts") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetDamageAmounts") + "\n";
-                    for (Integer i : getBlockAmounts(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetDamageAmounts") + "\n";
+                    for (final Integer i: getBlockAmounts(context)) {
 
-                        text += GRAY + "    - " + AQUA + i + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + i + "\n";
 
                     }
 
                 }
 
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
 
             }
 
@@ -913,6 +1054,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String input) {
 
@@ -920,13 +1062,12 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new DamageBlockIdsPrompt();
             } else if (input.equalsIgnoreCase("2")) {
                 if (context.getSessionData(pref + CK.S_DAMAGE_IDS) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoBlockIds"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoBlockIds"));
                     return new DamageBlockListPrompt();
-                } else {
-                    return new DamageBlockAmountsPrompt();
                 }
+                return new DamageBlockAmountsPrompt();
             } else if (input.equalsIgnoreCase("3")) {
-                context.getForWhom().sendRawMessage(YELLOW + Lang.get("stageEditorDamageBlocksCleared"));
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + Lang.get("stageEditorDamageBlocksCleared"));
                 context.setSessionData(pref + CK.S_DAMAGE_IDS, null);
                 context.setSessionData(pref + CK.S_DAMAGE_AMOUNTS, null);
                 return new DamageBlockListPrompt();
@@ -949,19 +1090,20 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
                 if (one == two) {
                     return new CreateStagePrompt(stageNum, questFactory, citizens);
-                } else {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorListNotSameSize"));
-                    return new DamageBlockListPrompt();
                 }
+                context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorListNotSameSize"));
+                return new DamageBlockListPrompt();
             }
             return null;
 
         }
 
+        @SuppressWarnings("unchecked")
         private List<Integer> getBlockIds(ConversationContext context) {
             return (List<Integer>) context.getSessionData(pref + CK.S_DAMAGE_IDS);
         }
 
+        @SuppressWarnings("unchecked")
         private List<Integer> getBlockAmounts(ConversationContext context) {
             return (List<Integer>) context.getSessionData(pref + CK.S_DAMAGE_AMOUNTS);
         }
@@ -971,17 +1113,18 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorEnterBlockIds");
+            return ColorUtil.YELLOW + Lang.get("stageEditorEnterBlockIds");
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> ids = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> ids = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
@@ -990,17 +1133,20 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                             if (ids.contains(Integer.parseInt(s)) == false) {
                                 ids.add(Integer.parseInt(s));
                             } else {
-                                context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorListContainsDuplicates"));
+                                context.getForWhom().sendRawMessage(
+                                        ColorUtil.RED + Lang.get("stageEditorListContainsDuplicates"));
                                 return new DamageBlockIdsPrompt();
                             }
 
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + s + RED + " " + Lang.get("stageEditorInvalidBlockID"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + s + ColorUtil.RED + " " + Lang.get("stageEditorInvalidBlockID"));
                             return new DamageBlockIdsPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                    } catch (final NumberFormatException e) {
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new DamageBlockIdsPrompt();
                     }
 
@@ -1019,7 +1165,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorDamageBlocksPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorDamageBlocksPrompt");
         }
 
         @Override
@@ -1027,21 +1173,24 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> amounts = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> amounts = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
                         if (Integer.parseInt(s) > 0) {
                             amounts.add(Integer.parseInt(s));
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + s + RED + " " + Lang.get("stageEditorNotGreaterThanZero"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + s + ColorUtil.RED + " "
+                                            + Lang.get("stageEditorNotGreaterThanZero"));
                             return new DamageBlockAmountsPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                    } catch (final NumberFormatException e) {
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new DamageBlockAmountsPrompt();
                     }
 
@@ -1067,36 +1216,45 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GOLD + "- " + Lang.get("stageEditorPlaceBlocks") + " -\n";
+            String text = ColorUtil.GOLD + "- " + Lang.get("stageEditorPlaceBlocks") + " -\n";
             if (context.getSessionData(pref + CK.S_PLACE_IDS) == null) {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetBlockIds") + " (" + Lang.get("noneSet") + ")\n";
-                text += GRAY + "2 - " + Lang.get("stageEditorSetPlaceAmounts") + " (" + Lang.get("noIdsSet") + ")\n";
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetBlockIds") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.GRAY + "2 - " + Lang.get("stageEditorSetPlaceAmounts") + " (" + Lang.get("noIdsSet")
+                        + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
             } else {
 
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetBlockIds") + "\n";
-                for (Integer i : getBlockIds(context)) {
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetBlockIds") + "\n";
+                for (final Integer i: getBlockIds(context)) {
 
-                    text += GRAY + "    - " + AQUA + Quester.prettyItemString(i) + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + Quester.prettyItemString(i) + "\n";
 
                 }
 
                 if (context.getSessionData(pref + CK.S_PLACE_AMOUNTS) == null) {
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetPlaceAmounts") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetPlaceAmounts") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + "stageEditorSetPlaceAmounts" + "\n";
-                    for (Integer i : getBlockAmounts(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + "stageEditorSetPlaceAmounts" + "\n";
+                    for (final Integer i: getBlockAmounts(context)) {
 
-                        text += GRAY + "    - " + AQUA + i + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + i + "\n";
 
                     }
 
                 }
 
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
 
             }
 
@@ -1104,6 +1262,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String input) {
 
@@ -1111,13 +1270,13 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new PlaceBlockIdsPrompt();
             } else if (input.equalsIgnoreCase("2")) {
                 if (context.getSessionData(pref + CK.S_PLACE_IDS) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoBlockIds"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoBlockIds"));
                     return new PlaceBlockListPrompt();
                 } else {
                     return new PlaceBlockAmountsPrompt();
                 }
             } else if (input.equalsIgnoreCase("3")) {
-                context.getForWhom().sendRawMessage(YELLOW + Lang.get("stageEditorPlaceBlocksCleared"));
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + Lang.get("stageEditorPlaceBlocksCleared"));
                 context.setSessionData(pref + CK.S_PLACE_IDS, null);
                 context.setSessionData(pref + CK.S_PLACE_AMOUNTS, null);
                 return new PlaceBlockListPrompt();
@@ -1140,19 +1299,20 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
                 if (one == two) {
                     return new CreateStagePrompt(stageNum, questFactory, citizens);
-                } else {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorListNotSameSize"));
-                    return new PlaceBlockListPrompt();
                 }
+                context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorListNotSameSize"));
+                return new PlaceBlockListPrompt();
             }
             return null;
 
         }
 
+        @SuppressWarnings("unchecked")
         private List<Integer> getBlockIds(ConversationContext context) {
             return (List<Integer>) context.getSessionData(pref + CK.S_PLACE_IDS);
         }
 
+        @SuppressWarnings("unchecked")
         private List<Integer> getBlockAmounts(ConversationContext context) {
             return (List<Integer>) context.getSessionData(pref + CK.S_PLACE_AMOUNTS);
         }
@@ -1162,7 +1322,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorEnterBlockIds");
+            return ColorUtil.YELLOW + Lang.get("stageEditorEnterBlockIds");
         }
 
         @Override
@@ -1170,9 +1330,9 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> ids = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> ids = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
@@ -1181,17 +1341,20 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                             if (ids.contains(Integer.parseInt(s)) == false) {
                                 ids.add(Integer.parseInt(s));
                             } else {
-                                context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorListContainsDuplicates"));
+                                context.getForWhom().sendRawMessage(
+                                        ColorUtil.RED + Lang.get("stageEditorListContainsDuplicates"));
                                 return new PlaceBlockIdsPrompt();
                             }
 
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorInvalidBlockID"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorInvalidBlockID"));
                             return new PlaceBlockIdsPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                    } catch (final NumberFormatException e) {
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new PlaceBlockIdsPrompt();
                     }
 
@@ -1210,7 +1373,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorPlaceBlocksPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorPlaceBlocksPrompt");
         }
 
         @Override
@@ -1218,21 +1381,24 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> amounts = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> amounts = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
                         if (Integer.parseInt(s) > 0) {
                             amounts.add(Integer.parseInt(s));
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + s + RED + " " + Lang.get("stageEditorNotGreaterThanZero"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + s + ColorUtil.RED + " "
+                                            + Lang.get("stageEditorNotGreaterThanZero"));
                             return new PlaceBlockAmountsPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                    } catch (final NumberFormatException e) {
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new PlaceBlockAmountsPrompt();
                     }
 
@@ -1258,36 +1424,45 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GOLD + "- Use Blocks -\n";
+            String text = ColorUtil.GOLD + "- Use Blocks -\n";
             if (context.getSessionData(pref + CK.S_USE_IDS) == null) {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetBlockIds") + " (" + Lang.get("noneSet") + ")\n";
-                text += GRAY + "2 - " + Lang.get("stageEditorSetUseAmounts") + " (" + Lang.get("noIdsSet") + ")\n";
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetBlockIds") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.GRAY + "2 - " + Lang.get("stageEditorSetUseAmounts") + " (" + Lang.get("noIdsSet")
+                        + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
             } else {
 
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetBlockIds") + "\n";
-                for (Integer i : getBlockIds(context)) {
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetBlockIds") + "\n";
+                for (final Integer i: getBlockIds(context)) {
 
-                    text += GRAY + "    - " + AQUA + Quester.prettyItemString(i) + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + Quester.prettyItemString(i) + "\n";
 
                 }
 
                 if (context.getSessionData(pref + CK.S_USE_AMOUNTS) == null) {
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetUseAmounts") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetUseAmounts") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetUseAmounts") + "\n";
-                    for (Integer i : getBlockAmounts(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetUseAmounts") + "\n";
+                    for (final Integer i: getBlockAmounts(context)) {
 
-                        text += GRAY + "    - " + AQUA + i + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + i + "\n";
 
                     }
 
                 }
 
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
 
             }
 
@@ -1302,13 +1477,13 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new UseBlockIdsPrompt();
             } else if (input.equalsIgnoreCase("2")) {
                 if (context.getSessionData(pref + CK.S_USE_IDS) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoBlockIds"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoBlockIds"));
                     return new UseBlockListPrompt();
                 } else {
                     return new UseBlockAmountsPrompt();
                 }
             } else if (input.equalsIgnoreCase("3")) {
-                context.getForWhom().sendRawMessage(YELLOW + Lang.get("stageEditorUseBlocksCleared"));
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + Lang.get("stageEditorUseBlocksCleared"));
                 context.setSessionData(pref + CK.S_USE_IDS, null);
                 context.setSessionData(pref + CK.S_USE_AMOUNTS, null);
                 return new UseBlockListPrompt();
@@ -1332,7 +1507,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 if (one == two) {
                     return new CreateStagePrompt(stageNum, questFactory, citizens);
                 } else {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorListNotSameSize"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorListNotSameSize"));
                     return new UseBlockListPrompt();
                 }
             }
@@ -1353,7 +1528,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorEnterBlockIds");
+            return ColorUtil.YELLOW + Lang.get("stageEditorEnterBlockIds");
         }
 
         @Override
@@ -1361,9 +1536,9 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> ids = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> ids = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
@@ -1372,17 +1547,20 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                             if (ids.contains(Integer.parseInt(s)) == false) {
                                 ids.add(Integer.parseInt(s));
                             } else {
-                                context.getForWhom().sendRawMessage(RED + " " + Lang.get("stageEditorContainsDuplicates"));
+                                context.getForWhom().sendRawMessage(
+                                        ColorUtil.RED + " " + Lang.get("stageEditorContainsDuplicates"));
                                 return new UseBlockIdsPrompt();
                             }
 
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + s + RED + " " + Lang.get("stageEditorInvalidBlockID"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + s + ColorUtil.RED + " " + Lang.get("stageEditorInvalidBlockID"));
                             return new UseBlockIdsPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                    } catch (final NumberFormatException e) {
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new UseBlockIdsPrompt();
                     }
 
@@ -1401,7 +1579,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorUseBlocksPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorUseBlocksPrompt");
         }
 
         @Override
@@ -1409,21 +1587,24 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> amounts = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> amounts = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
                         if (Integer.parseInt(s) > 0) {
                             amounts.add(Integer.parseInt(s));
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + s + RED + " " + Lang.get("stageEditorNotGreaterThanZero"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + s + ColorUtil.RED + " "
+                                            + Lang.get("stageEditorNotGreaterThanZero"));
                             return new UseBlockAmountsPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                    } catch (final NumberFormatException e) {
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new UseBlockAmountsPrompt();
                     }
 
@@ -1449,36 +1630,45 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GOLD + "- " + Lang.get("stageEditorCutBlocks") + " -\n";
+            String text = ColorUtil.GOLD + "- " + Lang.get("stageEditorCutBlocks") + " -\n";
             if (context.getSessionData(pref + CK.S_CUT_IDS) == null) {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetBlockIds") + " (" + Lang.get("noneSet") + ")\n";
-                text += GRAY + "2 - " + Lang.get("stageEditorSetCutAmounts") + " (" + Lang.get("noIdsSet") + ")\n";
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetBlockIds") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.GRAY + "2 - " + Lang.get("stageEditorSetCutAmounts") + " (" + Lang.get("noIdsSet")
+                        + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
             } else {
 
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetBlockIds") + "\n";
-                for (Integer i : getBlockIds(context)) {
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetBlockIds") + "\n";
+                for (final Integer i: getBlockIds(context)) {
 
-                    text += GRAY + "    - " + AQUA + Quester.prettyItemString(i) + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + Quester.prettyItemString(i) + "\n";
 
                 }
 
                 if (context.getSessionData(pref + CK.S_CUT_AMOUNTS) == null) {
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetCutAmounts") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetCutAmounts") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetCutAmounts") + "\n";
-                    for (Integer i : getBlockAmounts(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetCutAmounts") + "\n";
+                    for (final Integer i: getBlockAmounts(context)) {
 
-                        text += GRAY + "    - " + AQUA + i + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + i + "\n";
 
                     }
 
                 }
 
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
 
             }
 
@@ -1493,13 +1683,13 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new CutBlockIdsPrompt();
             } else if (input.equalsIgnoreCase("2")) {
                 if (context.getSessionData(pref + CK.S_CUT_IDS) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoBlockIds"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoBlockIds"));
                     return new CutBlockListPrompt();
                 } else {
                     return new CutBlockAmountsPrompt();
                 }
             } else if (input.equalsIgnoreCase("3")) {
-                context.getForWhom().sendRawMessage(YELLOW + Lang.get("stageEditorCutBlocksCleared"));
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + Lang.get("stageEditorCutBlocksCleared"));
                 context.setSessionData(pref + CK.S_CUT_IDS, null);
                 context.setSessionData(pref + CK.S_CUT_AMOUNTS, null);
                 return new CutBlockListPrompt();
@@ -1523,7 +1713,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 if (one == two) {
                     return new CreateStagePrompt(stageNum, questFactory, citizens);
                 } else {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorListNotSameSize"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorListNotSameSize"));
                     return new CutBlockListPrompt();
                 }
             }
@@ -1544,7 +1734,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorEnterBlockIds");
+            return ColorUtil.YELLOW + Lang.get("stageEditorEnterBlockIds");
         }
 
         @Override
@@ -1552,9 +1742,9 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> ids = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> ids = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
@@ -1563,17 +1753,20 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                             if (ids.contains(Integer.parseInt(s)) == false) {
                                 ids.add(Integer.parseInt(s));
                             } else {
-                                context.getForWhom().sendRawMessage(RED + " " + Lang.get("stageEditorListContainsDuplicates"));
+                                context.getForWhom().sendRawMessage(
+                                        ColorUtil.RED + " " + Lang.get("stageEditorListContainsDuplicates"));
                                 return new CutBlockIdsPrompt();
                             }
 
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + s + RED + " " + Lang.get("stageEditorInvalidBlockID"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + s + ColorUtil.RED + " " + Lang.get("stageEditorInvalidBlockID"));
                             return new CutBlockIdsPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                    } catch (final NumberFormatException e) {
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new CutBlockIdsPrompt();
                     }
 
@@ -1592,7 +1785,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorCutBlocksPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorCutBlocksPrompt");
         }
 
         @Override
@@ -1600,21 +1793,24 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> amounts = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> amounts = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
                         if (Integer.parseInt(s) > 0) {
                             amounts.add(Integer.parseInt(s));
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + s + RED + " " + Lang.get("stageEditorNotGreaterThanZero"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + s + ColorUtil.RED + " "
+                                            + Lang.get("stageEditorNotGreaterThanZero"));
                             return new CutBlockAmountsPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                    } catch (final NumberFormatException e) {
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new CutBlockAmountsPrompt();
                     }
 
@@ -1633,17 +1829,17 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorCatchFishPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorCatchFishPrompt");
         }
 
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, Number number) {
 
-            int num = number.intValue();
-            Player player = (Player) context.getForWhom();
+            final int num = number.intValue();
+            final Player player = (Player) context.getForWhom();
 
             if (num < -1) {
-                player.sendMessage(RED + Lang.get("stageEditorPositiveAmount"));
+                player.sendMessage(ColorUtil.RED + Lang.get("stageEditorPositiveAmount"));
                 return new FishPrompt();
             } else if (num == 0) {
                 context.setSessionData(pref + CK.S_FISH, null);
@@ -1660,17 +1856,17 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorKillPlayerPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorKillPlayerPrompt");
         }
 
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, Number number) {
 
-            int num = number.intValue();
-            Player player = (Player) context.getForWhom();
+            final int num = number.intValue();
+            final Player player = (Player) context.getForWhom();
 
             if (num < -1) {
-                player.sendMessage(RED + Lang.get("stageEditorPositiveAmount"));
+                player.sendMessage(ColorUtil.RED + Lang.get("stageEditorPositiveAmount"));
                 return new KillPlayerPrompt();
             } else if (num == 0) {
                 context.setSessionData(pref + CK.S_PLAYER_KILL, null);
@@ -1694,50 +1890,62 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GOLD + "- " + Lang.get("stageEditorEnchantItems") + " -\n";
+            String text = ColorUtil.GOLD + "- " + Lang.get("stageEditorEnchantItems") + " -\n";
             if (context.getSessionData(pref + CK.S_ENCHANT_TYPES) == null) {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetEnchantments") + " (" + Lang.get("noneSet") + ")\n";
-                text += GRAY + "2 - " + Lang.get("stageEditorSetItemIds") + " (" + Lang.get("stageEditorNoEnchantmentsSet") + ")\n";
-                text += GRAY + "3 - " + Lang.get("stageEditorSetEnchantAmounts") + " (" + Lang.get("stageEditorNoEnchantmentsSet") + ")\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "5" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetEnchantments") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.GRAY + "2 - " + Lang.get("stageEditorSetItemIds") + " ("
+                        + Lang.get("stageEditorNoEnchantmentsSet") + ")\n";
+                text += ColorUtil.GRAY + "3 - " + Lang.get("stageEditorSetEnchantAmounts") + " ("
+                        + Lang.get("stageEditorNoEnchantmentsSet") + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "5" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
             } else {
 
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetEnchantments") + "\n";
-                for (String s : getEnchantTypes(context)) {
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetEnchantments") + "\n";
+                for (final String s: getEnchantTypes(context)) {
 
-                    text += GRAY + "    - " + AQUA + s + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + s + "\n";
 
                 }
 
                 if (context.getSessionData(pref + CK.S_ENCHANT_IDS) == null) {
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetItemIds") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetItemIds") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetItemIds") + "\n";
-                    for (Integer i : getEnchantItems(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetItemIds") + "\n";
+                    for (final Integer i: getEnchantItems(context)) {
 
-                        text += GRAY + "    - " + AQUA + Quester.prettyItemString(i) + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + Quester.prettyItemString(i) + "\n";
 
                     }
 
                 }
 
                 if (context.getSessionData(pref + CK.S_ENCHANT_AMOUNTS) == null) {
-                    text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("stageEditorSetEnchantAmounts") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetEnchantAmounts") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("stageEditorSetEnchantAmounts") + "\n";
-                    for (int i : getEnchantAmounts(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetEnchantAmounts") + "\n";
+                    for (final int i: getEnchantAmounts(context)) {
 
-                        text += GRAY + "    - " + AQUA + i + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + i + "\n";
 
                     }
 
                 }
 
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "5" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "5" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
 
             }
 
@@ -1752,20 +1960,20 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new EnchantTypesPrompt();
             } else if (input.equalsIgnoreCase("2")) {
                 if (context.getSessionData(pref + CK.S_ENCHANT_TYPES) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoEnchantments"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoEnchantments"));
                     return new EnchantmentListPrompt();
                 } else {
                     return new EnchantItemsPrompt();
                 }
             } else if (input.equalsIgnoreCase("3")) {
                 if (context.getSessionData(pref + CK.S_ENCHANT_TYPES) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoEnchantments"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoEnchantments"));
                     return new EnchantmentListPrompt();
                 } else {
                     return new EnchantAmountsPrompt();
                 }
             } else if (input.equalsIgnoreCase("4")) {
-                context.getForWhom().sendRawMessage(YELLOW + Lang.get("stageEditorEnchantmentsCleared"));
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + Lang.get("stageEditorEnchantmentsCleared"));
                 context.setSessionData(pref + CK.S_ENCHANT_TYPES, null);
                 context.setSessionData(pref + CK.S_ENCHANT_IDS, null);
                 context.setSessionData(pref + CK.S_ENCHANT_AMOUNTS, null);
@@ -1797,7 +2005,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 if (one == two && two == three) {
                     return new CreateStagePrompt(stageNum, questFactory, citizens);
                 } else {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorEnchantmentNotSameSize"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorEnchantmentNotSameSize"));
                     return new EnchantmentListPrompt();
                 }
             }
@@ -1824,15 +2032,16 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = PINK + "- " + PURPLE + Lang.get("stageEditorEnchantments") + PINK + " -\n";
-            for (Enchantment e : Enchantment.values()) {
+            String text = ColorUtil.PINK + "- " + ColorUtil.PURPLE + Lang.get("stageEditorEnchantments")
+                    + ColorUtil.PINK + " -\n";
+            for (final Enchantment e: Enchantment.values()) {
 
-                text += GREEN + Quester.prettyEnchantmentString(e) + ", ";
+                text += ColorUtil.GREEN + Quester.prettyEnchantmentString(e) + ", ";
 
             }
             text = text.substring(0, text.length() - 1);
 
-            return text + "\n" + YELLOW + Lang.get("stageEditorEnchantTypePrompt");
+            return text + "\n" + ColorUtil.YELLOW + Lang.get("stageEditorEnchantTypePrompt");
 
         }
 
@@ -1841,14 +2050,14 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(",");
-                LinkedList<String> enchs = new LinkedList<String>();
+                final String[] args = input.split(",");
+                final LinkedList<String> enchs = new LinkedList<String>();
                 boolean valid;
-                for (String s : args) {
+                for (String s: args) {
 
                     s = s.trim();
                     valid = false;
-                    for (Enchantment e : Enchantment.values()) {
+                    for (final Enchantment e: Enchantment.values()) {
 
                         if (Quester.prettyEnchantmentString(e).equalsIgnoreCase(s)) {
 
@@ -1857,7 +2066,8 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                                 valid = true;
                                 break;
                             } else {
-                                context.getForWhom().sendRawMessage(RED + " " + Lang.get("stageEditorListContainsDuplicates"));
+                                context.getForWhom().sendRawMessage(
+                                        ColorUtil.RED + " " + Lang.get("stageEditorListContainsDuplicates"));
                                 return new EnchantTypesPrompt();
                             }
 
@@ -1865,7 +2075,8 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
                     }
                     if (valid == false) {
-                        context.getForWhom().sendRawMessage(PINK + s + RED + " " + Lang.get("stageEditorInvalidEnchantment"));
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + " " + Lang.get("stageEditorInvalidEnchantment"));
                         return new EnchantTypesPrompt();
                     }
 
@@ -1884,7 +2095,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorItemIDsPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorItemIDsPrompt");
         }
 
         @Override
@@ -1892,9 +2103,9 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> ids = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> ids = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
@@ -1903,17 +2114,20 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                             if (ids.contains(Integer.parseInt(s)) == false) {
                                 ids.add(Integer.parseInt(s));
                             } else {
-                                context.getForWhom().sendRawMessage(RED + " " + Lang.get("stageEditorListContainsDuplicates"));
+                                context.getForWhom().sendRawMessage(
+                                        ColorUtil.RED + " " + Lang.get("stageEditorListContainsDuplicates"));
                                 return new EnchantItemsPrompt();
                             }
 
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + s + RED + " " + Lang.get("stageEditorInvalidItemID"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + s + ColorUtil.RED + " " + Lang.get("stageEditorInvalidItemID"));
                             return new EnchantItemsPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                    } catch (final NumberFormatException e) {
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new EnchantItemsPrompt();
                     }
 
@@ -1932,7 +2146,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorEnchantAmountsPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorEnchantAmountsPrompt");
         }
 
         @Override
@@ -1940,21 +2154,24 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> amounts = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> amounts = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
                         if (Integer.parseInt(s) > 0) {
                             amounts.add(Integer.parseInt(s));
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + s + RED + " " + Lang.get("stageEditorNotGreaterThanZero"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + s + ColorUtil.RED + " "
+                                            + Lang.get("stageEditorNotGreaterThanZero"));
                             return new EnchantAmountsPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                    } catch (final NumberFormatException e) {
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new EnchantAmountsPrompt();
                     }
 
@@ -1983,11 +2200,11 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
             // Check/add newly made item
             if (context.getSessionData("newItem") != null) {
                 if (context.getSessionData(pref + CK.S_DELIVERY_ITEMS) != null) {
-                    List<ItemStack> itemRews = getItems(context);
+                    final List<ItemStack> itemRews = getItems(context);
                     itemRews.add((ItemStack) context.getSessionData("tempStack"));
                     context.setSessionData(pref + CK.S_DELIVERY_ITEMS, itemRews);
                 } else {
-                    LinkedList<ItemStack> itemRews = new LinkedList<ItemStack>();
+                    final LinkedList<ItemStack> itemRews = new LinkedList<ItemStack>();
                     itemRews.add((ItemStack) context.getSessionData("tempStack"));
                     context.setSessionData(pref + CK.S_DELIVERY_ITEMS, itemRews);
                 }
@@ -1997,19 +2214,22 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             }
 
-            String text = GOLD + "- " + Lang.get("stageEditorDeliverItems") + " -\n";
+            String text = ColorUtil.GOLD + "- " + Lang.get("stageEditorDeliverItems") + " -\n";
             if (context.getSessionData(pref + CK.S_DELIVERY_ITEMS) == null) {
-                text += GRAY + " (" + Lang.get("noneSet") + ")\n";
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorDeliveryAddItem") + "\n";
-                text += GRAY + "2 - " + Lang.get("stageEditorDeliveryNPCs") + " (" + Lang.get("stageEditorNoItemsSet") + ")\n";
+                text += ColorUtil.GRAY + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorDeliveryAddItem") + "\n";
+                text += ColorUtil.GRAY + "2 - " + Lang.get("stageEditorDeliveryNPCs") + " ("
+                        + Lang.get("stageEditorNoItemsSet") + ")\n";
                 if (context.getSessionData(pref + CK.S_DELIVERY_MESSAGES) == null) {
-                    text += BLUE + "3 - " + Lang.get("stageEditorDeliveryMessages") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "3 - " + Lang.get("stageEditorDeliveryMessages") + " ("
+                            + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "3 - " + Lang.get("stageEditorDeliveryMessages") + "\n";
-                    for (String s : getDeliveryMessages(context)) {
+                    text += ColorUtil.BLUE + "3 - " + Lang.get("stageEditorDeliveryMessages") + "\n";
+                    for (final String s: getDeliveryMessages(context)) {
 
-                        text += GRAY + "    - " + AQUA + "\"" + s + "\"";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + "\"" + s + "\"";
 
                     }
 
@@ -2017,35 +2237,39 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             } else {
 
-                for (ItemStack is : getItems(context)) {
+                for (final ItemStack is: getItems(context)) {
 
-                    text += GRAY + "    - " + ItemUtil.getDisplayString(is) + "\n";
+                    text += ColorUtil.GRAY + "    - " + ItemUtil.getDisplayString(is) + "\n";
 
                 }
 
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorDeliveryAddItem") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorDeliveryAddItem") + "\n";
 
                 if (context.getSessionData(pref + CK.S_DELIVERY_NPCS) == null) {
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorDeliveryNPCs") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorDeliveryNPCs") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorDeliveryNPCs") + "\n";
-                    for (int i : getDeliveryNPCs(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorDeliveryNPCs") + "\n";
+                    for (final int i: getDeliveryNPCs(context)) {
 
-                        text += GRAY + "    - " + AQUA + i + " (" + citizens.getNPCRegistry().getById(i).getName() + ")\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + i + " ("
+                                + citizens.getNPCRegistry().getById(i).getName() + ")\n";
 
                     }
 
                 }
 
                 if (context.getSessionData(pref + CK.S_DELIVERY_MESSAGES) == null) {
-                    text += BLUE + "3 - Set delivery messages (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "3 - Set delivery messages (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "3 - " + Lang.get("stageEditorDeliveryMessages") + "\n";
-                    for (String s : getDeliveryMessages(context)) {
+                    text += ColorUtil.BLUE + "3 - " + Lang.get("stageEditorDeliveryMessages") + "\n";
+                    for (final String s: getDeliveryMessages(context)) {
 
-                        text += GRAY + "    - " + AQUA + "\"" + s + "\"\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + "\"" + s + "\"\n";
 
                     }
 
@@ -2053,8 +2277,10 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             }
 
-            text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-            text += BLUE + "" + BOLD + "5" + RESET + YELLOW + " - " + Lang.get("done");
+            text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                    + Lang.get("clear") + "\n";
+            text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "5" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                    + Lang.get("done");
 
             return text;
 
@@ -2067,7 +2293,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new ItemStackPrompt(DeliveryListPrompt.this);
             } else if (input.equalsIgnoreCase("2")) {
                 if (context.getSessionData(pref + CK.S_DELIVERY_ITEMS) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoItems"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoItems"));
                     return new DeliveryListPrompt();
                 } else {
                     return new DeliveryNPCsPrompt();
@@ -2075,7 +2301,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
             } else if (input.equalsIgnoreCase("3")) {
                 return new DeliveryMessagesPrompt();
             } else if (input.equalsIgnoreCase("4")) {
-                context.getForWhom().sendRawMessage(YELLOW + Lang.get("stageEditorDeliveriesCleared"));
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + Lang.get("stageEditorDeliveriesCleared"));
                 context.setSessionData(pref + CK.S_DELIVERY_ITEMS, null);
                 context.setSessionData(pref + CK.S_DELIVERY_NPCS, null);
                 context.setSessionData(pref + CK.S_DELIVERY_MESSAGES, null);
@@ -2100,14 +2326,14 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 if (one == two) {
 
                     if (context.getSessionData(pref + CK.S_DELIVERY_MESSAGES) == null && one != 0) {
-                        context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoDeliveryMessage"));
+                        context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoDeliveryMessage"));
                         return new DeliveryListPrompt();
                     } else {
                         return new CreateStagePrompt(stageNum, questFactory, citizens);
                     }
 
                 } else {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorDeliveriesNotSameSize"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorDeliveriesNotSameSize"));
                     return new DeliveryListPrompt();
                 }
             }
@@ -2134,7 +2360,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
             questFactory.selectingNPCs.add((Player) context.getForWhom());
-            return YELLOW + Lang.get("stageEditorNPCPrompt") + "\n" + GOLD + Lang.get("npcHint");
+            return ColorUtil.YELLOW + Lang.get("stageEditorNPCPrompt") + "\n" + ColorUtil.GOLD + Lang.get("npcHint");
         }
 
         @Override
@@ -2142,24 +2368,26 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> npcs = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> npcs = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
-                        Integer i = Integer.parseInt(s);
+                        final Integer i = Integer.parseInt(s);
 
                         if (citizens.getNPCRegistry().getById(i) != null) {
                             npcs.add(i);
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + "" + i + RED + " " + Lang.get("stageEditorInvalidNPC"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + "" + i + ColorUtil.RED + " " + Lang.get("stageEditorInvalidNPC"));
                             return new DeliveryNPCsPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
+                    } catch (final NumberFormatException e) {
 
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new DeliveryNPCsPrompt();
 
                     }
@@ -2170,7 +2398,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             }
 
-            questFactory.selectingNPCs.remove((Player) context.getForWhom());
+            questFactory.selectingNPCs.remove(context.getForWhom());
             return new DeliveryListPrompt();
 
         }
@@ -2181,8 +2409,8 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String note = GOLD + Lang.get("stageEditorNPCNote");
-            return YELLOW + Lang.get("stageEditorDeliveryMessagesPrompt") + ".\n" + note;
+            final String note = ColorUtil.GOLD + Lang.get("stageEditorNPCNote");
+            return ColorUtil.YELLOW + Lang.get("stageEditorDeliveryMessagesPrompt") + ".\n" + note;
         }
 
         @Override
@@ -2190,8 +2418,8 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(";");
-                LinkedList<String> messages = new LinkedList<String>();
+                final String[] args = input.split(";");
+                final LinkedList<String> messages = new LinkedList<String>();
                 messages.addAll(Arrays.asList(args));
 
                 context.setSessionData(pref + CK.S_DELIVERY_MESSAGES, messages);
@@ -2209,39 +2437,43 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         public String getPromptText(ConversationContext context) {
 
             questFactory.selectingNPCs.add((Player) context.getForWhom());
-            return YELLOW + Lang.get("stageEditorNPCToTalkToPrompt") + "\n" + GOLD + Lang.get("npcHint");
+            return ColorUtil.YELLOW + Lang.get("stageEditorNPCToTalkToPrompt") + "\n" + ColorUtil.GOLD
+                    + Lang.get("npcHint");
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
+            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false
+                    && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> npcs = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> npcs = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
-                        Integer i = Integer.parseInt(s);
+                        final Integer i = Integer.parseInt(s);
 
                         if (citizens.getNPCRegistry().getById(i) != null) {
                             npcs.add(i);
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + "" + i + RED + " " + Lang.get("stageEditorInvalidNPC"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + "" + i + ColorUtil.RED + " " + Lang.get("stageEditorInvalidNPC"));
                             return new NPCIDsToTalkToPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
+                    } catch (final NumberFormatException e) {
 
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new NPCIDsToTalkToPrompt();
 
                     }
 
                 }
 
-                questFactory.selectingNPCs.remove((Player) context.getForWhom());
+                questFactory.selectingNPCs.remove(context.getForWhom());
                 context.setSessionData(pref + CK.S_NPCS_TO_TALK_TO, npcs);
 
             } else if (input.equalsIgnoreCase(Lang.get("cmdClear"))) {
@@ -2266,36 +2498,46 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GOLD + "- " + Lang.get("stageEditorKillNPCs") + " -\n";
+            String text = ColorUtil.GOLD + "- " + Lang.get("stageEditorKillNPCs") + " -\n";
             if (context.getSessionData(pref + CK.S_NPCS_TO_KILL) == null) {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetKillIds") + " (" + Lang.get("noneSet") + ")\n";
-                text += GRAY + "2 - " + Lang.get("stageEditorSetKillAmounts") + " (" + Lang.get("noIdsSet") + ")\n";
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("cancel") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetKillIds") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.GRAY + "2 - " + Lang.get("stageEditorSetKillAmounts") + " (" + Lang.get("noIdsSet")
+                        + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("cancel") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
             } else {
 
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetKillIds") + "\n";
-                for (Integer i : getNPCIds(context)) {
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetKillIds") + "\n";
+                for (final Integer i: getNPCIds(context)) {
 
-                    text += GRAY + "    - " + AQUA + citizens.getNPCRegistry().getById(i).getName() + DARKAQUA + " (" + i + ")\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + citizens.getNPCRegistry().getById(i).getName()
+                            + ColorUtil.DARKAQUA + " (" + i + ")\n";
 
                 }
 
                 if (context.getSessionData(pref + CK.S_NPCS_TO_KILL_AMOUNTS) == null) {
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetKillAmounts") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetKillAmounts") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetKillAmounts") + "\n";
-                    for (Integer i : getKillAmounts(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetKillAmounts") + "\n";
+                    for (final Integer i: getKillAmounts(context)) {
 
-                        text += GRAY + "    - " + BLUE + i + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.BLUE + i + "\n";
 
                     }
 
                 }
 
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("cancel") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("cancel") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
 
             }
 
@@ -2310,13 +2552,13 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new NpcIdsToKillPrompt();
             } else if (input.equalsIgnoreCase("2")) {
                 if (context.getSessionData(pref + CK.S_NPCS_TO_KILL) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoNPCs"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoNPCs"));
                     return new NPCKillListPrompt();
                 } else {
                     return new NpcAmountsToKillPrompt();
                 }
             } else if (input.equalsIgnoreCase("3")) {
-                context.getForWhom().sendRawMessage(YELLOW + Lang.get("stageEditorKillNPCsCleared"));
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + Lang.get("stageEditorKillNPCsCleared"));
                 context.setSessionData(pref + CK.S_NPCS_TO_KILL, null);
                 context.setSessionData(pref + CK.S_NPCS_TO_KILL_AMOUNTS, null);
                 return new NPCKillListPrompt();
@@ -2340,7 +2582,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 if (one == two) {
                     return new CreateStagePrompt(stageNum, questFactory, citizens);
                 } else {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNPCKillsNotSameSize"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNPCKillsNotSameSize"));
                     return new NPCKillListPrompt();
                 }
             }
@@ -2363,7 +2605,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         public String getPromptText(ConversationContext context) {
 
             questFactory.selectingNPCs.add((Player) context.getForWhom());
-            return YELLOW + Lang.get("stageEditorNPCPrompt") + "\n" + GOLD + Lang.get("npcHint");
+            return ColorUtil.YELLOW + Lang.get("stageEditorNPCPrompt") + "\n" + ColorUtil.GOLD + Lang.get("npcHint");
         }
 
         @Override
@@ -2371,24 +2613,26 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> npcs = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> npcs = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
-                        Integer i = Integer.parseInt(s);
+                        final Integer i = Integer.parseInt(s);
 
                         if (citizens.getNPCRegistry().getById(i) != null) {
                             npcs.add(i);
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + "" + i + RED + " " + Lang.get("stageEditorInvalidNPC"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + "" + i + ColorUtil.RED + " " + Lang.get("stageEditorInvalidNPC"));
                             return new NpcIdsToKillPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
+                    } catch (final NumberFormatException e) {
 
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new NpcIdsToKillPrompt();
 
                     }
@@ -2399,7 +2643,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             }
 
-            questFactory.selectingNPCs.remove((Player) context.getForWhom());
+            questFactory.selectingNPCs.remove(context.getForWhom());
             return new NPCKillListPrompt();
 
         }
@@ -2409,7 +2653,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            return YELLOW + Lang.get("stageEditorKillNPCsPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorKillNPCsPrompt");
         }
 
         @Override
@@ -2417,21 +2661,24 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                String[] args = input.split(" ");
-                LinkedList<Integer> amounts = new LinkedList<Integer>();
-                for (String s : args) {
+                final String[] args = input.split(" ");
+                final LinkedList<Integer> amounts = new LinkedList<Integer>();
+                for (final String s: args) {
 
                     try {
 
                         if (Integer.parseInt(s) > 0) {
                             amounts.add(Integer.parseInt(s));
                         } else {
-                            context.getForWhom().sendRawMessage(PINK + s + RED + " " + Lang.get("stageEditorNotGreaterThanZero"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.PINK + s + ColorUtil.RED + " "
+                                            + Lang.get("stageEditorNotGreaterThanZero"));
                             return new NpcAmountsToKillPrompt();
                         }
 
-                    } catch (NumberFormatException e) {
-                        context.getForWhom().sendRawMessage(PINK + s + RED + Lang.get("stageEditorNotListofNumbers"));
+                    } catch (final NumberFormatException e) {
+                        context.getForWhom().sendRawMessage(
+                                ColorUtil.PINK + s + ColorUtil.RED + Lang.get("stageEditorNotListofNumbers"));
                         return new NpcAmountsToKillPrompt();
                     }
 
@@ -2457,84 +2704,100 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GOLD + "- " + Lang.get("stageEditorKillMobs") + " -\n";
+            String text = ColorUtil.GOLD + "- " + Lang.get("stageEditorKillMobs") + " -\n";
             if (context.getSessionData(pref + CK.S_MOB_TYPES) == null) {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetMobTypes") + " (" + Lang.get("noneSet") + ")\n";
-                text += GRAY + "2 - " + Lang.get("stageEditorSetMobAmounts") + " (" + Lang.get("stageEditorNoMobTypesSet") + ")\n";
-                text += DARKGRAY + "|---------" + Lang.get("stageEditorOptional") + "---------|\n";
-                text += GRAY + "3 - " + Lang.get("stageEditorSetKillLocations") + " (" + Lang.get("stageEditorNoMobTypesSet") + ")\n";
-                text += GRAY + "4 - " + Lang.get("stageEditorSetKillLocationRadii") + " (" + Lang.get("stageEditorNoMobTypesSet") + ")\n";
-                text += GRAY + "5 - " + Lang.get("stageEditorSetKillLocationNames") + " (" + Lang.get("stageEditorNoMobTypesSet") + ")\n";
-                text += DARKGRAY + "|--------------------------|\n";
-                text += BLUE + "" + BOLD + "6" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "7" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetMobTypes") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.GRAY + "2 - " + Lang.get("stageEditorSetMobAmounts") + " ("
+                        + Lang.get("stageEditorNoMobTypesSet") + ")\n";
+                text += ColorUtil.DARKGRAY + "|---------" + Lang.get("stageEditorOptional") + "---------|\n";
+                text += ColorUtil.GRAY + "3 - " + Lang.get("stageEditorSetKillLocations") + " ("
+                        + Lang.get("stageEditorNoMobTypesSet") + ")\n";
+                text += ColorUtil.GRAY + "4 - " + Lang.get("stageEditorSetKillLocationRadii") + " ("
+                        + Lang.get("stageEditorNoMobTypesSet") + ")\n";
+                text += ColorUtil.GRAY + "5 - " + Lang.get("stageEditorSetKillLocationNames") + " ("
+                        + Lang.get("stageEditorNoMobTypesSet") + ")\n";
+                text += ColorUtil.DARKGRAY + "|--------------------------|\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "6" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "7" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
             } else {
 
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetMobTypes") + "\n";
-                for (String s : getMobTypes(context)) {
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetMobTypes") + "\n";
+                for (final String s: getMobTypes(context)) {
 
-                    text += GRAY + "    - " + AQUA + s + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + s + "\n";
 
                 }
 
                 if (context.getSessionData(pref + CK.S_MOB_AMOUNTS) == null) {
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetMobAmounts") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetMobAmounts") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetMobAmounts") + "\n";
-                    for (Integer i : getMobAmounts(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetMobAmounts") + "\n";
+                    for (final Integer i: getMobAmounts(context)) {
 
-                        text += GRAY + "    - " + AQUA + i + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + i + "\n";
 
                     }
 
                 }
 
-                text += DARKGRAY + "|---------" + Lang.get("stageEditorOptional") + "---------|\n";
+                text += ColorUtil.DARKGRAY + "|---------" + Lang.get("stageEditorOptional") + "---------|\n";
 
                 if (context.getSessionData(pref + CK.S_MOB_KILL_LOCATIONS) == null) {
-                    text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("stageEditorSetKillLocations") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetKillLocations") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("stageEditorSetKillLocations") + "\n";
-                    for (String s : getKillLocations(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetKillLocations") + "\n";
+                    for (final String s: getKillLocations(context)) {
 
-                        text += GRAY + "    - " + AQUA + s + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + s + "\n";
 
                     }
 
                 }
 
                 if (context.getSessionData(pref + CK.S_MOB_KILL_LOCATIONS_RADIUS) == null) {
-                    text += BLUE + "4 - " + Lang.get("stageEditorSetKillLocationRadii") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "4 - " + Lang.get("stageEditorSetKillLocationRadii") + " ("
+                            + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "4 - " + Lang.get("stageEditorSetKillLocationRadii") + "\n";
-                    for (int i : getKillRadii(context)) {
+                    text += ColorUtil.BLUE + "4 - " + Lang.get("stageEditorSetKillLocationRadii") + "\n";
+                    for (final int i: getKillRadii(context)) {
 
-                        text += GRAY + "    - " + AQUA + i + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + i + "\n";
 
                     }
 
                 }
 
                 if (context.getSessionData(pref + CK.S_MOB_KILL_LOCATIONS_NAMES) == null) {
-                    text += BLUE + "5 - " + Lang.get("stageEditorSetKillLocationNames") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "5 - " + Lang.get("stageEditorSetKillLocationNames") + " ("
+                            + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "5 - " + Lang.get("stageEditorSetKillLocationNames") + "\n";
-                    for (String s : getKillLocationNames(context)) {
+                    text += ColorUtil.BLUE + "5 - " + Lang.get("stageEditorSetKillLocationNames") + "\n";
+                    for (final String s: getKillLocationNames(context)) {
 
-                        text += GRAY + "    - " + AQUA + s + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + s + "\n";
 
                     }
 
                 }
 
-                text += DARKGRAY + "|--------------------------|\n";
+                text += ColorUtil.DARKGRAY + "|--------------------------|\n";
 
-                text += BLUE + "" + BOLD + "6" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "7" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "6" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "7" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
 
             }
 
@@ -2549,14 +2812,14 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new MobTypesPrompt();
             } else if (input.equalsIgnoreCase("2")) {
                 if (context.getSessionData(pref + CK.S_MOB_TYPES) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoMobTypes"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoMobTypes"));
                     return new MobListPrompt();
                 } else {
                     return new MobAmountsPrompt();
                 }
             } else if (input.equalsIgnoreCase("3")) {
                 if (context.getSessionData(pref + CK.S_MOB_TYPES) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoMobTypes"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoMobTypes"));
                     return new MobListPrompt();
                 } else {
                     questFactory.selectedKillLocations.put((Player) context.getForWhom(), null);
@@ -2564,20 +2827,20 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 }
             } else if (input.equalsIgnoreCase("4")) {
                 if (context.getSessionData(pref + CK.S_MOB_KILL_LOCATIONS) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoKillLocations"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoKillLocations"));
                     return new MobListPrompt();
                 } else {
                     return new MobRadiiPrompt();
                 }
             } else if (input.equalsIgnoreCase("5")) {
                 if (context.getSessionData(pref + CK.S_MOB_KILL_LOCATIONS) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoKillLocations"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoKillLocations"));
                     return new MobListPrompt();
                 } else {
                     return new MobLocationNamesPrompt();
                 }
             } else if (input.equalsIgnoreCase("6")) {
-                context.getForWhom().sendRawMessage(YELLOW + Lang.get("stageEditorKillMobsCleared"));
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + Lang.get("stageEditorKillMobsCleared"));
                 context.setSessionData(pref + CK.S_MOB_TYPES, null);
                 context.setSessionData(pref + CK.S_MOB_AMOUNTS, null);
                 context.setSessionData(pref + CK.S_MOB_KILL_LOCATIONS, null);
@@ -2630,7 +2893,8 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                         if (two == three && three == four && four == five) {
                             return new CreateStagePrompt(stageNum, questFactory, citizens);
                         } else {
-                            context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorAllListsNotSameSize"));
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.RED + Lang.get("stageEditorAllListsNotSameSize"));
                             return new MobListPrompt();
                         }
 
@@ -2639,7 +2903,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                     }
 
                 } else {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorMobTypesNotSameSize"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorMobTypesNotSameSize"));
                     return new MobListPrompt();
                 }
 
@@ -2675,50 +2939,50 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String mobs = PINK + "- Mobs - \n";
-            mobs += PURPLE + "Bat, ";
-            mobs += PURPLE + "Blaze, ";
-            mobs += PURPLE + "CaveSpider, ";
-            mobs += PURPLE + "Chicken, ";
-            mobs += PURPLE + "Cow, ";
-            mobs += PURPLE + "Creeper, ";
-            mobs += PURPLE + "Enderman, ";
-            mobs += PURPLE + "EnderDragon, ";
-            mobs += PURPLE + "Ghast, ";
-            mobs += PURPLE + "Giant, ";
-            mobs += PURPLE + "Horse, ";
-            mobs += PURPLE + "IronGolem, ";
-            mobs += PURPLE + "MagmaCube, ";
-            mobs += PURPLE + "MushroomCow, ";
-            mobs += PURPLE + "Ocelot, ";
-            mobs += PURPLE + "Pig, ";
-            mobs += PURPLE + "PigZombie, ";
-            mobs += PURPLE + "Sheep, ";
-            mobs += PURPLE + "Silverfish, ";
-            mobs += PURPLE + "Skeleton, ";
-            mobs += PURPLE + "Slime, ";
-            mobs += PURPLE + "Snowman, ";
-            mobs += PURPLE + "Spider, ";
-            mobs += PURPLE + "Squid, ";
-            mobs += PURPLE + "Villager, ";
-            mobs += PURPLE + "Witch, ";
-            mobs += PURPLE + "Wither, ";
-            mobs += PURPLE + "Wolf, ";
-            mobs += PURPLE + "Zombie\n";
+            String mobs = ColorUtil.PINK + "- Mobs - \n";
+            mobs += ColorUtil.PURPLE + "Bat, ";
+            mobs += ColorUtil.PURPLE + "Blaze, ";
+            mobs += ColorUtil.PURPLE + "CaveSpider, ";
+            mobs += ColorUtil.PURPLE + "Chicken, ";
+            mobs += ColorUtil.PURPLE + "Cow, ";
+            mobs += ColorUtil.PURPLE + "Creeper, ";
+            mobs += ColorUtil.PURPLE + "Enderman, ";
+            mobs += ColorUtil.PURPLE + "EnderDragon, ";
+            mobs += ColorUtil.PURPLE + "Ghast, ";
+            mobs += ColorUtil.PURPLE + "Giant, ";
+            mobs += ColorUtil.PURPLE + "Horse, ";
+            mobs += ColorUtil.PURPLE + "IronGolem, ";
+            mobs += ColorUtil.PURPLE + "MagmaCube, ";
+            mobs += ColorUtil.PURPLE + "MushroomCow, ";
+            mobs += ColorUtil.PURPLE + "Ocelot, ";
+            mobs += ColorUtil.PURPLE + "Pig, ";
+            mobs += ColorUtil.PURPLE + "PigZombie, ";
+            mobs += ColorUtil.PURPLE + "Sheep, ";
+            mobs += ColorUtil.PURPLE + "Silverfish, ";
+            mobs += ColorUtil.PURPLE + "Skeleton, ";
+            mobs += ColorUtil.PURPLE + "Slime, ";
+            mobs += ColorUtil.PURPLE + "Snowman, ";
+            mobs += ColorUtil.PURPLE + "Spider, ";
+            mobs += ColorUtil.PURPLE + "Squid, ";
+            mobs += ColorUtil.PURPLE + "Villager, ";
+            mobs += ColorUtil.PURPLE + "Witch, ";
+            mobs += ColorUtil.PURPLE + "Wither, ";
+            mobs += ColorUtil.PURPLE + "Wolf, ";
+            mobs += ColorUtil.PURPLE + "Zombie\n";
 
-            return mobs + YELLOW + Lang.get("stageEditorMobsPrompt");
+            return mobs + ColorUtil.YELLOW + Lang.get("stageEditorMobsPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                LinkedList<String> mobTypes = new LinkedList<String>();
-                for (String s : input.split(" ")) {
+                final LinkedList<String> mobTypes = new LinkedList<String>();
+                for (final String s: input.split(" ")) {
 
                     if (Quests.getMobType(s) != null) {
 
@@ -2726,7 +2990,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                         context.setSessionData(pref + CK.S_MOB_TYPES, mobTypes);
 
                     } else {
-                        player.sendMessage(PINK + s + " " + RED + Lang.get("stageEditorInvalidMob"));
+                        player.sendMessage(ColorUtil.PINK + s + " " + ColorUtil.RED + Lang.get("stageEditorInvalidMob"));
                         return new MobTypesPrompt();
                     }
 
@@ -2744,33 +3008,35 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + Lang.get("stageEditorMobAmountsPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorMobAmountsPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                LinkedList<Integer> mobAmounts = new LinkedList<Integer>();
-                for (String s : input.split(" ")) {
+                final LinkedList<Integer> mobAmounts = new LinkedList<Integer>();
+                for (final String s: input.split(" ")) {
 
                     try {
 
-                        int i = Integer.parseInt(s);
+                        final int i = Integer.parseInt(s);
 
                         if (i < 1) {
-                            player.sendMessage(PINK + input + " " + RED + Lang.get("stageEditorNotGreaterThanZero"));
+                            player.sendMessage(ColorUtil.PINK + input + " " + ColorUtil.RED
+                                    + Lang.get("stageEditorNotGreaterThanZero"));
                             return new MobAmountsPrompt();
                         }
 
                         mobAmounts.add(i);
 
-                    } catch (NumberFormatException e) {
-                        player.sendMessage(PINK + input + " " + RED + Lang.get("stageEditorInvalidNumber"));
+                    } catch (final NumberFormatException e) {
+                        player.sendMessage(ColorUtil.PINK + input + " " + ColorUtil.RED
+                                + Lang.get("stageEditorInvalidNumber"));
                         return new MobAmountsPrompt();
                     }
 
@@ -2790,21 +3056,21 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + Lang.get("stageEditorMobLocationPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorMobLocationPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
             if (input.equalsIgnoreCase(Lang.get("cmdAdd"))) {
 
-                Block block = questFactory.selectedKillLocations.get(player);
+                final Block block = questFactory.selectedKillLocations.get(player);
                 if (block != null) {
 
-                    Location loc = block.getLocation();
+                    final Location loc = block.getLocation();
 
                     LinkedList<String> locs;
                     if (context.getSessionData(pref + CK.S_MOB_KILL_LOCATIONS) != null) {
@@ -2818,7 +3084,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                     questFactory.selectedKillLocations.remove(player);
 
                 } else {
-                    player.sendMessage(RED + Lang.get("stageEditorNoBlock"));
+                    player.sendMessage(ColorUtil.RED + Lang.get("stageEditorNoBlock"));
                     return new MobLocationPrompt();
                 }
 
@@ -2841,33 +3107,35 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + Lang.get("stageEditorMobLocationRadiiPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorMobLocationRadiiPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                LinkedList<Integer> radii = new LinkedList<Integer>();
-                for (String s : input.split(" ")) {
+                final LinkedList<Integer> radii = new LinkedList<Integer>();
+                for (final String s: input.split(" ")) {
 
                     try {
 
-                        int i = Integer.parseInt(s);
+                        final int i = Integer.parseInt(s);
 
                         if (i < 1) {
-                            player.sendMessage(PINK + input + " " + RED + Lang.get("stageEditorNotGreaterThanZero"));
+                            player.sendMessage(ColorUtil.PINK + input + " " + ColorUtil.RED
+                                    + Lang.get("stageEditorNotGreaterThanZero"));
                             return new MobRadiiPrompt();
                         }
 
                         radii.add(i);
 
-                    } catch (NumberFormatException e) {
-                        player.sendMessage(PINK + input + " " + RED + Lang.get("stageEditorInvalidItemID"));
+                    } catch (final NumberFormatException e) {
+                        player.sendMessage(ColorUtil.PINK + input + " " + ColorUtil.RED
+                                + Lang.get("stageEditorInvalidItemID"));
                         return new MobRadiiPrompt();
                     }
 
@@ -2887,7 +3155,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + Lang.get("stageEditorMobLocationNamesPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorMobLocationNamesPrompt");
 
         }
 
@@ -2896,7 +3164,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                LinkedList<String> locNames = new LinkedList<String>();
+                final LinkedList<String> locNames = new LinkedList<String>();
                 locNames.addAll(Arrays.asList(input.split(",")));
 
                 context.setSessionData(pref + CK.S_MOB_KILL_LOCATIONS_NAMES, locNames);
@@ -2919,50 +3187,62 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GOLD + "- " + Lang.get("stageEditorReachLocs") + " -\n";
+            String text = ColorUtil.GOLD + "- " + Lang.get("stageEditorReachLocs") + " -\n";
             if (context.getSessionData(pref + CK.S_REACH_LOCATIONS) == null) {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetLocations") + " (" + Lang.get("noneSet") + ")\n";
-                text += GRAY + "2 - " + Lang.get("stageEditorSetLocationRadii") + " (" + Lang.get("stageEditorNoLocationsSet") + ")\n";
-                text += GRAY + "3 - " + Lang.get("stageEditorSetLocationNames") + " (" + Lang.get("stageEditorNoLocationsSet") + ")\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "5" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetLocations") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.GRAY + "2 - " + Lang.get("stageEditorSetLocationRadii") + " ("
+                        + Lang.get("stageEditorNoLocationsSet") + ")\n";
+                text += ColorUtil.GRAY + "3 - " + Lang.get("stageEditorSetLocationNames") + " ("
+                        + Lang.get("stageEditorNoLocationsSet") + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "5" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
             } else {
 
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetLocations") + "\n";
-                for (String s : getLocations(context)) {
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetLocations") + "\n";
+                for (final String s: getLocations(context)) {
 
-                    text += GRAY + "    - " + DARKAQUA + s + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.DARKAQUA + s + "\n";
 
                 }
 
                 if (context.getSessionData(pref + CK.S_REACH_LOCATIONS_RADIUS) == null) {
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetLocationRadii") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetLocationRadii") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetLocationRadii") + "\n";
-                    for (Integer i : getLocationRadii(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetLocationRadii") + "\n";
+                    for (final Integer i: getLocationRadii(context)) {
 
-                        text += GRAY + "    - " + AQUA + i + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + i + "\n";
 
                     }
 
                 }
 
                 if (context.getSessionData(pref + CK.S_REACH_LOCATIONS_NAMES) == null) {
-                    text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("stageEditorSetLocationNames") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetLocationNames") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("stageEditorSetLocationNames") + "\n";
-                    for (String s : getLocationNames(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetLocationNames") + "\n";
+                    for (final String s: getLocationNames(context)) {
 
-                        text += GRAY + "    - " + AQUA + s + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + s + "\n";
 
                     }
 
                 }
 
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "5" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "5" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
 
             }
 
@@ -2978,20 +3258,20 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new ReachLocationPrompt();
             } else if (input.equalsIgnoreCase("2")) {
                 if (context.getSessionData(pref + CK.S_REACH_LOCATIONS) == null) {
-                    context.getForWhom().sendRawMessage(RED + "You must set locations first!");
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + "You must set locations first!");
                     return new ReachListPrompt();
                 } else {
                     return new ReachRadiiPrompt();
                 }
             } else if (input.equalsIgnoreCase("3")) {
                 if (context.getSessionData(pref + CK.S_REACH_LOCATIONS) == null) {
-                    context.getForWhom().sendRawMessage(RED + "You must set locations first!");
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + "You must set locations first!");
                     return new ReachListPrompt();
                 } else {
                     return new ReachNamesPrompt();
                 }
             } else if (input.equalsIgnoreCase("4")) {
-                context.getForWhom().sendRawMessage(YELLOW + "Reach Locations objective cleared.");
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + "Reach Locations objective cleared.");
                 context.setSessionData(pref + CK.S_REACH_LOCATIONS, null);
                 context.setSessionData(pref + CK.S_REACH_LOCATIONS_RADIUS, null);
                 context.setSessionData(pref + CK.S_REACH_LOCATIONS_NAMES, null);
@@ -3023,7 +3303,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 if (one == two && two == three) {
                     return new CreateStagePrompt(stageNum, questFactory, citizens);
                 } else {
-                    context.getForWhom().sendRawMessage(RED + "All of your lists are not the same size!");
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + "All of your lists are not the same size!");
                     return new ReachListPrompt();
                 }
 
@@ -3051,21 +3331,21 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + Lang.get("stageEditorReachLocationPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorReachLocationPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
             if (input.equalsIgnoreCase(Lang.get("cmdAdd"))) {
 
-                Block block = questFactory.selectedReachLocations.get(player);
+                final Block block = questFactory.selectedReachLocations.get(player);
                 if (block != null) {
 
-                    Location loc = block.getLocation();
+                    final Location loc = block.getLocation();
 
                     LinkedList<String> locs;
                     if (context.getSessionData(pref + CK.S_REACH_LOCATIONS) != null) {
@@ -3079,7 +3359,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                     questFactory.selectedReachLocations.remove(player);
 
                 } else {
-                    player.sendMessage(RED + Lang.get("stageEditorNoBlockSelected"));
+                    player.sendMessage(ColorUtil.RED + Lang.get("stageEditorNoBlockSelected"));
                     return new ReachLocationPrompt();
                 }
 
@@ -3102,33 +3382,35 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + Lang.get("stageEditorReachLocationRadiiPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorReachLocationRadiiPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                LinkedList<Integer> radii = new LinkedList<Integer>();
-                for (String s : input.split(" ")) {
+                final LinkedList<Integer> radii = new LinkedList<Integer>();
+                for (final String s: input.split(" ")) {
 
                     try {
 
-                        int i = Integer.parseInt(s);
+                        final int i = Integer.parseInt(s);
 
                         if (i < 1) {
-                            player.sendMessage(PINK + input + " " + RED + Lang.get("stageEditorNotGreaterThanZero"));
+                            player.sendMessage(ColorUtil.PINK + input + " " + ColorUtil.RED
+                                    + Lang.get("stageEditorNotGreaterThanZero"));
                             return new ReachRadiiPrompt();
                         }
 
                         radii.add(i);
 
-                    } catch (NumberFormatException e) {
-                        player.sendMessage(PINK + input + " " + RED + Lang.get("stageEditorInvalidNumber"));
+                    } catch (final NumberFormatException e) {
+                        player.sendMessage(ColorUtil.PINK + input + " " + ColorUtil.RED
+                                + Lang.get("stageEditorInvalidNumber"));
                         return new ReachRadiiPrompt();
                     }
 
@@ -3148,7 +3430,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + Lang.get("stageEditorReachLocationNamesPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorReachLocationNamesPrompt");
 
         }
 
@@ -3157,7 +3439,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                LinkedList<String> locNames = new LinkedList<String>();
+                final LinkedList<String> locNames = new LinkedList<String>();
                 locNames.addAll(Arrays.asList(input.split(",")));
 
                 context.setSessionData(pref + CK.S_REACH_LOCATIONS_NAMES, locNames);
@@ -3180,36 +3462,45 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GOLD + "- " + Lang.get("stageEditorTameMobs") + " -\n";
+            String text = ColorUtil.GOLD + "- " + Lang.get("stageEditorTameMobs") + " -\n";
             if (context.getSessionData(pref + CK.S_TAME_TYPES) == null) {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetMobTypes") + " (" + Lang.get("noneSet") + ")\n";
-                text += GRAY + "2 - " + Lang.get("stageEditorSetTameAmounts") + " (" + Lang.get("stageEditorNoMobTypesSet") + ")\n";
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetMobTypes") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.GRAY + "2 - " + Lang.get("stageEditorSetTameAmounts") + " ("
+                        + Lang.get("stageEditorNoMobTypesSet") + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
             } else {
 
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetMobTypes") + "\n";
-                for (String s : getTameTypes(context)) {
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetMobTypes") + "\n";
+                for (final String s: getTameTypes(context)) {
 
-                    text += GRAY + "    - " + AQUA + s + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + s + "\n";
 
                 }
 
                 if (context.getSessionData(pref + CK.S_TAME_AMOUNTS) == null) {
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetTameAmounts") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetTameAmounts") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetTameAmounts") + "\n";
-                    for (Integer i : getTameAmounts(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetTameAmounts") + "\n";
+                    for (final Integer i: getTameAmounts(context)) {
 
-                        text += GRAY + "    - " + AQUA + i + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + i + "\n";
 
                     }
 
                 }
 
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
 
             }
 
@@ -3224,13 +3515,13 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new TameTypesPrompt();
             } else if (input.equalsIgnoreCase("2")) {
                 if (context.getSessionData(pref + CK.S_TAME_TYPES) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoMobTypes"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoMobTypes"));
                     return new TameListPrompt();
                 } else {
                     return new TameAmountsPrompt();
                 }
             } else if (input.equalsIgnoreCase("3")) {
-                context.getForWhom().sendRawMessage(YELLOW + Lang.get("stageEditorTameCleared"));
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + Lang.get("stageEditorTameCleared"));
                 context.setSessionData(pref + CK.S_TAME_TYPES, null);
                 context.setSessionData(pref + CK.S_TAME_AMOUNTS, null);
                 return new TameListPrompt();
@@ -3254,7 +3545,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 if (one == two) {
                     return new CreateStagePrompt(stageNum, questFactory, citizens);
                 } else {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorTameMobsNotSameSize"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorTameMobsNotSameSize"));
                     return new TameListPrompt();
                 }
 
@@ -3278,49 +3569,49 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String mobs = PINK + "- Mobs - \n";
-            mobs += PURPLE + "Bat, ";
-            mobs += PURPLE + "Blaze, ";
-            mobs += PURPLE + "CaveSpider, ";
-            mobs += PURPLE + "Chicken, ";
-            mobs += PURPLE + "Cow, ";
-            mobs += PURPLE + "Creeper, ";
-            mobs += PURPLE + "Enderman, ";
-            mobs += PURPLE + "EnderDragon, ";
-            mobs += PURPLE + "Ghast, ";
-            mobs += PURPLE + "Giant, ";
-            mobs += PURPLE + "IronGolem, ";
-            mobs += PURPLE + "MagmaCube, ";
-            mobs += PURPLE + "MushroomCow, ";
-            mobs += PURPLE + "Ocelot, ";
-            mobs += PURPLE + "Pig, ";
-            mobs += PURPLE + "PigZombie, ";
-            mobs += PURPLE + "Sheep, ";
-            mobs += PURPLE + "Silverfish, ";
-            mobs += PURPLE + "Skeleton, ";
-            mobs += PURPLE + "Slime, ";
-            mobs += PURPLE + "Snowman, ";
-            mobs += PURPLE + "Spider, ";
-            mobs += PURPLE + "Squid, ";
-            mobs += PURPLE + "Villager, ";
-            mobs += PURPLE + "Witch, ";
-            mobs += PURPLE + "Wither, ";
-            mobs += PURPLE + "Wolf, ";
-            mobs += PURPLE + "Zombie\n";
+            String mobs = ColorUtil.PINK + "- Mobs - \n";
+            mobs += ColorUtil.PURPLE + "Bat, ";
+            mobs += ColorUtil.PURPLE + "Blaze, ";
+            mobs += ColorUtil.PURPLE + "CaveSpider, ";
+            mobs += ColorUtil.PURPLE + "Chicken, ";
+            mobs += ColorUtil.PURPLE + "Cow, ";
+            mobs += ColorUtil.PURPLE + "Creeper, ";
+            mobs += ColorUtil.PURPLE + "Enderman, ";
+            mobs += ColorUtil.PURPLE + "EnderDragon, ";
+            mobs += ColorUtil.PURPLE + "Ghast, ";
+            mobs += ColorUtil.PURPLE + "Giant, ";
+            mobs += ColorUtil.PURPLE + "IronGolem, ";
+            mobs += ColorUtil.PURPLE + "MagmaCube, ";
+            mobs += ColorUtil.PURPLE + "MushroomCow, ";
+            mobs += ColorUtil.PURPLE + "Ocelot, ";
+            mobs += ColorUtil.PURPLE + "Pig, ";
+            mobs += ColorUtil.PURPLE + "PigZombie, ";
+            mobs += ColorUtil.PURPLE + "Sheep, ";
+            mobs += ColorUtil.PURPLE + "Silverfish, ";
+            mobs += ColorUtil.PURPLE + "Skeleton, ";
+            mobs += ColorUtil.PURPLE + "Slime, ";
+            mobs += ColorUtil.PURPLE + "Snowman, ";
+            mobs += ColorUtil.PURPLE + "Spider, ";
+            mobs += ColorUtil.PURPLE + "Squid, ";
+            mobs += ColorUtil.PURPLE + "Villager, ";
+            mobs += ColorUtil.PURPLE + "Witch, ";
+            mobs += ColorUtil.PURPLE + "Wither, ";
+            mobs += ColorUtil.PURPLE + "Wolf, ";
+            mobs += ColorUtil.PURPLE + "Zombie\n";
 
-            return mobs + YELLOW + Lang.get("stageEditorMobsPrompt");
+            return mobs + ColorUtil.YELLOW + Lang.get("stageEditorMobsPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                LinkedList<String> mobTypes = new LinkedList<String>();
-                for (String s : input.split(" ")) {
+                final LinkedList<String> mobTypes = new LinkedList<String>();
+                for (final String s: input.split(" ")) {
 
                     if (Quests.getMobType(s) != null) {
 
@@ -3328,7 +3619,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                         context.setSessionData(pref + CK.S_TAME_TYPES, mobTypes);
 
                     } else {
-                        player.sendMessage(PINK + s + " " + RED + Lang.get("stageEditorInvalidMob"));
+                        player.sendMessage(ColorUtil.PINK + s + " " + ColorUtil.RED + Lang.get("stageEditorInvalidMob"));
                         return new TameTypesPrompt();
                     }
 
@@ -3346,33 +3637,35 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + Lang.get("stageEditorTameAmountsPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorTameAmountsPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                LinkedList<Integer> mobAmounts = new LinkedList<Integer>();
-                for (String s : input.split(" ")) {
+                final LinkedList<Integer> mobAmounts = new LinkedList<Integer>();
+                for (final String s: input.split(" ")) {
 
                     try {
 
-                        int i = Integer.parseInt(s);
+                        final int i = Integer.parseInt(s);
 
                         if (i < 1) {
-                            player.sendMessage(PINK + input + " " + RED + Lang.get("stageEditorNotGreaterThanZero"));
+                            player.sendMessage(ColorUtil.PINK + input + " " + ColorUtil.RED
+                                    + Lang.get("stageEditorNotGreaterThanZero"));
                             return new TameAmountsPrompt();
                         }
 
                         mobAmounts.add(i);
 
-                    } catch (NumberFormatException e) {
-                        player.sendMessage(PINK + input + " " + RED + Lang.get("stageEditorInvalidNumber"));
+                    } catch (final NumberFormatException e) {
+                        player.sendMessage(ColorUtil.PINK + input + " " + ColorUtil.RED
+                                + Lang.get("stageEditorInvalidNumber"));
                         return new TameAmountsPrompt();
                     }
 
@@ -3398,36 +3691,45 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GOLD + "- " + Lang.get("stageEditorShearSheep") + " -\n";
+            String text = ColorUtil.GOLD + "- " + Lang.get("stageEditorShearSheep") + " -\n";
             if (context.getSessionData(pref + CK.S_SHEAR_COLORS) == null) {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetShearColors") + " (" + Lang.get("noneSet") + ")\n";
-                text += GRAY + "2 - " + Lang.get("stageEditorSetShearAmounts") + " (" + Lang.get("stageEditorNoColorsSet") + ")\n";
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetShearColors") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.GRAY + "2 - " + Lang.get("stageEditorSetShearAmounts") + " ("
+                        + Lang.get("stageEditorNoColorsSet") + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
             } else {
 
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorSetShearColors") + "\n";
-                for (String s : getShearColors(context)) {
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorSetShearColors") + "\n";
+                for (final String s: getShearColors(context)) {
 
-                    text += GRAY + "    - " + AQUA + s + "\n";
+                    text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + s + "\n";
 
                 }
 
                 if (context.getSessionData(pref + CK.S_SHEAR_AMOUNTS) == null) {
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetShearAmounts") + " (" + Lang.get("noneSet") + ")\n";
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetShearAmounts") + " (" + Lang.get("noneSet") + ")\n";
                 } else {
 
-                    text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorSetShearAmounts") + "\n";
-                    for (Integer i : getShearAmounts(context)) {
+                    text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                            + Lang.get("stageEditorSetShearAmounts") + "\n";
+                    for (final Integer i: getShearAmounts(context)) {
 
-                        text += GRAY + "    - " + AQUA + i + "\n";
+                        text += ColorUtil.GRAY + "    - " + ColorUtil.AQUA + i + "\n";
 
                     }
 
                 }
 
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("clear") + "\n";
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("done");
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("clear") + "\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("done");
 
             }
 
@@ -3442,13 +3744,13 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new ShearColorsPrompt();
             } else if (input.equalsIgnoreCase("2")) {
                 if (context.getSessionData(pref + CK.S_SHEAR_COLORS) == null) {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorNoColors"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorNoColors"));
                     return new ShearListPrompt();
                 } else {
                     return new ShearAmountsPrompt();
                 }
             } else if (input.equalsIgnoreCase("3")) {
-                context.getForWhom().sendRawMessage(YELLOW + Lang.get("stageEditorShearCleared"));
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + Lang.get("stageEditorShearCleared"));
                 context.setSessionData(pref + CK.S_SHEAR_COLORS, null);
                 context.setSessionData(pref + CK.S_SHEAR_AMOUNTS, null);
                 return new ShearListPrompt();
@@ -3472,7 +3774,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 if (one == two) {
                     return new CreateStagePrompt(stageNum, questFactory, citizens);
                 } else {
-                    context.getForWhom().sendRawMessage(RED + Lang.get("stageEditorShearNotSameSize"));
+                    context.getForWhom().sendRawMessage(ColorUtil.RED + Lang.get("stageEditorShearNotSameSize"));
                     return new ShearListPrompt();
                 }
 
@@ -3496,37 +3798,37 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String mobs = PINK + "- " + Lang.get("stageEditorColors") + " - \n";
-            mobs += PURPLE + "Black, ";
-            mobs += PURPLE + "Blue, ";
-            mobs += PURPLE + "Brown, ";
-            mobs += PURPLE + "Cyan, ";
-            mobs += PURPLE + "Gray, ";
-            mobs += PURPLE + "Green, ";
-            mobs += PURPLE + "LightBlue, ";
-            mobs += PURPLE + "Lime, ";
-            mobs += PURPLE + "Magenta, ";
-            mobs += PURPLE + "Orange, ";
-            mobs += PURPLE + "Pink, ";
-            mobs += PURPLE + "Purple, ";
-            mobs += PURPLE + "Red, ";
-            mobs += PURPLE + "Silver, ";
-            mobs += PURPLE + "White, ";
-            mobs += PURPLE + "Yellow\n";
+            String mobs = ColorUtil.PINK + "- " + Lang.get("stageEditorColors") + " - \n";
+            mobs += ColorUtil.PURPLE + "Black, ";
+            mobs += ColorUtil.PURPLE + "Blue, ";
+            mobs += ColorUtil.PURPLE + "Brown, ";
+            mobs += ColorUtil.PURPLE + "Cyan, ";
+            mobs += ColorUtil.PURPLE + "Gray, ";
+            mobs += ColorUtil.PURPLE + "Green, ";
+            mobs += ColorUtil.PURPLE + "LightBlue, ";
+            mobs += ColorUtil.PURPLE + "Lime, ";
+            mobs += ColorUtil.PURPLE + "Magenta, ";
+            mobs += ColorUtil.PURPLE + "Orange, ";
+            mobs += ColorUtil.PURPLE + "Pink, ";
+            mobs += ColorUtil.PURPLE + "Purple, ";
+            mobs += ColorUtil.PURPLE + "Red, ";
+            mobs += ColorUtil.PURPLE + "Silver, ";
+            mobs += ColorUtil.PURPLE + "White, ";
+            mobs += ColorUtil.PURPLE + "Yellow\n";
 
-            return mobs + YELLOW + Lang.get("stageEditorShearColorsPrompt");
+            return mobs + ColorUtil.YELLOW + Lang.get("stageEditorShearColorsPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                LinkedList<String> colors = new LinkedList<String>();
-                for (String s : input.split(" ")) {
+                final LinkedList<String> colors = new LinkedList<String>();
+                for (final String s: input.split(" ")) {
 
                     if (Quests.getDyeColor(s) != null) {
 
@@ -3534,7 +3836,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                         context.setSessionData(pref + CK.S_SHEAR_COLORS, colors);
 
                     } else {
-                        player.sendMessage(PINK + s + " " + RED + Lang.get("stageEditorInvalidDye"));
+                        player.sendMessage(ColorUtil.PINK + s + " " + ColorUtil.RED + Lang.get("stageEditorInvalidDye"));
                         return new ShearColorsPrompt();
                     }
 
@@ -3552,33 +3854,35 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + Lang.get("stageEditorShearAmountsPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorShearAmountsPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false) {
 
-                LinkedList<Integer> shearAmounts = new LinkedList<Integer>();
-                for (String s : input.split(" ")) {
+                final LinkedList<Integer> shearAmounts = new LinkedList<Integer>();
+                for (final String s: input.split(" ")) {
 
                     try {
 
-                        int i = Integer.parseInt(s);
+                        final int i = Integer.parseInt(s);
 
                         if (i < 1) {
-                            player.sendMessage(PINK + input + " " + RED + Lang.get("stageEditorNotGreaterThanZero"));
+                            player.sendMessage(ColorUtil.PINK + input + " " + ColorUtil.RED
+                                    + Lang.get("stageEditorNotGreaterThanZero"));
                             return new ShearAmountsPrompt();
                         }
 
                         shearAmounts.add(i);
 
-                    } catch (NumberFormatException e) {
-                        player.sendMessage(PINK + input + " " + RED + Lang.get("stageEditorInvalidNumber"));
+                    } catch (final NumberFormatException e) {
+                        player.sendMessage(ColorUtil.PINK + input + " " + ColorUtil.RED
+                                + Lang.get("stageEditorInvalidNumber"));
                         return new ShearAmountsPrompt();
                     }
 
@@ -3604,58 +3908,77 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GREEN + "- " + Lang.get("stageEditorStageEvents") + " -\n";
+            String text = ColorUtil.GREEN + "- " + Lang.get("stageEditorStageEvents") + " -\n";
 
             if (context.getSessionData(pref + CK.S_START_EVENT) == null) {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorStartEvent") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorStartEvent") + " (" + Lang.get("noneSet") + ")\n";
             } else {
-                text += BLUE + "" + BOLD + "1" + RESET + YELLOW + " - " + Lang.get("stageEditorStartEvent") + " (" + AQUA + ((String) context.getSessionData(pref + CK.S_START_EVENT)) + YELLOW + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorStartEvent") + " (" + ColorUtil.AQUA
+                        + ((String) context.getSessionData(pref + CK.S_START_EVENT)) + ColorUtil.YELLOW + ")\n";
             }
 
             if (context.getSessionData(pref + CK.S_FINISH_EVENT) == null) {
-                text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorFinishEvent") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorFinishEvent") + " (" + Lang.get("noneSet") + ")\n";
             } else {
-                text += BLUE + "" + BOLD + "2" + RESET + YELLOW + " - " + Lang.get("stageEditorFinishEvent") + " (" + AQUA + ((String) context.getSessionData(pref + CK.S_FINISH_EVENT)) + YELLOW + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorFinishEvent") + " (" + ColorUtil.AQUA
+                        + ((String) context.getSessionData(pref + CK.S_FINISH_EVENT)) + ColorUtil.YELLOW + ")\n";
             }
 
             if (context.getSessionData(pref + CK.S_DEATH_EVENT) == null) {
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("stageEditorDeathEvent") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorDeathEvent") + " (" + Lang.get("noneSet") + ")\n";
             } else {
-                text += BLUE + "" + BOLD + "3" + RESET + YELLOW + " - " + Lang.get("stageEditorDeathEvent") + " (" + AQUA + ((String) context.getSessionData(pref + CK.S_DEATH_EVENT)) + YELLOW + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "3" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorDeathEvent") + " (" + ColorUtil.AQUA
+                        + ((String) context.getSessionData(pref + CK.S_DEATH_EVENT)) + ColorUtil.YELLOW + ")\n";
             }
 
             if (context.getSessionData(pref + CK.S_DISCONNECT_EVENT) == null) {
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("stageEditorDisconnectEvent") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorDisconnectEvent") + " (" + Lang.get("noneSet") + ")\n";
             } else {
-                text += BLUE + "" + BOLD + "4" + RESET + YELLOW + " - " + Lang.get("stageEditorDisconnectEvent") + " (" + AQUA + ((String) context.getSessionData(pref + CK.S_DISCONNECT_EVENT)) + YELLOW + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "4" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorDisconnectEvent") + " (" + ColorUtil.AQUA
+                        + ((String) context.getSessionData(pref + CK.S_DISCONNECT_EVENT)) + ColorUtil.YELLOW + ")\n";
             }
 
             if (context.getSessionData(pref + CK.S_CHAT_EVENTS) == null) {
-                text += BLUE + "" + BOLD + "5" + RESET + YELLOW + " - " + Lang.get("stageEditorChatEvents") + " (" + Lang.get("noneSet") + ")\n";
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "5" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorChatEvents") + " (" + Lang.get("noneSet") + ")\n";
             } else {
 
-                text += BLUE + "" + BOLD + "5" + RESET + YELLOW + " - " + Lang.get("stageEditorChatEvents") + "\n";
-                LinkedList<String> chatEvents = (LinkedList<String>) context.getSessionData(pref + CK.S_CHAT_EVENTS);
-                LinkedList<String> chatEventTriggers = (LinkedList<String>) context.getSessionData(pref + CK.S_CHAT_EVENT_TRIGGERS);
+                text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "5" + ColorUtil.RESET + ColorUtil.YELLOW + " - "
+                        + Lang.get("stageEditorChatEvents") + "\n";
+                final LinkedList<String> chatEvents = (LinkedList<String>) context.getSessionData(pref
+                        + CK.S_CHAT_EVENTS);
+                final LinkedList<String> chatEventTriggers = (LinkedList<String>) context.getSessionData(pref
+                        + CK.S_CHAT_EVENT_TRIGGERS);
 
-                for (String event : chatEvents) {
-                    text += AQUA + "    - " + event + BLUE + " (" + Lang.get("stageEditorTriggeredBy") + ": \"" + chatEventTriggers.get(chatEvents.indexOf(event)) + "\")\n";
+                for (final String event: chatEvents) {
+                    text += ColorUtil.AQUA + "    - " + event + ColorUtil.BLUE + " ("
+                            + Lang.get("stageEditorTriggeredBy") + ": \""
+                            + chatEventTriggers.get(chatEvents.indexOf(event)) + "\")\n";
                 }
 
             }
 
-            text += BLUE + "" + BOLD + "6" + RESET + BLUE + " - " + Lang.get("back");
+            text += ColorUtil.BLUE + "" + ColorUtil.BOLD + "6" + ColorUtil.RESET + ColorUtil.BLUE + " - "
+                    + Lang.get("back");
 
             return text;
         }
 
         /*
-         en.put("stageEditorStageEvents", "Stage Events");
-         en.put("stageEditorStartEvent", "Start Event");
-         en.put("stageEditorFinishEvent", "Finish Event");
-         en.put("stageEditorChatEvents", "Chat Events");
-         en.put("stageEditorDeathEvent", "Death Event");
-         en.put("stageEditorDisconnectEvent", "Disconnect Event");
+         * en.put("stageEditorStageEvents", "Stage Events");
+         * en.put("stageEditorStartEvent", "Start Event");
+         * en.put("stageEditorFinishEvent", "Finish Event");
+         * en.put("stageEditorChatEvents", "Chat Events");
+         * en.put("stageEditorDeathEvent", "Death Event");
+         * en.put("stageEditorDisconnectEvent", "Disconnect Event");
          */
         @Override
         protected Prompt acceptValidatedInput(ConversationContext context, String input) {
@@ -3685,29 +4008,30 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = DARKGREEN + "- " + Lang.get("stageEditorStartEvent") + " -\n";
+            String text = ColorUtil.DARKGREEN + "- " + Lang.get("stageEditorStartEvent") + " -\n";
             if (questFactory.quests.events.isEmpty()) {
-                text += RED + "- None";
+                text += ColorUtil.RED + "- None";
             } else {
-                for (Event e : questFactory.quests.events) {
-                    text += GREEN + "- " + e.getName() + "\n";
+                for (final Event e: questFactory.quests.events) {
+                    text += ColorUtil.GREEN + "- " + e.getName() + "\n";
                 }
             }
 
-            return text + YELLOW + Lang.get("stageEditorEventsPrompt");
+            return text + ColorUtil.YELLOW + Lang.get("stageEditorEventsPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
-            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
+            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false
+                    && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
 
                 Event found = null;
 
-                for (Event e : questFactory.quests.events) {
+                for (final Event e: questFactory.quests.events) {
 
                     if (e.getName().equalsIgnoreCase(input)) {
                         found = e;
@@ -3717,7 +4041,8 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 }
 
                 if (found == null) {
-                    player.sendMessage(RED + input + YELLOW + " " + Lang.get("stageEditorInvalidEvent"));
+                    player.sendMessage(ColorUtil.RED + input + ColorUtil.YELLOW + " "
+                            + Lang.get("stageEditorInvalidEvent"));
                     return new StartEventPrompt();
                 } else {
                     context.setSessionData(pref + CK.S_START_EVENT, found.getName());
@@ -3728,7 +4053,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new EventListPrompt();
             } else if (input.equalsIgnoreCase(Lang.get("cmdClear"))) {
                 context.setSessionData(pref + CK.S_START_EVENT, null);
-                player.sendMessage(YELLOW + Lang.get("stageEditorStartEventCleared"));
+                player.sendMessage(ColorUtil.YELLOW + Lang.get("stageEditorStartEventCleared"));
                 return new EventListPrompt();
             } else {
                 return new StartEventPrompt();
@@ -3742,29 +4067,30 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = DARKGREEN + "- " + Lang.get("stageEditorFinishEvent") + " -\n";
+            String text = ColorUtil.DARKGREEN + "- " + Lang.get("stageEditorFinishEvent") + " -\n";
             if (questFactory.quests.events.isEmpty()) {
-                text += RED + "- None";
+                text += ColorUtil.RED + "- None";
             } else {
-                for (Event e : questFactory.quests.events) {
-                    text += GREEN + "- " + e.getName() + "\n";
+                for (final Event e: questFactory.quests.events) {
+                    text += ColorUtil.GREEN + "- " + e.getName() + "\n";
                 }
             }
 
-            return text + YELLOW + Lang.get("stageEditorEventsPrompt");
+            return text + ColorUtil.YELLOW + Lang.get("stageEditorEventsPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
-            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
+            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false
+                    && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
 
                 Event found = null;
 
-                for (Event e : questFactory.quests.events) {
+                for (final Event e: questFactory.quests.events) {
 
                     if (e.getName().equalsIgnoreCase(input)) {
                         found = e;
@@ -3774,7 +4100,8 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 }
 
                 if (found == null) {
-                    player.sendMessage(RED + input + YELLOW + " " + Lang.get("stageEditorInvalidEvent"));
+                    player.sendMessage(ColorUtil.RED + input + ColorUtil.YELLOW + " "
+                            + Lang.get("stageEditorInvalidEvent"));
                     return new FinishEventPrompt();
                 } else {
                     context.setSessionData(pref + CK.S_FINISH_EVENT, found.getName());
@@ -3785,7 +4112,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new EventListPrompt();
             } else if (input.equalsIgnoreCase(Lang.get("cmdClear"))) {
                 context.setSessionData(pref + CK.S_FINISH_EVENT, null);
-                player.sendMessage(YELLOW + Lang.get("stageEditorFinishEventCleared"));
+                player.sendMessage(ColorUtil.YELLOW + Lang.get("stageEditorFinishEventCleared"));
                 return new EventListPrompt();
             } else {
                 return new FinishEventPrompt();
@@ -3799,29 +4126,30 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = DARKGREEN + "- " + Lang.get("stageEditorDeathEvent") + " -\n";
+            String text = ColorUtil.DARKGREEN + "- " + Lang.get("stageEditorDeathEvent") + " -\n";
             if (questFactory.quests.events.isEmpty()) {
-                text += RED + "- None";
+                text += ColorUtil.RED + "- None";
             } else {
-                for (Event e : questFactory.quests.events) {
-                    text += GREEN + "- " + e.getName() + "\n";
+                for (final Event e: questFactory.quests.events) {
+                    text += ColorUtil.GREEN + "- " + e.getName() + "\n";
                 }
             }
 
-            return text + YELLOW + Lang.get("stageEditorEventsPrompt");
+            return text + ColorUtil.YELLOW + Lang.get("stageEditorEventsPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
-            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
+            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false
+                    && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
 
                 Event found = null;
 
-                for (Event e : questFactory.quests.events) {
+                for (final Event e: questFactory.quests.events) {
 
                     if (e.getName().equalsIgnoreCase(input)) {
                         found = e;
@@ -3831,7 +4159,8 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 }
 
                 if (found == null) {
-                    player.sendMessage(RED + input + YELLOW + " " + Lang.get("stageEditorInvalidEvent"));
+                    player.sendMessage(ColorUtil.RED + input + ColorUtil.YELLOW + " "
+                            + Lang.get("stageEditorInvalidEvent"));
                     return new DeathEventPrompt();
                 } else {
                     context.setSessionData(pref + CK.S_DEATH_EVENT, found.getName());
@@ -3842,7 +4171,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new EventListPrompt();
             } else if (input.equalsIgnoreCase(Lang.get("cmdClear"))) {
                 context.setSessionData(pref + CK.S_DEATH_EVENT, null);
-                player.sendMessage(YELLOW + Lang.get("stageEditorDeathEventCleared"));
+                player.sendMessage(ColorUtil.YELLOW + Lang.get("stageEditorDeathEventCleared"));
                 return new EventListPrompt();
             } else {
                 return new DeathEventPrompt();
@@ -3856,29 +4185,30 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = DARKGREEN + "- " + Lang.get("stageEditorDisconnectEvent") + " -\n";
+            String text = ColorUtil.DARKGREEN + "- " + Lang.get("stageEditorDisconnectEvent") + " -\n";
             if (questFactory.quests.events.isEmpty()) {
-                text += RED + "- None";
+                text += ColorUtil.RED + "- None";
             } else {
-                for (Event e : questFactory.quests.events) {
-                    text += GREEN + "- " + e.getName() + "\n";
+                for (final Event e: questFactory.quests.events) {
+                    text += ColorUtil.GREEN + "- " + e.getName() + "\n";
                 }
             }
 
-            return text + YELLOW + Lang.get("stageEditorEventsPrompt");
+            return text + ColorUtil.YELLOW + Lang.get("stageEditorEventsPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
-            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
+            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false
+                    && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
 
                 Event found = null;
 
-                for (Event e : questFactory.quests.events) {
+                for (final Event e: questFactory.quests.events) {
 
                     if (e.getName().equalsIgnoreCase(input)) {
                         found = e;
@@ -3888,7 +4218,8 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 }
 
                 if (found == null) {
-                    player.sendMessage(RED + input + YELLOW + " " + Lang.get("stageEditorInvalidEvent"));
+                    player.sendMessage(ColorUtil.RED + input + ColorUtil.YELLOW + " "
+                            + Lang.get("stageEditorInvalidEvent"));
                     return new DisconnectEventPrompt();
                 } else {
                     context.setSessionData(pref + CK.S_DISCONNECT_EVENT, found.getName());
@@ -3899,7 +4230,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 return new EventListPrompt();
             } else if (input.equalsIgnoreCase(Lang.get("cmdClear"))) {
                 context.setSessionData(pref + CK.S_DISCONNECT_EVENT, null);
-                player.sendMessage(YELLOW + Lang.get("stageEditorDisconnectEventCleared"));
+                player.sendMessage(ColorUtil.YELLOW + Lang.get("stageEditorDisconnectEventCleared"));
                 return new EventListPrompt();
             } else {
                 return new DisconnectEventPrompt();
@@ -3913,29 +4244,30 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = DARKGREEN + "- " + Lang.get("stageEditorChatEvents") + " -\n";
+            String text = ColorUtil.DARKGREEN + "- " + Lang.get("stageEditorChatEvents") + " -\n";
             if (questFactory.quests.events.isEmpty()) {
-                text += RED + "- None";
+                text += ColorUtil.RED + "- None";
             } else {
-                for (Event e : questFactory.quests.events) {
-                    text += GREEN + "- " + e.getName() + "\n";
+                for (final Event e: questFactory.quests.events) {
+                    text += ColorUtil.GREEN + "- " + e.getName() + "\n";
                 }
             }
 
-            return text + YELLOW + Lang.get("stageEditorChatEventsPrompt");
+            return text + ColorUtil.YELLOW + Lang.get("stageEditorChatEventsPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
-            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
+            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false
+                    && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
 
                 Event found = null;
 
-                for (Event e : questFactory.quests.events) {
+                for (final Event e: questFactory.quests.events) {
 
                     if (e.getName().equalsIgnoreCase(input)) {
                         found = e;
@@ -3945,7 +4277,8 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 }
 
                 if (found == null) {
-                    player.sendMessage(RED + input + YELLOW + " " + Lang.get("stageEditorInvalidEvent"));
+                    player.sendMessage(ColorUtil.RED + input + ColorUtil.YELLOW + " "
+                            + Lang.get("stageEditorInvalidEvent"));
                     return new ChatEventPrompt();
                 } else {
                     context.setSessionData(pref + CK.S_CHAT_TEMP_EVENT, found.getName());
@@ -3957,7 +4290,7 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
             } else if (input.equalsIgnoreCase(Lang.get("cmdClear"))) {
                 context.setSessionData(pref + CK.S_CHAT_EVENTS, null);
                 context.setSessionData(pref + CK.S_CHAT_EVENT_TRIGGERS, null);
-                player.sendMessage(YELLOW + Lang.get("stageEditorChatEventsCleared"));
+                player.sendMessage(ColorUtil.YELLOW + Lang.get("stageEditorChatEventsCleared"));
                 return new EventListPrompt();
             } else {
                 return new ChatEventPrompt();
@@ -3971,10 +4304,11 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String tempEvent = (String) context.getSessionData(pref + CK.S_CHAT_TEMP_EVENT);
+            final String tempEvent = (String) context.getSessionData(pref + CK.S_CHAT_TEMP_EVENT);
 
-            String text = GOLD + "- " + Lang.get("stageEditorChatTrigger") + " -\n";
-            text += YELLOW + Lang.get("stageEditorChatEventsTriggerPromptA") + " " + AQUA + tempEvent + " " + YELLOW + Lang.get("stageEditorChatEventsTriggerPromptB");
+            String text = ColorUtil.GOLD + "- " + Lang.get("stageEditorChatTrigger") + " -\n";
+            text += ColorUtil.YELLOW + Lang.get("stageEditorChatEventsTriggerPromptA") + " " + ColorUtil.AQUA
+                    + tempEvent + " " + ColorUtil.YELLOW + Lang.get("stageEditorChatEventsTriggerPromptB");
 
             return text;
         }
@@ -3986,10 +4320,10 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
                 if (context.getSessionData(pref + CK.S_CHAT_EVENTS) == null) {
 
-                    LinkedList<String> chatEvents = new LinkedList<String>();
-                    LinkedList<String> chatEventTriggers = new LinkedList<String>();
+                    final LinkedList<String> chatEvents = new LinkedList<String>();
+                    final LinkedList<String> chatEventTriggers = new LinkedList<String>();
 
-                    String event = (String) context.getSessionData(pref + CK.S_CHAT_TEMP_EVENT);
+                    final String event = (String) context.getSessionData(pref + CK.S_CHAT_TEMP_EVENT);
 
                     chatEvents.add(event);
                     chatEventTriggers.add(input.trim());
@@ -4001,10 +4335,12 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
                 } else {
 
-                    LinkedList<String> chatEvents = (LinkedList<String>) context.getSessionData(pref + CK.S_CHAT_EVENTS);
-                    LinkedList<String> chatEventTriggers = (LinkedList<String>) context.getSessionData(pref + CK.S_CHAT_EVENT_TRIGGERS);
+                    final LinkedList<String> chatEvents = (LinkedList<String>) context.getSessionData(pref
+                            + CK.S_CHAT_EVENTS);
+                    final LinkedList<String> chatEventTriggers = (LinkedList<String>) context.getSessionData(pref
+                            + CK.S_CHAT_EVENT_TRIGGERS);
 
-                    String event = (String) context.getSessionData(pref + CK.S_CHAT_TEMP_EVENT);
+                    final String event = (String) context.getSessionData(pref + CK.S_CHAT_TEMP_EVENT);
 
                     chatEvents.add(event);
                     chatEventTriggers.add(input.trim());
@@ -4030,21 +4366,21 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + Lang.get("stageEditorDelayPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorDelayPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
             if (input.equalsIgnoreCase(Lang.get("cmdCancel"))) {
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
             }
             if (input.equalsIgnoreCase(Lang.get("cmdClear"))) {
                 context.setSessionData(pref + CK.S_DELAY, null);
-                player.sendMessage(GREEN + "Delay cleared.");
+                player.sendMessage(ColorUtil.GREEN + "Delay cleared.");
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
             }
 
@@ -4054,18 +4390,18 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
                 l = Long.parseLong(input);
 
-            } catch (NumberFormatException e) {
-                //returns -1 if incorrect input
+            } catch (final NumberFormatException e) {
+                // returns -1 if incorrect input
                 l = MiscUtil.getTimeFromString(input);
 
                 if (l == -1) {
-                    player.sendMessage(RED + Lang.get("stageEditorNoNumber"));
+                    player.sendMessage(ColorUtil.RED + Lang.get("stageEditorNoNumber"));
                     return new DelayPrompt();
                 }
             }
 
             if (l < 1000) {
-                player.sendMessage(RED + Lang.get("stageEditorInvalidDelay"));
+                player.sendMessage(ColorUtil.RED + Lang.get("stageEditorInvalidDelay"));
                 return new DelayPrompt();
             } else {
                 context.setSessionData(pref + CK.S_DELAY, l);
@@ -4080,23 +4416,24 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + Lang.get("stageEditorDelayMessagePrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorDelayMessagePrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
-            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
+            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false
+                    && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
 
                 context.setSessionData(pref + CK.S_DELAY_MESSAGE, input);
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
 
             } else if (input.equalsIgnoreCase(Lang.get("cmdClear"))) {
                 context.setSessionData(pref + CK.S_DELAY_MESSAGE, null);
-                player.sendMessage(YELLOW + "Delay message cleared.");
+                player.sendMessage(ColorUtil.YELLOW + "Delay message cleared.");
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
             } else {
                 return new DelayMessagePrompt();
@@ -4110,22 +4447,19 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = DARKAQUA + "- " + Lang.get("stageEditorDenizenScript") + " -";
+            for (final String s: ScriptRegistry._getScriptNames()) {}
 
-            for (String s : ScriptRegistry._getScriptNames()) {
-                text += AQUA + "- " + s + "\n";
-            }
-
-            return YELLOW + Lang.get("stageEditorScriptPrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorScriptPrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
-            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
+            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false
+                    && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
 
                 if (ScriptRegistry.containsScript(input)) {
 
@@ -4134,14 +4468,14 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
 
                 } else {
 
-                    player.sendMessage(RED + Lang.get("stageEditorInvalidScript"));
+                    player.sendMessage(ColorUtil.RED + Lang.get("stageEditorInvalidScript"));
                     return new DenizenPrompt();
 
                 }
 
             } else if (input.equalsIgnoreCase(Lang.get("cmdClear"))) {
                 context.setSessionData(pref + CK.S_DENIZEN, null);
-                player.sendMessage(YELLOW + "Denizen script cleared.");
+                player.sendMessage(ColorUtil.YELLOW + "Denizen script cleared.");
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
             } else {
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
@@ -4155,25 +4489,29 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            String text = GREEN + "" + BOLD + "1" + RESET + "" + GREEN + " - " + Lang.get("yes") + "\n";
-            text += GREEN + "" + BOLD + "2" + RESET + "" + GREEN + " - " + Lang.get("no");
-            return RED + Lang.get("stageEditorConfirmStageDelete") + "\n" + YELLOW + Lang.get("stageEditorStage") + " " + stageNum + ": " + context.getSessionData(CK.Q_NAME) + RED + "\n(" + Lang.get("stageEditorConfirmStageNote") + ")\n" + text;
+            String text = ColorUtil.GREEN + "" + ColorUtil.BOLD + "1" + ColorUtil.RESET + "" + ColorUtil.GREEN + " - "
+                    + Lang.get("yes") + "\n";
+            text += ColorUtil.GREEN + "" + ColorUtil.BOLD + "2" + ColorUtil.RESET + "" + ColorUtil.GREEN + " - "
+                    + Lang.get("no");
+            return ColorUtil.RED + Lang.get("stageEditorConfirmStageDelete") + "\n" + ColorUtil.YELLOW
+                    + Lang.get("stageEditorStage") + " " + stageNum + ": " + context.getSessionData(CK.Q_NAME)
+                    + ColorUtil.RED + "\n(" + Lang.get("stageEditorConfirmStageNote") + ")\n" + text;
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
             if (input.equalsIgnoreCase("1") || input.equalsIgnoreCase("Yes")) {
                 StagesPrompt.deleteStage(context, stageNum);
-                player.sendMessage(YELLOW + Lang.get("stageEditorDeleteSucces"));
+                player.sendMessage(ColorUtil.YELLOW + Lang.get("stageEditorDeleteSucces"));
                 return new StagesPrompt(questFactory);
             } else if (input.equalsIgnoreCase("2") || input.equalsIgnoreCase("No")) {
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
             } else {
-                player.sendMessage(RED + Lang.get("invalidOption"));
+                player.sendMessage(ColorUtil.RED + Lang.get("invalidOption"));
                 return new DeletePrompt();
             }
 
@@ -4185,22 +4523,23 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + Lang.get("stageEditorStartMessagePrompt");
+            return ColorUtil.YELLOW + Lang.get("stageEditorStartMessagePrompt");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
-            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
+            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false
+                    && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
 
                 context.setSessionData(pref + CK.S_START_MESSAGE, input);
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
 
             } else if (input.equalsIgnoreCase(Lang.get("cmdClear"))) {
                 context.setSessionData(pref + CK.S_START_MESSAGE, null);
-                player.sendMessage(YELLOW + Lang.get("stageEditorStartMessageCleared"));
+                player.sendMessage(ColorUtil.YELLOW + Lang.get("stageEditorStartMessageCleared"));
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
             } else {
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
@@ -4214,22 +4553,24 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + Lang.get("Enter complete message, or enter \"clear\" to clear the message, or \"cancel\" to return");
+            return ColorUtil.YELLOW
+                    + Lang.get("Enter complete message, or enter \"clear\" to clear the message, or \"cancel\" to return");
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
-            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
+            if (input.equalsIgnoreCase(Lang.get("cmdCancel")) == false
+                    && input.equalsIgnoreCase(Lang.get("cmdClear")) == false) {
 
                 context.setSessionData(pref + CK.S_COMPLETE_MESSAGE, input);
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
 
             } else if (input.equalsIgnoreCase(Lang.get("cmdClear"))) {
                 context.setSessionData(pref + CK.S_COMPLETE_MESSAGE, null);
-                player.sendMessage(YELLOW + Lang.get("stageEditorCompleteMessageCleared"));
+                player.sendMessage(ColorUtil.YELLOW + Lang.get("stageEditorCompleteMessageCleared"));
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
             } else {
                 return new CreateStagePrompt(stageNum, questFactory, citizens);
@@ -4237,20 +4578,23 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
         }
 
     }
-    
+
     private class CustomObjectivesPrompt extends StringPrompt {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            String text = PINK + "- Custom Objectives -\n";
-            if(questFactory.quests.customObjectives.isEmpty()){
-                text += BOLD + "" + PURPLE + "(No modules loaded)";
-            }else {
-                for(CustomObjective co : questFactory.quests.customObjectives)
-                    text += PURPLE + " - " + co.getName() + "\n";
+            String text = ColorUtil.PINK + "- Custom Objectives -\n";
+            if (questFactory.quests.customObjectives.isEmpty()) {
+                text += ColorUtil.BOLD + "" + ColorUtil.PURPLE + "(No modules loaded)";
+            } else {
+                for (final CustomObjective co: questFactory.quests.customObjectives) {
+                    text += ColorUtil.PURPLE + " - " + co.getName() + "\n";
+                }
             }
-            
-            return text + YELLOW + "Enter the name of a custom objective to add, or enter \'clear\' to clear all custom objectives, or \'cancel\' to return.";
+
+            return text
+                    + ColorUtil.YELLOW
+                    + "Enter the name of a custom objective to add, or enter \'clear\' to clear all custom objectives, or \'cancel\' to return.";
         }
 
         @Override
@@ -4259,65 +4603,71 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
             if (input.equalsIgnoreCase("cancel") == false && input.equalsIgnoreCase("clear") == false) {
 
                 CustomObjective found = null;
-                for(CustomObjective co : questFactory.quests.customObjectives){
-                    if(co.getName().equalsIgnoreCase(input)){
+                for (final CustomObjective co: questFactory.quests.customObjectives) {
+                    if (co.getName().equalsIgnoreCase(input)) {
                         found = co;
                         break;
                     }
                 }
-                
-                if(found == null){
-                    for(CustomObjective co : questFactory.quests.customObjectives){
-                        if(co.getName().toLowerCase().contains(input.toLowerCase())){
+
+                if (found == null) {
+                    for (final CustomObjective co: questFactory.quests.customObjectives) {
+                        if (co.getName().toLowerCase().contains(input.toLowerCase())) {
                             found = co;
                             break;
                         }
                     }
                 }
-                
-                if(found != null){
-                    
-                    if(context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES) != null){
-                        LinkedList<String> list = (LinkedList<String>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES);
-                        LinkedList<Map<String, Object>> datamapList = (LinkedList<Map<String, Object>>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA);
-                        LinkedList<Integer> countList = (LinkedList<Integer>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_COUNT);
-                        if(list.contains(found.getName()) == false){
+
+                if (found != null) {
+
+                    if (context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES) != null) {
+                        final LinkedList<String> list = (LinkedList<String>) context.getSessionData(pref
+                                + CK.S_CUSTOM_OBJECTIVES);
+                        final LinkedList<Map<String, Object>> datamapList = (LinkedList<Map<String, Object>>) context
+                                .getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA);
+                        final LinkedList<Integer> countList = (LinkedList<Integer>) context.getSessionData(pref
+                                + CK.S_CUSTOM_OBJECTIVES_COUNT);
+                        if (list.contains(found.getName()) == false) {
                             list.add(found.getName());
                             datamapList.add(found.datamap);
                             countList.add(-999);
                             context.setSessionData(pref + CK.S_CUSTOM_OBJECTIVES, list);
                             context.setSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA, datamapList);
-                        }else{
-                            context.getForWhom().sendRawMessage(YELLOW + "That custom objective has already been added!");
+                        } else {
+                            context.getForWhom().sendRawMessage(
+                                    ColorUtil.YELLOW + "That custom objective has already been added!");
                             return new CustomObjectivesPrompt();
                         }
-                    }else{
-                        LinkedList<Map<String, Object>> datamapList = new LinkedList<Map<String, Object>>();
-                        LinkedList<Integer> countList = new LinkedList<Integer>();
+                    } else {
+                        final LinkedList<Map<String, Object>> datamapList = new LinkedList<Map<String, Object>>();
+                        final LinkedList<Integer> countList = new LinkedList<Integer>();
                         datamapList.add(found.datamap);
                         countList.add(-999);
-                        LinkedList<String> list = new LinkedList<String>();
+                        final LinkedList<String> list = new LinkedList<String>();
                         list.add(found.getName());
                         context.setSessionData(pref + CK.S_CUSTOM_OBJECTIVES, list);
                         context.setSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA, datamapList);
                         context.setSessionData(pref + CK.S_CUSTOM_OBJECTIVES_COUNT, countList);
                     }
-                    
-                    //Send user to the count prompt / custom data prompt if there is any needed
-                    
-                    if(found.isEnableCount())
+
+                    // Send user to the count prompt / custom data prompt if
+                    // there is any needed
+
+                    if (found.isEnableCount()) {
                         return new CustomObjectiveCountPrompt();
-                    
-                    if(found.datamap.isEmpty() == false){
-                        
+                    }
+
+                    if (found.datamap.isEmpty() == false) {
+
                         context.setSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA_DESCRIPTIONS, found.descriptions);
                         return new ObjectiveCustomDataListPrompt();
-                        
+
                     }
                     //
-                    
-                }else{
-                    context.getForWhom().sendRawMessage(YELLOW + "Custom objective module not found.");
+
+                } else {
+                    context.getForWhom().sendRawMessage(ColorUtil.YELLOW + "Custom objective module not found.");
                     return new CustomObjectivesPrompt();
                 }
 
@@ -4325,190 +4675,199 @@ public class CreateStagePrompt extends FixedSetPrompt implements ColorUtil {
                 context.setSessionData(pref + CK.S_CUSTOM_OBJECTIVES, null);
                 context.setSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA, null);
                 context.setSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA_TEMP, null);
-                context.getForWhom().sendRawMessage(YELLOW + "Custom objectives cleared.");
+                context.getForWhom().sendRawMessage(ColorUtil.YELLOW + "Custom objectives cleared.");
             }
 
             return new CreateStagePrompt(stageNum, questFactory, citizens);
 
         }
-        
+
     }
-    
+
     private class CustomObjectiveCountPrompt extends StringPrompt {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            
-            String text = BOLD + "" + AQUA + "- ";
-            
-            LinkedList<String> list = (LinkedList<String>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES);
-            
-            String objName = list.getLast();
-            
+
+            String text = ColorUtil.BOLD + "" + ColorUtil.AQUA + "- ";
+
+            final LinkedList<String> list = (LinkedList<String>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES);
+
+            final String objName = list.getLast();
+
             text += objName + " -\n";
-            
+
             CustomObjective found = null;
-            for(CustomObjective co : questFactory.quests.customObjectives){
-                
-                if(co.getName().equals(objName)){
+            for (final CustomObjective co: questFactory.quests.customObjectives) {
+
+                if (co.getName().equals(objName)) {
                     found = co;
                     break;
                 }
-                
+
             }
-            
-            text += BLUE + found.getCountPrompt() + "\n\n";
-            
+
+            text += ColorUtil.BLUE + found.getCountPrompt() + "\n\n";
+
             return text;
-            
+
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
-            
-            try{
-                
-                int num = Integer.parseInt(input);
-                LinkedList<Integer> counts = (LinkedList<Integer>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_COUNT);
-                counts.set(counts.size() - 1, num);
-                
-                LinkedList<String> list = (LinkedList<String>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES);
-                String objName = list.getLast();
-                
-                CustomObjective found = null;
-                for(CustomObjective co : questFactory.quests.customObjectives){
 
-                    if(co.getName().equals(objName)){
+            try {
+
+                final int num = Integer.parseInt(input);
+                final LinkedList<Integer> counts = (LinkedList<Integer>) context.getSessionData(pref
+                        + CK.S_CUSTOM_OBJECTIVES_COUNT);
+                counts.set(counts.size() - 1, num);
+
+                final LinkedList<String> list = (LinkedList<String>) context.getSessionData(pref
+                        + CK.S_CUSTOM_OBJECTIVES);
+                final String objName = list.getLast();
+
+                CustomObjective found = null;
+                for (final CustomObjective co: questFactory.quests.customObjectives) {
+
+                    if (co.getName().equals(objName)) {
                         found = co;
                         break;
                     }
 
                 }
-                
-                if(found.datamap.isEmpty() == false){
+
+                if (found.datamap.isEmpty() == false) {
                     context.setSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA_DESCRIPTIONS, found.descriptions);
                     return new ObjectiveCustomDataListPrompt();
-                }else{
+                } else {
                     return new CreateStagePrompt(stageNum, questFactory, citizens);
                 }
-                
-                
-            }catch (NumberFormatException e){
-                context.getForWhom().sendRawMessage(RED + "Input was not a number!");
+
+            } catch (final NumberFormatException e) {
+                context.getForWhom().sendRawMessage(ColorUtil.RED + "Input was not a number!");
                 return new CustomObjectiveCountPrompt();
             }
-            
+
         }
-        
-        
-        
+
     }
-    
+
     private class ObjectiveCustomDataListPrompt extends StringPrompt {
 
         @Override
         public String getPromptText(ConversationContext context) {
-            
-            String text = BOLD + "" + AQUA + "- ";
-            
-            LinkedList<String> list = (LinkedList<String>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES);
-            LinkedList<Map<String, Object>> datamapList = (LinkedList<Map<String, Object>>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA);
-            
-            String objName = list.getLast();
-            Map<String, Object> datamap = datamapList.getLast();
-            
+
+            String text = ColorUtil.BOLD + "" + ColorUtil.AQUA + "- ";
+
+            final LinkedList<String> list = (LinkedList<String>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES);
+            final LinkedList<Map<String, Object>> datamapList = (LinkedList<Map<String, Object>>) context
+                    .getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA);
+
+            final String objName = list.getLast();
+            final Map<String, Object> datamap = datamapList.getLast();
+
             text += objName + " -\n";
             int index = 1;
-            
-            LinkedList<String> datamapKeys = new LinkedList<String>();
-            for(String key : datamap.keySet())
+
+            final LinkedList<String> datamapKeys = new LinkedList<String>();
+            for (final String key: datamap.keySet()) {
                 datamapKeys.add(key);
-            Collections.sort(datamapKeys);
-            
-            for(String dataKey : datamapKeys){
-                
-                text += BOLD + "" + DARKBLUE + index + " - " + RESET + BLUE + dataKey;
-                if(datamap.get(dataKey) != null)
-                    text += GREEN + " (" + (String) datamap.get(dataKey) + ")\n";
-                else
-                    text += RED + " (Value required)\n";
-                
-                index++;
-                
             }
-            
-            text += BOLD + "" + DARKBLUE + index + " - " + AQUA + "Finish";
-            
+            Collections.sort(datamapKeys);
+
+            for (final String dataKey: datamapKeys) {
+
+                text += ColorUtil.BOLD + "" + ColorUtil.DARKBLUE + index + " - " + ColorUtil.RESET + ColorUtil.BLUE
+                        + dataKey;
+                if (datamap.get(dataKey) != null) {
+                    text += ColorUtil.GREEN + " (" + (String) datamap.get(dataKey) + ")\n";
+                } else {
+                    text += ColorUtil.RED + " (Value required)\n";
+                }
+
+                index++;
+
+            }
+
+            text += ColorUtil.BOLD + "" + ColorUtil.DARKBLUE + index + " - " + ColorUtil.AQUA + "Finish";
+
             return text;
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
-            
-            LinkedList<Map<String, Object>> datamapList = (LinkedList<Map<String, Object>>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA);
-            Map<String, Object> datamap = datamapList.getLast();
-            
+
+            final LinkedList<Map<String, Object>> datamapList = (LinkedList<Map<String, Object>>) context
+                    .getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA);
+            final Map<String, Object> datamap = datamapList.getLast();
+
             int numInput;
-            
-            try{
+
+            try {
                 numInput = Integer.parseInt(input);
-            }catch(NumberFormatException nfe){
+            } catch (final NumberFormatException nfe) {
                 return new ObjectiveCustomDataListPrompt();
             }
-            
-            if(numInput < 1 || numInput > datamap.size() + 1)
+
+            if (numInput < 1 || numInput > datamap.size() + 1) {
                 return new ObjectiveCustomDataListPrompt();
-            
-            if(numInput < datamap.size() + 1){
-                
-                LinkedList<String> datamapKeys = new LinkedList<String>();
-                for(String key : datamap.keySet())
+            }
+
+            if (numInput < datamap.size() + 1) {
+
+                final LinkedList<String> datamapKeys = new LinkedList<String>();
+                for (final String key: datamap.keySet()) {
                     datamapKeys.add(key);
+                }
                 Collections.sort(datamapKeys);
 
-                String selectedKey = datamapKeys.get(numInput - 1);
+                final String selectedKey = datamapKeys.get(numInput - 1);
                 context.setSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA_TEMP, selectedKey);
                 return new ObjectiveCustomDataPrompt();
-                
-            }else{
-                
-                if(datamap.containsValue(null)){
+
+            } else {
+
+                if (datamap.containsValue(null)) {
                     return new ObjectiveCustomDataListPrompt();
-                }else{
+                } else {
                     context.setSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA_DESCRIPTIONS, null);
                     return new CreateStagePrompt(stageNum, questFactory, citizens);
                 }
-                
+
             }
 
         }
-        
+
     }
-    
+
     private class ObjectiveCustomDataPrompt extends StringPrompt {
 
         @Override
         public String getPromptText(ConversationContext context) {
             String text = "";
-            String temp = (String)context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA_TEMP);
-            Map<String, String> descriptions = (Map<String, String>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA_DESCRIPTIONS);
-            if(descriptions.get(temp) != null)
-                text += GOLD + descriptions.get(temp) + "\n";
-                
-            text += YELLOW + "Enter value for ";
-            text += BOLD + temp + RESET + YELLOW + ":";
+            final String temp = (String) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA_TEMP);
+            final Map<String, String> descriptions = (Map<String, String>) context.getSessionData(pref
+                    + CK.S_CUSTOM_OBJECTIVES_DATA_DESCRIPTIONS);
+            if (descriptions.get(temp) != null) {
+                text += ColorUtil.GOLD + descriptions.get(temp) + "\n";
+            }
+
+            text += ColorUtil.YELLOW + "Enter value for ";
+            text += ColorUtil.BOLD + temp + ColorUtil.RESET + ColorUtil.YELLOW + ":";
             return text;
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String input) {
-            LinkedList<Map<String, Object>> datamapList = (LinkedList<Map<String, Object>>) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA);
-            Map<String, Object> datamap = datamapList.getLast();
-            datamap.put((String)context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA_TEMP), input);
+            final LinkedList<Map<String, Object>> datamapList = (LinkedList<Map<String, Object>>) context
+                    .getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA);
+            final Map<String, Object> datamap = datamapList.getLast();
+            datamap.put((String) context.getSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA_TEMP), input);
             context.setSessionData(pref + CK.S_CUSTOM_OBJECTIVES_DATA_TEMP, null);
             return new ObjectiveCustomDataListPrompt();
         }
-        
+
     }
-    
+
 }

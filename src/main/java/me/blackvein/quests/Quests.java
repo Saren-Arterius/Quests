@@ -1,11 +1,21 @@
 package me.blackvein.quests;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -13,6 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -75,99 +87,82 @@ import com.herocraftonline.heroes.characters.classes.HeroClass;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.sql.Date;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 public class Quests extends JavaPlugin implements ConversationAbandonedListener, ColorUtil {
 
-    public final static Logger log = Logger.getLogger("Minecraft");
-    public static Economy economy = null;
-    public static Permission permission = null;
-    public static WorldGuardPlugin worldGuard = null;
-    public static mcMMO mcmmo = null;
-    public static Heroes heroes = null;
-    public static PhatLoots phatLoots = null;
-    public static boolean snoop = true;
-    public static boolean npcEffects = true;
-    public static boolean broadcastPartyCreation = true;
-    public static boolean ignoreLockedQuests = false;
-    public static boolean genFilesOnJoin = true;
-    public static int maxPartySize = 0;
-    public static int acceptTimeout = 20;
-    public static int inviteTimeout = 20;
-    public static String effect = "note";
-    public final Map<String, Quester> questers = new HashMap<String, Quester>();
-    public final List<String> questerBlacklist = new LinkedList<String>();
-    public final List<CustomRequirement> customRequirements = new LinkedList<CustomRequirement>();
-    public final List<CustomReward> customRewards = new LinkedList<CustomReward>();
-    public final List<CustomObjective> customObjectives = new LinkedList<CustomObjective>();
-    public final LinkedList<Quest> quests = new LinkedList<Quest>();
-    public final LinkedList<Event> events = new LinkedList<Event>();
-    public final LinkedList<NPC> questNPCs = new LinkedList<NPC>();
-    public final LinkedList<Integer> questNPCGUIs = new LinkedList<Integer>();
-    public ConversationFactory conversationFactory;
-    public ConversationFactory NPCConversationFactory;
-    public QuestFactory questFactory;
-    public EventFactory eventFactory;
-    public Vault vault = null;
-    public CitizensPlugin citizens;
-    public PlayerListener pListener;
-    public NpcListener npcListener;
-    public NpcEffectThread effListener;
-    public Denizen denizen = null;
-    public QuestTaskTrigger trigger;
-    public boolean allowCommands = true;
-    public boolean allowCommandsForNpcQuests = false;
-    public boolean showQuestReqs = true;
-    public boolean allowQuitting = true;
-    public boolean debug = false;
-    public boolean load = false;
-    public int killDelay = 0;
-    public int totalQuestPoints = 0;
-    public Lang lang;
-    private static Quests instance = null;
-    public static final String validVersion = "1.7.9-R0.2";
+    public final static Logger           log                       = Logger.getLogger("Minecraft");
+    public static Economy                economy                   = null;
+    public static Permission             permission                = null;
+    public static WorldGuardPlugin       worldGuard                = null;
+    public static mcMMO                  mcmmo                     = null;
+    public static Heroes                 heroes                    = null;
+    public static PhatLoots              phatLoots                 = null;
+    public static boolean                snoop                     = true;
+    public static boolean                npcEffects                = true;
+    public static boolean                broadcastPartyCreation    = true;
+    public static boolean                ignoreLockedQuests        = false;
+    public static boolean                genFilesOnJoin            = true;
+    public static int                    maxPartySize              = 0;
+    public static int                    acceptTimeout             = 20;
+    public static int                    inviteTimeout             = 20;
+    public static String                 effect                    = "note";
+    public final Map<String, Quester>    questers                  = new HashMap<String, Quester>();
+    public final List<String>            questerBlacklist          = new LinkedList<String>();
+    public final List<CustomRequirement> customRequirements        = new LinkedList<CustomRequirement>();
+    public final List<CustomReward>      customRewards             = new LinkedList<CustomReward>();
+    public final List<CustomObjective>   customObjectives          = new LinkedList<CustomObjective>();
+    public final LinkedList<Quest>       quests                    = new LinkedList<Quest>();
+    public final LinkedList<Event>       events                    = new LinkedList<Event>();
+    public final LinkedList<NPC>         questNPCs                 = new LinkedList<NPC>();
+    public final LinkedList<Integer>     questNPCGUIs              = new LinkedList<Integer>();
+    public ConversationFactory           conversationFactory;
+    public ConversationFactory           NPCConversationFactory;
+    public QuestFactory                  questFactory;
+    public EventFactory                  eventFactory;
+    public Vault                         vault                     = null;
+    public CitizensPlugin                citizens;
+    public PlayerListener                pListener;
+    public NpcListener                   npcListener;
+    public NpcEffectThread               effListener;
+    public Denizen                       denizen                   = null;
+    public QuestTaskTrigger              trigger;
+    public boolean                       allowCommands             = true;
+    public boolean                       allowCommandsForNpcQuests = false;
+    public boolean                       showQuestReqs             = true;
+    public boolean                       allowQuitting             = true;
+    public boolean                       debug                     = false;
+    public boolean                       load                      = false;
+    public int                           killDelay                 = 0;
+    public int                           totalQuestPoints          = 0;
+    public Lang                          lang;
+    private static Quests                instance                  = null;
+    public static final String           validVersion              = "1.7.9-R0.2";
 
     @Override
     public void onEnable() {
 
-        if(getServer().getBukkitVersion().equalsIgnoreCase(validVersion) == false) {
-            
-            log.severe("[Quests] Your current version of CraftBukkit is " + getServer().getBukkitVersion() + ", this version of Quests is built for version " + validVersion);
-            log.severe("[Quests] Disabling...");
+        if (getServer().getBukkitVersion().equalsIgnoreCase(Quests.validVersion) == false) {
+
+            Quests.log.severe("[Quests] Your current version of CraftBukkit is " + getServer().getBukkitVersion()
+                    + ", this version of Quests is built for version " + Quests.validVersion);
+            Quests.log.severe("[Quests] Disabling...");
             getServer().getPluginManager().disablePlugin(this);
             return;
-            
-        }        
-        
+
+        }
+
         pListener = new PlayerListener(this);
         effListener = new NpcEffectThread(this);
         npcListener = new NpcListener(this);
-        instance = this;
+        Quests.instance = this;
 
-        this.conversationFactory = new ConversationFactory(this)
-                .withModality(false)
-                .withPrefix(new QuestsPrefix())
-                .withFirstPrompt(new QuestPrompt())
-                .withTimeout(acceptTimeout)
+        conversationFactory = new ConversationFactory(this).withModality(false).withPrefix(new QuestsPrefix())
+                .withFirstPrompt(new QuestPrompt()).withTimeout(Quests.acceptTimeout)
                 .thatExcludesNonPlayersWithMessage("Console may not perform this conversation!")
                 .addConversationAbandonedListener(this);
 
-        this.NPCConversationFactory = new ConversationFactory(this)
-                .withModality(false)
-                .withFirstPrompt(new QuestAcceptPrompt(this))
-                .withTimeout(acceptTimeout)
-                .withLocalEcho(false)
+        NPCConversationFactory = new ConversationFactory(this).withModality(false)
+                .withFirstPrompt(new QuestAcceptPrompt(this)).withTimeout(Quests.acceptTimeout).withLocalEcho(false)
                 .addConversationAbandonedListener(this);
 
         questFactory = new QuestFactory(this);
@@ -180,12 +175,12 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
             if (citizens != null) {
                 getServer().getPluginManager().registerEvents(npcListener, this);
             }
-        } catch (Exception e) {
-            printWarning("[Quests] Legacy version of Citizens found. Citizens in Quests not enabled.");
+        } catch (final Exception e) {
+            Quests.printWarning("[Quests] Legacy version of Citizens found. Citizens in Quests not enabled.");
         }
 
         if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
-            worldGuard = (WorldGuardPlugin) getServer().getPluginManager().getPlugin("WorldGuard");
+            Quests.worldGuard = (WorldGuardPlugin) getServer().getPluginManager().getPlugin("WorldGuard");
         }
 
         if (getServer().getPluginManager().getPlugin("Denizen") != null) {
@@ -193,36 +188,36 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
         }
 
         if (getServer().getPluginManager().getPlugin("mcMMO") != null) {
-            mcmmo = (mcMMO) getServer().getPluginManager().getPlugin("mcMMO");
+            Quests.mcmmo = (mcMMO) getServer().getPluginManager().getPlugin("mcMMO");
         }
 
         if (getServer().getPluginManager().getPlugin("Heroes") != null) {
-            heroes = (Heroes) getServer().getPluginManager().getPlugin("Heroes");
+            Quests.heroes = (Heroes) getServer().getPluginManager().getPlugin("Heroes");
         }
-        
+
         if (getServer().getPluginManager().getPlugin("PhatLoots") != null) {
-            phatLoots = (PhatLoots) getServer().getPluginManager().getPlugin("PhatLoots");
+            Quests.phatLoots = (PhatLoots) getServer().getPluginManager().getPlugin("PhatLoots");
         }
 
         if (!setupEconomy()) {
-            printWarning("[Quests] Economy not found.");
+            Quests.printWarning("[Quests] Economy not found.");
         }
 
         if (!setupPermissions()) {
-            printWarning("[Quests] Permissions not found.");
+            Quests.printWarning("[Quests] Permissions not found.");
         }
 
         vault = (Vault) getServer().getPluginManager().getPlugin("Vault");
 
-        if (new File(this.getDataFolder(), "config.yml").exists() == false) {
-            printInfo("[Quests] Config not found, writing default to file.");
-            FileConfiguration config = new YamlConfiguration();
+        if (new File(getDataFolder(), "config.yml").exists() == false) {
+            Quests.printInfo("[Quests] Config not found, writing default to file.");
+            final FileConfiguration config = new YamlConfiguration();
             try {
-                config.load(this.getResource("config.yml"));
-                config.save(new File(this.getDataFolder(), "config.yml"));
-            } catch (IOException e) {
+                config.load(getResource("config.yml"));
+                config.save(new File(getDataFolder(), "config.yml"));
+            } catch (final IOException e) {
                 e.printStackTrace();
-            } catch (InvalidConfigurationException e) {
+            } catch (final InvalidConfigurationException e) {
                 e.printStackTrace();
             }
 
@@ -234,46 +229,46 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
         lang.initPhrases();
         lang.save();
 
-        if (new File(this.getDataFolder(), "quests.yml").exists() == false) {
+        if (new File(getDataFolder(), "quests.yml").exists() == false) {
 
-            printInfo("[Quests] Quest data not found, writing default to file.");
-            FileConfiguration data = new YamlConfiguration();
+            Quests.printInfo("[Quests] Quest data not found, writing default to file.");
+            final FileConfiguration data = new YamlConfiguration();
             try {
-                data.load(this.getResource("quests.yml"));
+                data.load(getResource("quests.yml"));
                 data.set("events", null);
-                data.save(new File(this.getDataFolder(), "quests.yml"));
-            } catch (IOException e) {
+                data.save(new File(getDataFolder(), "quests.yml"));
+            } catch (final IOException e) {
                 e.printStackTrace();
-            } catch (InvalidConfigurationException e) {
+            } catch (final InvalidConfigurationException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        if (new File(getDataFolder(), "events.yml").exists() == false) {
+            Quests.printInfo("[Quests] Events data not found, writing default to file.");
+            final FileConfiguration data = new YamlConfiguration();
+            data.options().copyHeader(true);
+            data.options().copyDefaults(true);
+            try {
+                data.load(getResource("events.yml"));
+                data.save(new File(getDataFolder(), "events.yml"));
+            } catch (final IOException e) {
+                e.printStackTrace();
+            } catch (final InvalidConfigurationException e) {
                 e.printStackTrace();
             }
 
         }
 
-        if (new File(this.getDataFolder(), "events.yml").exists() == false) {
-            printInfo("[Quests] Events data not found, writing default to file.");
-            FileConfiguration data = new YamlConfiguration();
+        if (new File(getDataFolder(), "data.yml").exists() == false) {
+            Quests.printInfo("[Quests] Data file not found, writing default to file.");
+            final FileConfiguration data = new YamlConfiguration();
             data.options().copyHeader(true);
             data.options().copyDefaults(true);
             try {
-                data.load(this.getResource("events.yml"));
-                data.save(new File(this.getDataFolder(), "events.yml"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InvalidConfigurationException e) {
-                e.printStackTrace();
-            }
-
-        }
-        
-        if (new File(this.getDataFolder(), "data.yml").exists() == false) {
-            printInfo("[Quests] Data file not found, writing default to file.");
-            FileConfiguration data = new YamlConfiguration();
-            data.options().copyHeader(true);
-            data.options().copyDefaults(true);
-            try {
-                data.save(new File(this.getDataFolder(), "data.yml"));
-            } catch (IOException e) {
+                data.save(new File(getDataFolder(), "data.yml"));
+            } catch (final IOException e) {
                 e.printStackTrace();
             }
 
@@ -282,20 +277,20 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
         }
 
         getServer().getPluginManager().registerEvents(pListener, this);
-        if (npcEffects) {
+        if (Quests.npcEffects) {
             getServer().getScheduler().scheduleSyncRepeatingTask(this, effListener, 20, 20);
         }
-        printInfo("[Quests] Enabled.");
+        Quests.printInfo("[Quests] Enabled.");
 
         getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
             @Override
             public void run() {
                 loadQuests();
                 loadEvents();
-                log.log(Level.INFO, "[Quests] " + quests.size() + " Quest(s) loaded.");
-                log.log(Level.INFO, "[Quests] " + events.size() + " Event(s) loaded.");
+                Quests.log.log(Level.INFO, "[Quests] " + quests.size() + " Quest(s) loaded.");
+                Quests.log.log(Level.INFO, "[Quests] " + events.size() + " Event(s) loaded.");
                 questers.putAll(getOnlineQuesters());
-                if (snoop) {
+                if (Quests.snoop) {
                     snoop();
                 }
             }
@@ -306,14 +301,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
     @Override
     public void onDisable() {
 
-        printInfo("[Quests] Saving Quester data.");
-        for (Player p : getServer().getOnlinePlayers()) {
+        Quests.printInfo("[Quests] Saving Quester data.");
+        for (final Player p: getServer().getOnlinePlayers()) {
 
-            Quester quester = getQuester(p.getName());
+            final Quester quester = getQuester(p.getName());
             quester.saveData();
 
         }
-        printInfo("[Quests] Disabled.");
+        Quests.printInfo("[Quests] Disabled.");
 
     }
 
@@ -329,9 +324,8 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
             if (abandonedEvent.getContext().getForWhom() != null) {
 
                 try {
-                    abandonedEvent.getContext().getForWhom().sendRawMessage(YELLOW + "Cancelled.");
-                } catch (Exception e) {
-                }
+                    abandonedEvent.getContext().getForWhom().sendRawMessage(ColorUtil.YELLOW + "Cancelled.");
+                } catch (final Exception e) {}
 
             }
 
@@ -340,7 +334,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
     }
 
     public static Quests getInstance() {
-        return instance;
+        return Quests.instance;
     }
 
     private class QuestPrompt extends StringPrompt {
@@ -348,14 +342,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
         @Override
         public String getPromptText(ConversationContext context) {
 
-            return YELLOW + "Accept Quest?  " + GREEN + "Yes / No";
+            return ColorUtil.YELLOW + "Accept Quest?  " + ColorUtil.GREEN + "Yes / No";
 
         }
 
         @Override
         public Prompt acceptInput(ConversationContext context, String s) {
 
-            Player player = (Player) context.getForWhom();
+            final Player player = (Player) context.getForWhom();
 
             if (s.equalsIgnoreCase("Yes")) {
 
@@ -364,12 +358,12 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
             } else if (s.equalsIgnoreCase("No")) {
 
-                player.sendMessage(YELLOW + "Cancelled.");
+                player.sendMessage(ColorUtil.YELLOW + "Cancelled.");
                 return Prompt.END_OF_CONVERSATION;
 
             } else {
 
-                player.sendMessage(RED + "Invalid choice. Type \'Yes\' or \'No\'");
+                player.sendMessage(ColorUtil.RED + "Invalid choice. Type \'Yes\' or \'No\'");
                 return new QuestPrompt();
 
             }
@@ -382,26 +376,26 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
         @Override
         public String getPrefix(ConversationContext context) {
 
-            return "" + GRAY;
+            return "" + ColorUtil.GRAY;
 
         }
     }
 
     public void loadConfig() {
 
-        FileConfiguration config = getConfig();
+        final FileConfiguration config = getConfig();
 
         allowCommands = config.getBoolean("allow-command-questing", true);
         allowCommandsForNpcQuests = config.getBoolean("allow-command-quests-with-npcs", false);
         showQuestReqs = config.getBoolean("show-requirements", true);
         allowQuitting = config.getBoolean("allow-quitting", true);
-        genFilesOnJoin = config.getBoolean("generate-files-on-join", true);
-        snoop = config.getBoolean("snoop", true);
-        npcEffects = config.getBoolean("show-npc-effects", true);
-        effect = config.getString("npc-effect", "note");
+        Quests.genFilesOnJoin = config.getBoolean("generate-files-on-join", true);
+        Quests.snoop = config.getBoolean("snoop", true);
+        Quests.npcEffects = config.getBoolean("show-npc-effects", true);
+        Quests.effect = config.getString("npc-effect", "note");
         debug = config.getBoolean("debug-mode", false);
         killDelay = config.getInt("kill-delay", 600);
-        acceptTimeout = config.getInt("accept-timeout", 20);
+        Quests.acceptTimeout = config.getInt("accept-timeout", 20);
 
         if (config.contains("language")) {
             Lang.lang = config.getString("language");
@@ -410,69 +404,69 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
         }
 
         if (config.contains("ignore-locked-quests")) {
-            ignoreLockedQuests = config.getBoolean("ignore-locked-quests");
+            Quests.ignoreLockedQuests = config.getBoolean("ignore-locked-quests");
         } else {
             config.set("ignore-locked-quests", false);
         }
 
         if (config.contains("broadcast-party-creation")) {
-            broadcastPartyCreation = config.getBoolean("broadcast-party-creation");
+            Quests.broadcastPartyCreation = config.getBoolean("broadcast-party-creation");
         } else {
             config.set("broadcast-party-creation", true);
         }
 
         if (config.contains("max-party-size")) {
-            maxPartySize = config.getInt("max-party-size");
+            Quests.maxPartySize = config.getInt("max-party-size");
         } else {
             config.set("max-party-size", 0);
         }
 
         if (config.contains("party-invite-timeout")) {
-            inviteTimeout = config.getInt("party-invite-timeout");
+            Quests.inviteTimeout = config.getInt("party-invite-timeout");
         } else {
             config.set("party-invite-timeout", 20);
         }
 
-        for (String s : config.getStringList("quester-blacklist")) {
+        for (final String s: config.getStringList("quester-blacklist")) {
             questerBlacklist.add(s);
         }
 
         try {
-            config.save(new File(this.getDataFolder(), "config.yml"));
-        } catch (IOException e) {
+            config.save(new File(getDataFolder(), "config.yml"));
+        } catch (final IOException e) {
             e.printStackTrace();
         }
 
     }
 
     public void loadData() {
-        
-        YamlConfiguration config = new YamlConfiguration();
-        File dataFile = new File(this.getDataFolder(), "data.yml");
-        
+
+        final YamlConfiguration config = new YamlConfiguration();
+        final File dataFile = new File(getDataFolder(), "data.yml");
+
         try {
             config.load(dataFile);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
 
-        if(config.contains("npc-gui")) {
-            
-            List<Integer> ids = config.getIntegerList("npc-gui");
+        if (config.contains("npc-gui")) {
+
+            final List<Integer> ids = config.getIntegerList("npc-gui");
             questNPCGUIs.clear();
             questNPCGUIs.addAll(ids);
-            
+
         }
-        
+
     }
-    
+
     public void loadModules() {
 
-        File f = new File(this.getDataFolder(), "modules");
+        final File f = new File(getDataFolder(), "modules");
         if (f.exists() && f.isDirectory()) {
 
-            File[] modules = f.listFiles();
-            for (File module : modules) {
+            final File[] modules = f.listFiles();
+            for (final File module: modules) {
 
                 loadModule(module);
 
@@ -490,63 +484,66 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
         try {
 
-            JarFile jarFile = new JarFile(jar);
-            Enumeration e = jarFile.entries();
+            final JarFile jarFile = new JarFile(jar);
+            final Enumeration<JarEntry> e = jarFile.entries();
 
-            URL[] urls = {new URL("jar:file:" + jar.getPath() + "!/")};
+            final URL[] urls = {new URL("jar:file:" + jar.getPath() + "!/")};
 
-            ClassLoader cl = URLClassLoader.newInstance(urls, getClassLoader());
+            final ClassLoader cl = URLClassLoader.newInstance(urls, getClassLoader());
 
             while (e.hasMoreElements()) {
 
-                JarEntry je = (JarEntry) e.nextElement();
+                final JarEntry je = e.nextElement();
                 if (je.isDirectory() || !je.getName().endsWith(".class")) {
                     continue;
                 }
 
                 String className = je.getName().substring(0, je.getName().length() - 6);
                 className = className.replace('/', '.');
-                Class<?> c = Class.forName(className, true, cl);
-                
-                if(CustomRequirement.class.isAssignableFrom(c)){
-                    
-                    Class<? extends CustomRequirement> requirementClass = c.asSubclass(CustomRequirement.class);
-                    Constructor<? extends CustomRequirement> cstrctr = requirementClass.getConstructor();
-                    CustomRequirement requirement = cstrctr.newInstance();
+                final Class<?> c = Class.forName(className, true, cl);
+
+                if (CustomRequirement.class.isAssignableFrom(c)) {
+
+                    final Class<? extends CustomRequirement> requirementClass = c.asSubclass(CustomRequirement.class);
+                    final Constructor<? extends CustomRequirement> cstrctr = requirementClass.getConstructor();
+                    final CustomRequirement requirement = cstrctr.newInstance();
                     customRequirements.add(requirement);
-                    String name = requirement.getName() == null ? "[" + jar.getName() + "]" : requirement.getName();
-                    String author = requirement.getAuthor() == null ? "[Unknown]" : requirement.getAuthor();
-                    printInfo("[Quests] Loaded Module: " + name + " by " + author);
-                
-                }else if(CustomReward.class.isAssignableFrom(c)){
-                    
-                    Class<? extends CustomReward> rewardClass = c.asSubclass(CustomReward.class);
-                    Constructor<? extends CustomReward> cstrctr = rewardClass.getConstructor();
-                    CustomReward reward = cstrctr.newInstance();
+                    final String name = requirement.getName() == null ? "[" + jar.getName() + "]" : requirement
+                            .getName();
+                    final String author = requirement.getAuthor() == null ? "[Unknown]" : requirement.getAuthor();
+                    Quests.printInfo("[Quests] Loaded Module: " + name + " by " + author);
+
+                } else if (CustomReward.class.isAssignableFrom(c)) {
+
+                    final Class<? extends CustomReward> rewardClass = c.asSubclass(CustomReward.class);
+                    final Constructor<? extends CustomReward> cstrctr = rewardClass.getConstructor();
+                    final CustomReward reward = cstrctr.newInstance();
                     customRewards.add(reward);
-                    String name = reward.getName() == null ? "[" + jar.getName() + "]" : reward.getName();
-                    String author = reward.getAuthor() == null ? "[Unknown]" : reward.getAuthor();
-                    printInfo("[Quests] Loaded Module: " + name + " by " + author);
-                    
-                }else if(CustomObjective.class.isAssignableFrom(c)){
-                    
-                    Class<? extends CustomObjective> objectiveClass = c.asSubclass(CustomObjective.class);
-                    Constructor<? extends CustomObjective> cstrctr = objectiveClass.getConstructor();
-                    CustomObjective objective = cstrctr.newInstance();
+                    final String name = reward.getName() == null ? "[" + jar.getName() + "]" : reward.getName();
+                    final String author = reward.getAuthor() == null ? "[Unknown]" : reward.getAuthor();
+                    Quests.printInfo("[Quests] Loaded Module: " + name + " by " + author);
+
+                } else if (CustomObjective.class.isAssignableFrom(c)) {
+
+                    final Class<? extends CustomObjective> objectiveClass = c.asSubclass(CustomObjective.class);
+                    final Constructor<? extends CustomObjective> cstrctr = objectiveClass.getConstructor();
+                    final CustomObjective objective = cstrctr.newInstance();
                     customObjectives.add(objective);
-                    String name = objective.getName() == null ? "[" + jar.getName() + "]" : objective.getName();
-                    String author = objective.getAuthor() == null ? "[Unknown]" : objective.getAuthor();
-                    printInfo("[Quests] Loaded Module: " + name + " by " + author);
-                    
-                }else{
-                    printSevere("[Quests] Error: Unable to load module from file: " + jar.getName() + ", jar file is not a valid module!");
+                    final String name = objective.getName() == null ? "[" + jar.getName() + "]" : objective.getName();
+                    final String author = objective.getAuthor() == null ? "[Unknown]" : objective.getAuthor();
+                    Quests.printInfo("[Quests] Loaded Module: " + name + " by " + author);
+
+                } else {
+                    Quests.printSevere("[Quests] Error: Unable to load module from file: " + jar.getName()
+                            + ", jar file is not a valid module!");
                 }
             }
+            jarFile.close();
 
-        } catch (Exception e) {
-            printSevere("[Quests] Error: Unable to load module from file: " + jar.getName());
+        } catch (final Exception e) {
+            Quests.printSevere("[Quests] Error: Unable to load module from file: " + jar.getName());
             if (debug) {
-                printSevere("[Quests] Error log:");
+                Quests.printSevere("[Quests] Error log:");
                 e.printStackTrace();
             }
         }
@@ -555,53 +552,53 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public void printHelp(Player player) {
 
-        player.sendMessage(GOLD + "- Quests -");
-        player.sendMessage(YELLOW + "/quests - Display this help");
+        player.sendMessage(ColorUtil.GOLD + "- Quests -");
+        player.sendMessage(ColorUtil.YELLOW + "/quests - Display this help");
         if (player.hasPermission("quests.list")) {
-            player.sendMessage(YELLOW + "/quests list <page> - List available Quests");
+            player.sendMessage(ColorUtil.YELLOW + "/quests list <page> - List available Quests");
         }
         if (player.hasPermission("quests.take")) {
-            player.sendMessage(YELLOW + "/quests take <quest name> - Accept a Quest");
+            player.sendMessage(ColorUtil.YELLOW + "/quests take <quest name> - Accept a Quest");
         }
         if (player.hasPermission("quests.quit")) {
-            player.sendMessage(YELLOW + "/quests quit - Quit your current Quest");
+            player.sendMessage(ColorUtil.YELLOW + "/quests quit - Quit your current Quest");
         }
         if (player.hasPermission("quests.editor.editor")) {
-            player.sendMessage(YELLOW + "/quests editor - Create/Edit Quests");
+            player.sendMessage(ColorUtil.YELLOW + "/quests editor - Create/Edit Quests");
         }
         if (player.hasPermission("quests.editor.events.editor")) {
-            player.sendMessage(YELLOW + "/quests events - Create/Edit Events");
+            player.sendMessage(ColorUtil.YELLOW + "/quests events - Create/Edit Events");
         }
         if (player.hasPermission("quests.stats")) {
-            player.sendMessage(YELLOW + "/quests stats - View your Questing stats");
+            player.sendMessage(ColorUtil.YELLOW + "/quests stats - View your Questing stats");
         }
         if (player.hasPermission("quests.top")) {
-            player.sendMessage(YELLOW + "/quests top <number> - View top Questers");
+            player.sendMessage(ColorUtil.YELLOW + "/quests top <number> - View top Questers");
         }
-        //player.sendMessage(GOLD + "/quests party - Quest Party commands");
-        player.sendMessage(YELLOW + "/quests info - Display plugin information");
+        // player.sendMessage(GOLD + "/quests party - Quest Party commands");
+        player.sendMessage(ColorUtil.YELLOW + "/quests info - Display plugin information");
         player.sendMessage(" ");
-        player.sendMessage(YELLOW + "/quest - Display current Quest objectives");
+        player.sendMessage(ColorUtil.YELLOW + "/quest - Display current Quest objectives");
         if (player.hasPermission("quests.questinfo")) {
-            player.sendMessage(YELLOW + "/quest <quest name> - Display Quest information");
+            player.sendMessage(ColorUtil.YELLOW + "/quest <quest name> - Display Quest information");
         }
 
         if (player.hasPermission("quests.admin")) {
-            player.sendMessage(DARKRED + "/questadmin " + RED + "- Questadmin help");
+            player.sendMessage(ColorUtil.DARKRED + "/questadmin " + ColorUtil.RED + "- Questadmin help");
         }
 
     }
 
     public void printPartyHelp(Player player) {
 
-        player.sendMessage(PURPLE + "- Quest Parties -");
-        player.sendMessage(PINK + "/quests party create - Create new party");
-        player.sendMessage(PINK + "/quests party leave - Leave your party");
-        player.sendMessage(PINK + "/quests party info - Info about your party");
-        player.sendMessage(PURPLE + "- (Leader only) -");
-        player.sendMessage(PINK + "/quests party invite <player> - Invite a player to your party");
-        player.sendMessage(PINK + "/quests party kick <player> - Kick a member from the party");
-        player.sendMessage(PINK + "/quests party setleader <player> - Set a party member as the new leader");
+        player.sendMessage(ColorUtil.PURPLE + "- Quest Parties -");
+        player.sendMessage(ColorUtil.PINK + "/quests party create - Create new party");
+        player.sendMessage(ColorUtil.PINK + "/quests party leave - Leave your party");
+        player.sendMessage(ColorUtil.PINK + "/quests party info - Info about your party");
+        player.sendMessage(ColorUtil.PURPLE + "- (Leader only) -");
+        player.sendMessage(ColorUtil.PINK + "/quests party invite <player> - Invite a player to your party");
+        player.sendMessage(ColorUtil.PINK + "/quests party kick <player> - Kick a member from the party");
+        player.sendMessage(ColorUtil.PINK + "/quests party setleader <player> - Set a party member as the new leader");
 
     }
 
@@ -619,10 +616,10 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         if (getQuester(cs.getName()).currentQuest != null) {
 
                             if (getQuester(cs.getName()).delayStartTime == 0) {
-                                cs.sendMessage(GOLD + "---(Objectives)---");
+                                cs.sendMessage(ColorUtil.GOLD + "---(Objectives)---");
                             }
 
-                            for (String s : getQuester(cs.getName()).getObjectivesReal()) {
+                            for (final String s: getQuester(cs.getName()).getObjectivesReal()) {
 
                                 cs.sendMessage(s);
 
@@ -630,7 +627,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         } else {
 
-                            cs.sendMessage(YELLOW + "You do not currently have an active Quest.");
+                            cs.sendMessage(ColorUtil.YELLOW + "You do not currently have an active Quest.");
                             return true;
 
                         }
@@ -646,7 +643,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             } else {
 
                                 int index = 0;
-                                for (String s : args) {
+                                for (final String s: args) {
 
                                     if (index == (args.length - 1)) {
                                         name = name + s.toLowerCase();
@@ -659,44 +656,45 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                 }
                             }
 
-                            Quest quest = findQuest(name);
+                            final Quest quest = findQuest(name);
 
                             if (quest != null) {
 
-                                Player player = (Player) cs;
-                                Quester quester = getQuester(player.getName());
+                                final Player player = (Player) cs;
+                                final Quester quester = getQuester(player.getName());
 
-                                cs.sendMessage(GOLD + "- " + quest.name + " -");
+                                cs.sendMessage(ColorUtil.GOLD + "- " + quest.name + " -");
                                 cs.sendMessage(" ");
                                 if (quest.redoDelay > -1) {
 
                                     if (quest.redoDelay == 0) {
-                                        cs.sendMessage(DARKAQUA + "Redoable");
+                                        cs.sendMessage(ColorUtil.DARKAQUA + "Redoable");
                                     } else {
-                                        cs.sendMessage(DARKAQUA + "Redoable every " + AQUA + getTime(quest.redoDelay) + DARKAQUA + ".");
+                                        cs.sendMessage(ColorUtil.DARKAQUA + "Redoable every " + ColorUtil.AQUA
+                                                + Quests.getTime(quest.redoDelay) + ColorUtil.DARKAQUA + ".");
                                     }
 
                                 }
                                 if (quest.npcStart != null) {
-                                    cs.sendMessage(YELLOW + "Start: Speak to " + quest.npcStart.getName());
+                                    cs.sendMessage(ColorUtil.YELLOW + "Start: Speak to " + quest.npcStart.getName());
                                 } else {
-                                    cs.sendMessage(YELLOW + quest.description);
+                                    cs.sendMessage(ColorUtil.YELLOW + quest.description);
                                 }
 
                                 cs.sendMessage(" ");
 
                                 if (showQuestReqs == true) {
 
-                                    cs.sendMessage(GOLD + "Requirements");
+                                    cs.sendMessage(ColorUtil.GOLD + "Requirements");
 
                                     if (quest.permissionReqs.isEmpty() == false) {
 
-                                        for (String perm : quest.permissionReqs) {
+                                        for (final String perm: quest.permissionReqs) {
 
-                                            if (permission.has(player, perm)) {
-                                                cs.sendMessage(GREEN + "Permission: " + perm);
+                                            if (Quests.permission.has(player, perm)) {
+                                                cs.sendMessage(ColorUtil.GREEN + "Permission: " + perm);
                                             } else {
-                                                cs.sendMessage(RED + "Permission: " + perm);
+                                                cs.sendMessage(ColorUtil.RED + "Permission: " + perm);
                                             }
 
                                         }
@@ -705,36 +703,46 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                     if (quest.heroesPrimaryClassReq != null) {
 
-                                        if (this.testPrimaryHeroesClass(quest.heroesPrimaryClassReq, player.getName())) {
-                                            cs.sendMessage(BOLD + "" + GREEN + quest.heroesPrimaryClassReq + RESET + "" + DARKGREEN + " class");
+                                        if (testPrimaryHeroesClass(quest.heroesPrimaryClassReq, player.getName())) {
+                                            cs.sendMessage(ColorUtil.BOLD + "" + ColorUtil.GREEN
+                                                    + quest.heroesPrimaryClassReq + ColorUtil.RESET + ""
+                                                    + ColorUtil.DARKGREEN + " class");
                                         } else {
-                                            cs.sendMessage(BOLD + "" + DARKRED + quest.heroesPrimaryClassReq + RESET + "" + RED + " class");
+                                            cs.sendMessage(ColorUtil.BOLD + "" + ColorUtil.DARKRED
+                                                    + quest.heroesPrimaryClassReq + ColorUtil.RESET + ""
+                                                    + ColorUtil.RED + " class");
                                         }
 
                                     }
 
                                     if (quest.heroesSecondaryClassReq != null) {
 
-                                        if (this.testSecondaryHeroesClass(quest.heroesSecondaryClassReq, player.getName())) {
-                                            cs.sendMessage(BOLD + "" + DARKRED + quest.heroesSecondaryClassReq + RESET + "" + RED + " class");
+                                        if (testSecondaryHeroesClass(quest.heroesSecondaryClassReq, player.getName())) {
+                                            cs.sendMessage(ColorUtil.BOLD + "" + ColorUtil.DARKRED
+                                                    + quest.heroesSecondaryClassReq + ColorUtil.RESET + ""
+                                                    + ColorUtil.RED + " class");
                                         } else {
-                                            cs.sendMessage(BOLD + "" + GREEN + quest.heroesSecondaryClassReq + RESET + "" + DARKGREEN + " class");
+                                            cs.sendMessage(ColorUtil.BOLD + "" + ColorUtil.GREEN
+                                                    + quest.heroesSecondaryClassReq + ColorUtil.RESET + ""
+                                                    + ColorUtil.DARKGREEN + " class");
                                         }
 
                                     }
 
                                     if (quest.mcMMOSkillReqs.isEmpty() == false) {
 
-                                        for (String skill : quest.mcMMOSkillReqs) {
+                                        for (final String skill: quest.mcMMOSkillReqs) {
 
-                                            int level = Quests.getMCMMOSkillLevel(Quests.getMcMMOSkill(skill), player.getName());
-                                            int req = quest.mcMMOAmountReqs.get(quest.mcMMOSkillReqs.indexOf(skill));
-                                            String skillName = MiscUtil.getCapitalized(skill);
+                                            final int level = Quests.getMCMMOSkillLevel(Quests.getMcMMOSkill(skill),
+                                                    player.getName());
+                                            final int req = quest.mcMMOAmountReqs.get(quest.mcMMOSkillReqs
+                                                    .indexOf(skill));
+                                            final String skillName = MiscUtil.getCapitalized(skill);
 
                                             if (level >= req) {
-                                                cs.sendMessage(GREEN + skillName + " level " + req);
+                                                cs.sendMessage(ColorUtil.GREEN + skillName + " level " + req);
                                             } else {
-                                                cs.sendMessage(RED + skillName + " level " + req);
+                                                cs.sendMessage(ColorUtil.RED + skillName + " level " + req);
                                             }
 
                                         }
@@ -744,26 +752,32 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                     if (quest.questPointsReq != 0) {
 
                                         if (quester.questPoints >= quest.questPointsReq) {
-                                            cs.sendMessage(GRAY + "- " + GREEN + quest.questPointsReq + " Quest Points");
+                                            cs.sendMessage(ColorUtil.GRAY + "- " + ColorUtil.GREEN
+                                                    + quest.questPointsReq + " Quest Points");
                                         } else {
-                                            cs.sendMessage(GRAY + "- " + RED + quest.questPointsReq + " Quest Points");
+                                            cs.sendMessage(ColorUtil.GRAY + "- " + ColorUtil.RED + quest.questPointsReq
+                                                    + " Quest Points");
                                         }
 
                                     }
 
                                     if (quest.moneyReq != 0) {
 
-                                        if (economy.getBalance(quester.name) >= quest.moneyReq) {
+                                        if (Quests.economy.getBalance(quester.name) >= quest.moneyReq) {
                                             if (quest.moneyReq == 1) {
-                                                cs.sendMessage(GRAY + "- " + GREEN + quest.moneyReq + " " + Quests.getCurrency(false));
+                                                cs.sendMessage(ColorUtil.GRAY + "- " + ColorUtil.GREEN + quest.moneyReq
+                                                        + " " + Quests.getCurrency(false));
                                             } else {
-                                                cs.sendMessage(GRAY + "- " + GREEN + quest.moneyReq + " " + Quests.getCurrency(true));
+                                                cs.sendMessage(ColorUtil.GRAY + "- " + ColorUtil.GREEN + quest.moneyReq
+                                                        + " " + Quests.getCurrency(true));
                                             }
                                         } else {
                                             if (quest.moneyReq == 1) {
-                                                cs.sendMessage(GRAY + "- " + RED + quest.moneyReq + " " + Quests.getCurrency(false));
+                                                cs.sendMessage(ColorUtil.GRAY + "- " + ColorUtil.RED + quest.moneyReq
+                                                        + " " + Quests.getCurrency(false));
                                             } else {
-                                                cs.sendMessage(GRAY + "- " + RED + quest.moneyReq + " " + Quests.getCurrency(true));
+                                                cs.sendMessage(ColorUtil.GRAY + "- " + ColorUtil.RED + quest.moneyReq
+                                                        + " " + Quests.getCurrency(true));
                                             }
                                         }
 
@@ -771,12 +785,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                     if (quest.items.isEmpty() == false) {
 
-                                        for (ItemStack is : quest.items) {
+                                        for (final ItemStack is: quest.items) {
 
                                             if (hasItem(player, is) == true) {
-                                                cs.sendMessage(GRAY + "- " + GREEN + ItemUtil.getString(is));
+                                                cs.sendMessage(ColorUtil.GRAY + "- " + ColorUtil.GREEN
+                                                        + ItemUtil.getString(is));
                                             } else {
-                                                cs.sendMessage(GRAY + "- " + RED + ItemUtil.getString(is));
+                                                cs.sendMessage(ColorUtil.GRAY + "- " + ColorUtil.RED
+                                                        + ItemUtil.getString(is));
                                             }
 
                                         }
@@ -785,12 +801,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                     if (quest.neededQuests.isEmpty() == false) {
 
-                                        for (String s : quest.neededQuests) {
+                                        for (final String s: quest.neededQuests) {
 
                                             if (quester.completedQuests.contains(s)) {
-                                                cs.sendMessage(GRAY + "- " + GREEN + "Complete " + ITALIC + s);
+                                                cs.sendMessage(ColorUtil.GRAY + "- " + ColorUtil.GREEN + "Complete "
+                                                        + ColorUtil.ITALIC + s);
                                             } else {
-                                                cs.sendMessage(GRAY + "- " + RED + "Complete " + ITALIC + s);
+                                                cs.sendMessage(ColorUtil.GRAY + "- " + ColorUtil.RED + "Complete "
+                                                        + ColorUtil.ITALIC + s);
                                             }
 
                                         }
@@ -799,12 +817,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                     if (quest.blockQuests.isEmpty() == false) {
 
-                                        for (String s : quest.blockQuests) {
+                                        for (final String s: quest.blockQuests) {
 
                                             if (quester.completedQuests.contains(s)) {
-                                                cs.sendMessage(GRAY + "- " + RED + "You have already Completed " + ITALIC + s);
+                                                cs.sendMessage(ColorUtil.GRAY + "- " + ColorUtil.RED
+                                                        + "You have already Completed " + ColorUtil.ITALIC + s);
                                             } else {
-                                                cs.sendMessage(GRAY + "- " + GREEN + "Still able to complete " + ITALIC + s);
+                                                cs.sendMessage(ColorUtil.GRAY + "- " + ColorUtil.GREEN
+                                                        + "Still able to complete " + ColorUtil.ITALIC + s);
                                             }
 
                                         }
@@ -815,14 +835,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                             } else {
 
-                                cs.sendMessage(YELLOW + "Quest not found.");
+                                cs.sendMessage(ColorUtil.YELLOW + "Quest not found.");
                                 return true;
 
                             }
 
                         } else {
 
-                            cs.sendMessage(RED + "You do not have permission to view a Quest's information.");
+                            cs.sendMessage(ColorUtil.RED + "You do not have permission to view a Quest's information.");
                             return true;
 
                         }
@@ -831,14 +851,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                 } else {
 
-                    cs.sendMessage(RED + "You do not have access to that command.");
+                    cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
                     return true;
 
                 }
 
             } else {
 
-                cs.sendMessage(YELLOW + "This command may only be performed in-game.");
+                cs.sendMessage(ColorUtil.YELLOW + "This command may only be performed in-game.");
                 return true;
 
             }
@@ -853,12 +873,12 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (((Player) cs).hasPermission("quests.quests")) {
 
-                        Player p = (Player) cs;
+                        final Player p = (Player) cs;
                         printHelp(p);
 
                     } else {
 
-                        cs.sendMessage(RED + "You do not have access to that command.");
+                        cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
                         return true;
 
                     }
@@ -880,14 +900,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                     page = Integer.parseInt(args[1]);
                                     if (page < 1) {
 
-                                        cs.sendMessage(YELLOW + "Page selection must be a positive number.");
+                                        cs.sendMessage(ColorUtil.YELLOW + "Page selection must be a positive number.");
                                         return true;
 
                                     }
 
-                                } catch (NumberFormatException e) {
+                                } catch (final NumberFormatException e) {
 
-                                    cs.sendMessage(YELLOW + "Page selection must be a number.");
+                                    cs.sendMessage(ColorUtil.YELLOW + "Page selection must be a number.");
                                     return true;
 
                                 }
@@ -899,7 +919,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         } else {
 
-                            cs.sendMessage(RED + "You do not have permission to view the Quests list.");
+                            cs.sendMessage(ColorUtil.RED + "You do not have permission to view the Quests list.");
                             return true;
 
                         }
@@ -912,7 +932,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                 if (args.length == 1) {
 
-                                    cs.sendMessage(YELLOW + "Usage: /quests take <quest>");
+                                    cs.sendMessage(ColorUtil.YELLOW + "Usage: /quests take <quest>");
                                     return true;
 
                                 } else {
@@ -924,10 +944,10 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                     } else {
 
                                         boolean first = true;
-                                        int lastIndex = (args.length - 1);
+                                        final int lastIndex = (args.length - 1);
                                         int index = 0;
 
-                                        for (String s : args) {
+                                        for (final String s: args) {
 
                                             if (index != 0) {
 
@@ -954,7 +974,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                     }
 
-                                    Quest questToFind = findQuest(name);
+                                    final Quest questToFind = findQuest(name);
 
                                     if (questToFind != null) {
 
@@ -962,13 +982,17 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                         final Quester quester = getQuester(cs.getName());
 
                                         if (quester.currentQuest != null) {
-                                            cs.sendMessage(YELLOW + "You may only have one active Quest.");
+                                            cs.sendMessage(ColorUtil.YELLOW + "You may only have one active Quest.");
                                         } else if (quester.completedQuests.contains(quest.name) && quest.redoDelay < 0) {
-                                            cs.sendMessage(YELLOW + "You have already completed " + PURPLE + quest.name + YELLOW + ".");
+                                            cs.sendMessage(ColorUtil.YELLOW + "You have already completed "
+                                                    + ColorUtil.PURPLE + quest.name + ColorUtil.YELLOW + ".");
                                         } else if (quest.npcStart != null && allowCommandsForNpcQuests == false) {
-                                            cs.sendMessage(YELLOW + "You must speak to " + PURPLE + quest.npcStart.getName() + YELLOW + " to start this Quest.");
+                                            cs.sendMessage(ColorUtil.YELLOW + "You must speak to " + ColorUtil.PURPLE
+                                                    + quest.npcStart.getName() + ColorUtil.YELLOW
+                                                    + " to start this Quest.");
                                         } else if (quest.blockStart != null) {
-                                            cs.sendMessage(PURPLE + quest.name + YELLOW + " may not be started via command.");
+                                            cs.sendMessage(ColorUtil.PURPLE + quest.name + ColorUtil.YELLOW
+                                                    + " may not be started via command.");
                                         } else {
 
                                             boolean takeable = true;
@@ -976,7 +1000,11 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                             if (quester.completedQuests.contains(quest.name)) {
 
                                                 if (quester.getDifference(quest) > 0) {
-                                                    cs.sendMessage(YELLOW + "You may not take " + AQUA + quest.name + YELLOW + " again for another " + PURPLE + getTime(quester.getDifference(quest)) + YELLOW + ".");
+                                                    cs.sendMessage(ColorUtil.YELLOW + "You may not take "
+                                                            + ColorUtil.AQUA + quest.name + ColorUtil.YELLOW
+                                                            + " again for another " + ColorUtil.PURPLE
+                                                            + Quests.getTime(quester.getDifference(quest))
+                                                            + ColorUtil.YELLOW + ".");
                                                     takeable = false;
                                                 }
 
@@ -985,11 +1013,13 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                             if (quest.region != null) {
 
                                                 boolean inRegion = false;
-                                                Player p = quester.getPlayer();
-                                                RegionManager rm = worldGuard.getRegionManager(p.getWorld());
-                                                Iterator<ProtectedRegion> it = rm.getApplicableRegions(p.getLocation()).iterator();
+                                                final Player p = quester.getPlayer();
+                                                final RegionManager rm = Quests.worldGuard.getRegionManager(p
+                                                        .getWorld());
+                                                final Iterator<ProtectedRegion> it = rm.getApplicableRegions(
+                                                        p.getLocation()).iterator();
                                                 while (it.hasNext()) {
-                                                    ProtectedRegion pr = it.next();
+                                                    final ProtectedRegion pr = it.next();
                                                     if (pr.getId().equalsIgnoreCase(quest.region)) {
                                                         inRegion = true;
                                                         break;
@@ -997,7 +1027,9 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                                 }
 
                                                 if (inRegion == false) {
-                                                    cs.sendMessage(YELLOW + "You may not take " + AQUA + quest.name + YELLOW + " at this location.");
+                                                    cs.sendMessage(ColorUtil.YELLOW + "You may not take "
+                                                            + ColorUtil.AQUA + quest.name + ColorUtil.YELLOW
+                                                            + " at this location.");
                                                     takeable = false;
                                                 }
 
@@ -1011,12 +1043,12 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                                         quester.questToTake = quest.name;
 
-                                                        String s
-                                                                = GOLD + "- " + PURPLE + quester.questToTake + GOLD + " -\n"
-                                                                + "\n"
-                                                                + RESET + getQuest(quester.questToTake).description + "\n";
+                                                        final String s = ColorUtil.GOLD + "- " + ColorUtil.PURPLE
+                                                                + quester.questToTake + ColorUtil.GOLD + " -\n" + "\n"
+                                                                + ColorUtil.RESET
+                                                                + getQuest(quester.questToTake).description + "\n";
 
-                                                        for (String msg : s.split("<br>")) {
+                                                        for (final String msg: s.split("<br>")) {
                                                             cs.sendMessage(msg);
                                                         }
 
@@ -1024,7 +1056,8 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                                     } else {
 
-                                                        cs.sendMessage(YELLOW + "You are already in a conversation!");
+                                                        cs.sendMessage(ColorUtil.YELLOW
+                                                                + "You are already in a conversation!");
 
                                                     }
 
@@ -1038,7 +1071,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                         }
 
                                     } else {
-                                        cs.sendMessage(YELLOW + "Quest not found.");
+                                        cs.sendMessage(ColorUtil.YELLOW + "Quest not found.");
                                         return true;
                                     }
 
@@ -1046,14 +1079,15 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                             } else {
 
-                                cs.sendMessage(RED + "You do not have permission to take Quests via commands.");
+                                cs.sendMessage(ColorUtil.RED
+                                        + "You do not have permission to take Quests via commands.");
                                 return true;
 
                             }
 
                         } else {
 
-                            cs.sendMessage(YELLOW + "Taking Quests via commands has been disabled.");
+                            cs.sendMessage(ColorUtil.YELLOW + "Taking Quests via commands has been disabled.");
                             return true;
 
                         }
@@ -1064,62 +1098,59 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                             if (((Player) cs).hasPermission("quests.quit")) {
 
-                                Quester quester = getQuester(cs.getName());
+                                final Quester quester = getQuester(cs.getName());
                                 if (quester.currentQuest != null) {
 
                                     quester.resetObjectives();
                                     quester.currentStage = null;
                                     quester.currentStageIndex = 0;
-                                    cs.sendMessage(YELLOW + "You have quit " + PURPLE + quester.currentQuest.name + YELLOW + ".");
+                                    cs.sendMessage(ColorUtil.YELLOW + "You have quit " + ColorUtil.PURPLE
+                                            + quester.currentQuest.name + ColorUtil.YELLOW + ".");
                                     quester.currentQuest = null;
                                     quester.saveData();
                                     quester.loadData();
                                     return true;
 
-                                } else {
-
-                                    cs.sendMessage(YELLOW + "You do not currently have an active Quest.");
-                                    return true;
-
                                 }
-
-                            } else {
-
-                                cs.sendMessage(RED + "You do not have permission to quit Quests.");
+                                cs.sendMessage(ColorUtil.YELLOW + "You do not currently have an active Quest.");
                                 return true;
+
                             }
+                            return extracted(cs);
 
                         } else {
 
-                            cs.sendMessage(YELLOW + "Quitting Quests has been disabled.");
+                            cs.sendMessage(ColorUtil.YELLOW + "Quitting Quests has been disabled.");
                             return true;
 
                         }
 
                     } else if (args[0].equalsIgnoreCase("stats")) {
 
-                        Quester quester = getQuester(cs.getName());
-                        cs.sendMessage(GOLD + "- " + cs.getName() + " -");
-                        cs.sendMessage(YELLOW + "Quest points: " + PURPLE + quester.questPoints + "/" + totalQuestPoints);
+                        final Quester quester = getQuester(cs.getName());
+                        cs.sendMessage(ColorUtil.GOLD + "- " + cs.getName() + " -");
+                        cs.sendMessage(ColorUtil.YELLOW + "Quest points: " + ColorUtil.PURPLE + quester.questPoints
+                                + "/" + totalQuestPoints);
                         if (quester.currentQuest == null) {
-                            cs.sendMessage(YELLOW + "Current Quest: " + PURPLE + "None");
+                            cs.sendMessage(ColorUtil.YELLOW + "Current Quest: " + ColorUtil.PURPLE + "None");
                         } else {
-                            cs.sendMessage(YELLOW + "Current Quest: " + PURPLE + quester.currentQuest.name);
+                            cs.sendMessage(ColorUtil.YELLOW + "Current Quest: " + ColorUtil.PURPLE
+                                    + quester.currentQuest.name);
                         }
 
                         String completed;
 
                         if (quester.completedQuests.isEmpty()) {
-                            completed = PURPLE + "None";
+                            completed = ColorUtil.PURPLE + "None";
                         } else {
 
-                            completed = PURPLE + "";
-                            for (String s : quester.completedQuests) {
+                            completed = ColorUtil.PURPLE + "";
+                            for (final String s: quester.completedQuests) {
 
                                 completed += s;
 
                                 if (quester.amountsCompleted.containsKey(s) && quester.amountsCompleted.get(s) > 1) {
-                                    completed += PINK + " (x" + quester.amountsCompleted.get(s) + ")";
+                                    completed += ColorUtil.PINK + " (x" + quester.amountsCompleted.get(s) + ")";
                                 }
 
                                 if (quester.completedQuests.indexOf(s) < (quester.completedQuests.size() - 1)) {
@@ -1130,14 +1161,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         }
 
-                        cs.sendMessage(YELLOW + "- Completed Quests -");
+                        cs.sendMessage(ColorUtil.YELLOW + "- Completed Quests -");
                         cs.sendMessage(completed);
 
                     } else if (args[0].equalsIgnoreCase("top")) {
 
                         if (args.length == 1 || args.length > 2) {
 
-                            cs.sendMessage(YELLOW + "Usage: /quests top <number>");
+                            cs.sendMessage(ColorUtil.YELLOW + "Usage: /quests top <number>");
 
                         } else {
 
@@ -1147,55 +1178,58 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                 topNumber = Integer.parseInt(args[1]);
 
-                            } catch (NumberFormatException e) {
+                            } catch (final NumberFormatException e) {
 
-                                cs.sendMessage(YELLOW + "Input must be a number.");
+                                cs.sendMessage(ColorUtil.YELLOW + "Input must be a number.");
                                 return true;
 
                             }
 
                             if (topNumber < 1) {
 
-                                cs.sendMessage(YELLOW + "Input must be a positive number.");
+                                cs.sendMessage(ColorUtil.YELLOW + "Input must be a positive number.");
                                 return true;
 
                             }
 
-                            File folder = new File(this.getDataFolder(), "data");
-                            File[] playerFiles = folder.listFiles();
+                            final File folder = new File(getDataFolder(), "data");
+                            final File[] playerFiles = folder.listFiles();
 
-                            Map<String, Integer> questPoints = new HashMap<String, Integer>();
+                            final Map<String, Integer> questPoints = new HashMap<String, Integer>();
 
-                            for (File f : playerFiles) {
+                            for (final File f: playerFiles) {
 
-                                FileConfiguration data = new YamlConfiguration();
+                                final FileConfiguration data = new YamlConfiguration();
                                 try {
 
                                     data.load(f);
 
-                                } catch (IOException e) {
+                                } catch (final IOException e) {
 
                                     e.printStackTrace();
 
-                                } catch (InvalidConfigurationException e) {
+                                } catch (final InvalidConfigurationException e) {
                                     e.printStackTrace();
                                 }
 
-                                String name = f.getName().substring(0, (f.getName().indexOf(".")));
+                                final String name = f.getName().substring(0, (f.getName().indexOf(".")));
                                 questPoints.put(name, data.getInt("quest-points"));
 
                             }
 
-                            LinkedHashMap<String, Integer> sortedMap = (LinkedHashMap<String, Integer>) Quests.sort(questPoints);
+                            final LinkedHashMap<String, Integer> sortedMap = (LinkedHashMap<String, Integer>) Quests
+                                    .sort(questPoints);
 
                             int numPrinted = 0;
 
-                            cs.sendMessage(GOLD + "- Top " + PURPLE + topNumber + GOLD + " Questers -");
-                            for (String s : sortedMap.keySet()) {
+                            cs.sendMessage(ColorUtil.GOLD + "- Top " + ColorUtil.PURPLE + topNumber + ColorUtil.GOLD
+                                    + " Questers -");
+                            for (final String s: sortedMap.keySet()) {
 
-                                int i = (Integer) sortedMap.get(s);
+                                final int i = sortedMap.get(s);
                                 numPrinted++;
-                                cs.sendMessage(YELLOW + String.valueOf(numPrinted) + ". " + s + " - " + PURPLE + i + YELLOW + " Quest points");
+                                cs.sendMessage(ColorUtil.YELLOW + String.valueOf(numPrinted) + ". " + s + " - "
+                                        + ColorUtil.PURPLE + i + ColorUtil.YELLOW + " Quest points");
 
                                 if (numPrinted == topNumber) {
                                     break;
@@ -1212,7 +1246,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         if (cs.hasPermission("quests.editor.editor")) {
                             questFactory.convoCreator.buildConversation((Conversable) cs).begin();
                         } else {
-                            cs.sendMessage(RED + "You do not have permission to use the Quests Editor.");
+                            cs.sendMessage(ColorUtil.RED + "You do not have permission to use the Quests Editor.");
                         }
                         return true;
 
@@ -1221,19 +1255,19 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         if (cs.hasPermission("quests.editor.events.editor")) {
                             eventFactory.convoCreator.buildConversation((Conversable) cs).begin();
                         } else {
-                            cs.sendMessage(RED + "You do not have permission to use the Events editor.");
+                            cs.sendMessage(ColorUtil.RED + "You do not have permission to use the Events editor.");
                         }
                         return true;
 
                     } else if (args[0].equalsIgnoreCase("info")) {
 
-                        cs.sendMessage(GOLD + "Quests " + this.getDescription().getVersion());
-                        cs.sendMessage(GOLD + "Made by " + DARKRED + "Blackvein");
+                        cs.sendMessage(ColorUtil.GOLD + "Quests " + getDescription().getVersion());
+                        cs.sendMessage(ColorUtil.GOLD + "Made by " + ColorUtil.DARKRED + "Blackvein");
                         return true;
 
                     } else {
 
-                        cs.sendMessage(YELLOW + "Unknown Quests command. Type /quests for help.");
+                        cs.sendMessage(ColorUtil.YELLOW + "Unknown Quests command. Type /quests for help.");
                         return true;
 
                     }
@@ -1242,7 +1276,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
             } else {
 
-                cs.sendMessage(YELLOW + "This command may only be performed in-game.");
+                cs.sendMessage(ColorUtil.YELLOW + "This command may only be performed in-game.");
                 return true;
 
             }
@@ -1256,7 +1290,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                 if (cs.hasPermission("quests.admin")) {
                     printAdminHelp(cs);
                 } else {
-                    cs.sendMessage(RED + "You do not have access to that command.");
+                    cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
                 }
 
             } else if (args.length == 1) {
@@ -1265,15 +1299,16 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (cs.hasPermission("quests.admin.reload")) {
                         reloadQuests();
-                        cs.sendMessage(GOLD + "Quests reloaded.");
-                        cs.sendMessage(PURPLE + String.valueOf(quests.size()) + GOLD + " Quests loaded.");
+                        cs.sendMessage(ColorUtil.GOLD + "Quests reloaded.");
+                        cs.sendMessage(ColorUtil.PURPLE + String.valueOf(quests.size()) + ColorUtil.GOLD
+                                + " Quests loaded.");
                     } else {
-                        cs.sendMessage(RED + "You do not have access to that command.");
+                        cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
                     }
 
                 } else {
 
-                    cs.sendMessage(YELLOW + "Unknown Questadmin command. Type /questadmin for help.");
+                    cs.sendMessage(ColorUtil.YELLOW + "Unknown Questadmin command. Type /questadmin for help.");
 
                 }
 
@@ -1285,7 +1320,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         Player target = null;
 
-                        for (Player p : getServer().getOnlinePlayers()) {
+                        for (final Player p: getServer().getOnlinePlayers()) {
 
                             if (p.getName().toLowerCase().contains(args[1].toLowerCase())) {
                                 target = p;
@@ -1296,22 +1331,27 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         if (target == null) {
 
-                            cs.sendMessage(YELLOW + "Player not found.");
+                            cs.sendMessage(ColorUtil.YELLOW + "Player not found.");
 
                         } else {
 
-                            Quester quester = getQuester(target.getName());
+                            final Quester quester = getQuester(target.getName());
                             if (quester.currentQuest == null) {
 
-                                cs.sendMessage(YELLOW + target.getName() + " does not currently have an active Quest.");
+                                cs.sendMessage(ColorUtil.YELLOW + target.getName()
+                                        + " does not currently have an active Quest.");
 
                             } else {
 
                                 quester.resetObjectives();
                                 quester.currentStage = null;
                                 quester.currentStageIndex = 0;
-                                cs.sendMessage(GREEN + target.getName() + GOLD + " has forcibly quit the Quest " + PURPLE + quester.currentQuest.name + GOLD + ".");
-                                target.sendMessage(GREEN + cs.getName() + GOLD + " has forced you to quit the Quest " + PURPLE + quester.currentQuest.name + GOLD + ".");
+                                cs.sendMessage(ColorUtil.GREEN + target.getName() + ColorUtil.GOLD
+                                        + " has forcibly quit the Quest " + ColorUtil.PURPLE
+                                        + quester.currentQuest.name + ColorUtil.GOLD + ".");
+                                target.sendMessage(ColorUtil.GREEN + cs.getName() + ColorUtil.GOLD
+                                        + " has forced you to quit the Quest " + ColorUtil.PURPLE
+                                        + quester.currentQuest.name + ColorUtil.GOLD + ".");
                                 quester.currentQuest = null;
 
                                 quester.saveData();
@@ -1322,7 +1362,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     } else {
 
-                        cs.sendMessage(RED + "You do not have access to that command.");
+                        cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
 
                     }
 
@@ -1332,7 +1372,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         Player target = null;
 
-                        for (Player p : getServer().getOnlinePlayers()) {
+                        for (final Player p: getServer().getOnlinePlayers()) {
 
                             if (p.getName().toLowerCase().contains(args[1].toLowerCase())) {
                                 target = p;
@@ -1343,19 +1383,24 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         if (target == null) {
 
-                            cs.sendMessage(YELLOW + "Player not found.");
+                            cs.sendMessage(ColorUtil.YELLOW + "Player not found.");
 
                         } else {
 
-                            Quester quester = getQuester(target.getName());
+                            final Quester quester = getQuester(target.getName());
                             if (quester.currentQuest == null) {
 
-                                cs.sendMessage(YELLOW + target.getName() + " does not currently have an active Quest.");
+                                cs.sendMessage(ColorUtil.YELLOW + target.getName()
+                                        + " does not currently have an active Quest.");
 
                             } else {
 
-                                cs.sendMessage(GREEN + target.getName() + GOLD + " has advanced to the next Stage in the Quest " + PURPLE + quester.currentQuest.name + GOLD + ".");
-                                target.sendMessage(GREEN + cs.getName() + GOLD + " has advanced you to the next Stage in your Quest " + PURPLE + quester.currentQuest.name + GOLD + ".");
+                                cs.sendMessage(ColorUtil.GREEN + target.getName() + ColorUtil.GOLD
+                                        + " has advanced to the next Stage in the Quest " + ColorUtil.PURPLE
+                                        + quester.currentQuest.name + ColorUtil.GOLD + ".");
+                                target.sendMessage(ColorUtil.GREEN + cs.getName() + ColorUtil.GOLD
+                                        + " has advanced you to the next Stage in your Quest " + ColorUtil.PURPLE
+                                        + quester.currentQuest.name + ColorUtil.GOLD + ".");
                                 quester.currentQuest.nextStage(quester);
 
                                 quester.saveData();
@@ -1366,7 +1411,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     } else {
 
-                        cs.sendMessage(RED + "You do not have access to that command.");
+                        cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
 
                     }
 
@@ -1376,9 +1421,9 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         Player target = null;
 
-                        for (Player p : getServer().getOnlinePlayers()) {
+                        for (final Player p: getServer().getOnlinePlayers()) {
 
-                            //To ensure the correct player is selected
+                            // To ensure the correct player is selected
                             if (p.getName().equalsIgnoreCase(args[1])) {
                                 target = p;
                                 break;
@@ -1388,7 +1433,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         if (target == null) {
                             //
-                            for (Player p : getServer().getOnlinePlayers()) {
+                            for (final Player p: getServer().getOnlinePlayers()) {
 
                                 if (p.getName().toLowerCase().contains(args[1].toLowerCase())) {
                                     target = p;
@@ -1400,31 +1445,33 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         if (args.length > 2) {
                             try {
                                 stage = Integer.parseInt(args[2]);
-                            } catch (NumberFormatException e) {
-                                cs.sendMessage(YELLOW + "Invalid number");
+                            } catch (final NumberFormatException e) {
+                                cs.sendMessage(ColorUtil.YELLOW + "Invalid number");
                             }
                         } else {
-                            cs.sendMessage(YELLOW + "Enter a stage");
+                            cs.sendMessage(ColorUtil.YELLOW + "Enter a stage");
                             return true;
                         }
 
                         if (target == null) {
 
-                            cs.sendMessage(YELLOW + "Player not found.");
+                            cs.sendMessage(ColorUtil.YELLOW + "Player not found.");
 
                         } else {
 
-                            Quester quester = getQuester(target.getName());
+                            final Quester quester = getQuester(target.getName());
                             if (quester.currentQuest == null) {
 
-                                cs.sendMessage(YELLOW + target.getName() + " does not currently have an active Quest.");
+                                cs.sendMessage(ColorUtil.YELLOW + target.getName()
+                                        + " does not currently have an active Quest.");
 
                             } else {
 
                                 try {
                                     quester.currentQuest.setStage(quester, stage);
-                                } catch (InvalidStageException e) {
-                                    cs.sendMessage(ChatColor.RED + "Advancing " + target.getName() + " to Stage: " + stage + ", has failed.");
+                                } catch (final InvalidStageException e) {
+                                    cs.sendMessage(ChatColor.RED + "Advancing " + target.getName() + " to Stage: "
+                                            + stage + ", has failed.");
                                     cs.sendMessage(ChatColor.RED + "Not enough stages.");
                                 }
 
@@ -1436,7 +1483,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     } else {
 
-                        cs.sendMessage(RED + "You do not have access to that command.");
+                        cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
 
                     }
 
@@ -1446,7 +1493,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         Player target = null;
 
-                        for (Player p : getServer().getOnlinePlayers()) {
+                        for (final Player p: getServer().getOnlinePlayers()) {
 
                             if (p.getName().toLowerCase().contains(args[1].toLowerCase())) {
                                 target = p;
@@ -1457,19 +1504,24 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         if (target == null) {
 
-                            cs.sendMessage(YELLOW + "Player not found.");
+                            cs.sendMessage(ColorUtil.YELLOW + "Player not found.");
 
                         } else {
 
-                            Quester quester = getQuester(target.getName());
+                            final Quester quester = getQuester(target.getName());
                             if (quester.currentQuest == null) {
 
-                                cs.sendMessage(YELLOW + target.getName() + " does not currently have an active Quest.");
+                                cs.sendMessage(ColorUtil.YELLOW + target.getName()
+                                        + " does not currently have an active Quest.");
 
                             } else {
 
-                                cs.sendMessage(GREEN + target.getName() + GOLD + " has advanced to the next Stage in the Quest " + PURPLE + quester.currentQuest.name + GOLD + ".");
-                                target.sendMessage(GREEN + cs.getName() + GOLD + " has advanced you to the next Stage in your Quest " + PURPLE + quester.currentQuest.name + GOLD + ".");
+                                cs.sendMessage(ColorUtil.GREEN + target.getName() + ColorUtil.GOLD
+                                        + " has advanced to the next Stage in the Quest " + ColorUtil.PURPLE
+                                        + quester.currentQuest.name + ColorUtil.GOLD + ".");
+                                target.sendMessage(ColorUtil.GREEN + cs.getName() + ColorUtil.GOLD
+                                        + " has advanced you to the next Stage in your Quest " + ColorUtil.PURPLE
+                                        + quester.currentQuest.name + ColorUtil.GOLD + ".");
                                 quester.currentQuest.completeQuest(quester);
 
                                 quester.saveData();
@@ -1480,7 +1532,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     } else {
 
-                        cs.sendMessage(RED + "You do not have access to that command.");
+                        cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
 
                     }
 
@@ -1495,27 +1547,27 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             amount = Integer.parseInt(args[1]);
 
                             if (amount < 0) {
-                                cs.sendMessage(RED + "Error: Amount cannot be less than zero!");
+                                cs.sendMessage(ColorUtil.RED + "Error: Amount cannot be less than zero!");
                                 return true;
                             }
 
-                        } catch (NumberFormatException e) {
-                            cs.sendMessage(RED + "Error: Input was not a number!");
+                        } catch (final NumberFormatException e) {
+                            cs.sendMessage(ColorUtil.RED + "Error: Input was not a number!");
                             return true;
                         }
 
-                        Thread thread = new Thread(new Runnable() {
+                        final Thread thread = new Thread(new Runnable() {
                             @Override
                             public void run() {
 
-                                File questerFolder = new File(Quests.this.getDataFolder(), "data");
+                                final File questerFolder = new File(Quests.this.getDataFolder(), "data");
                                 if (questerFolder.exists() && questerFolder.isDirectory()) {
 
-                                    FileConfiguration data = new YamlConfiguration();
+                                    final FileConfiguration data = new YamlConfiguration();
                                     int failCount = 0;
                                     boolean suppressed = false;
 
-                                    for (File f : questerFolder.listFiles()) {
+                                    for (final File f: questerFolder.listFiles()) {
 
                                         try {
 
@@ -1523,40 +1575,47 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                             data.set("quest-points", amount);
                                             data.save(f);
 
-                                        } catch (IOException e) {
+                                        } catch (final IOException e) {
 
                                             if (failCount < 10) {
-                                                cs.sendMessage(RED + "Error reading " + DARKAQUA + f.getName() + RED + ", skipping..");
+                                                cs.sendMessage(ColorUtil.RED + "Error reading " + ColorUtil.DARKAQUA
+                                                        + f.getName() + ColorUtil.RED + ", skipping..");
                                                 failCount++;
                                             } else if (suppressed == false) {
-                                                cs.sendMessage(RED + "Error reading " + DARKAQUA + f.getName() + RED + ", suppressing further errors.");
+                                                cs.sendMessage(ColorUtil.RED + "Error reading " + ColorUtil.DARKAQUA
+                                                        + f.getName() + ColorUtil.RED + ", suppressing further errors.");
                                                 suppressed = true;
                                             }
 
-                                        } catch (InvalidConfigurationException e) {
+                                        } catch (final InvalidConfigurationException e) {
                                             if (failCount < 10) {
-                                                cs.sendMessage(RED + "Error reading " + DARKAQUA + f.getName() + RED + ", skipping..");
+                                                cs.sendMessage(ColorUtil.RED + "Error reading " + ColorUtil.DARKAQUA
+                                                        + f.getName() + ColorUtil.RED + ", skipping..");
                                                 failCount++;
                                             } else if (suppressed == false) {
-                                                cs.sendMessage(RED + "Error reading " + DARKAQUA + f.getName() + RED + ", suppressing further errors.");
+                                                cs.sendMessage(ColorUtil.RED + "Error reading " + ColorUtil.DARKAQUA
+                                                        + f.getName() + ColorUtil.RED + ", suppressing further errors.");
                                                 suppressed = true;
                                             }
                                         }
 
                                     }
 
-                                    cs.sendMessage(GREEN + "Done.");
-                                    getServer().broadcastMessage(YELLOW + "[Quests] " + GOLD + "All players' Quest Points have been set to " + AQUA + amount + GOLD + "!");
+                                    cs.sendMessage(ColorUtil.GREEN + "Done.");
+                                    getServer().broadcastMessage(
+                                            ColorUtil.YELLOW + "[Quests] " + ColorUtil.GOLD
+                                                    + "All players' Quest Points have been set to " + ColorUtil.AQUA
+                                                    + amount + ColorUtil.GOLD + "!");
 
                                 } else {
-                                    cs.sendMessage(RED + "Error: Unable to read Quests data folder!");
+                                    cs.sendMessage(ColorUtil.RED + "Error: Unable to read Quests data folder!");
                                 }
 
                             }
                         });
 
-                        cs.sendMessage(YELLOW + "Setting all players' Quest Points...");
-                        for (Quester q : questers.values()) {
+                        cs.sendMessage(ColorUtil.YELLOW + "Setting all players' Quest Points...");
+                        for (final Quester q: questers.values()) {
 
                             q.questPoints = amount;
 
@@ -1565,7 +1624,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     } else {
 
-                        cs.sendMessage(RED + "You do not have access to that command.");
+                        cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
 
                     }
 
@@ -1575,7 +1634,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         Player target = null;
 
-                        for (Player p : getServer().getOnlinePlayers()) {
+                        for (final Player p: getServer().getOnlinePlayers()) {
 
                             if (p.getName().toLowerCase().contains(args[1].toLowerCase())) {
                                 target = p;
@@ -1586,7 +1645,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         if (target == null) {
 
-                            cs.sendMessage(YELLOW + "Player not found.");
+                            cs.sendMessage(ColorUtil.YELLOW + "Player not found.");
 
                         } else {
 
@@ -1599,10 +1658,10 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             } else {
 
                                 boolean first = true;
-                                int lastIndex = (args.length - 1);
+                                final int lastIndex = (args.length - 1);
                                 int index = 0;
 
-                                for (String s : args) {
+                                for (final String s: args) {
 
                                     if (index != 0) {
 
@@ -1633,15 +1692,18 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                             if (questToGive == null) {
 
-                                cs.sendMessage(YELLOW + "Quest not found.");
+                                cs.sendMessage(ColorUtil.YELLOW + "Quest not found.");
 
                             } else {
 
-                                Quester quester = getQuester(target.getName());
+                                final Quester quester = getQuester(target.getName());
                                 quester.resetObjectives();
 
-                                cs.sendMessage(GREEN + target.getName() + GOLD + " has forcibly started the Quest " + PURPLE + questToGive.name + GOLD + ".");
-                                target.sendMessage(GREEN + "You have been forced to take the Quest " + PURPLE + questToGive.name + GOLD + ".");
+                                cs.sendMessage(ColorUtil.GREEN + target.getName() + ColorUtil.GOLD
+                                        + " has forcibly started the Quest " + ColorUtil.PURPLE + questToGive.name
+                                        + ColorUtil.GOLD + ".");
+                                target.sendMessage(ColorUtil.GREEN + "You have been forced to take the Quest "
+                                        + ColorUtil.PURPLE + questToGive.name + ColorUtil.GOLD + ".");
                                 quester.takeQuest(questToGive, true);
 
                             }
@@ -1650,7 +1712,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     } else {
 
-                        cs.sendMessage(RED + "You do not have access to that command.");
+                        cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
 
                     }
 
@@ -1660,7 +1722,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         Player target = null;
 
-                        for (Player p : getServer().getOnlinePlayers()) {
+                        for (final Player p: getServer().getOnlinePlayers()) {
 
                             if (p.getName().equalsIgnoreCase(args[1])) {
                                 target = p;
@@ -1671,7 +1733,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         if (target == null) {
 
-                            cs.sendMessage(YELLOW + "Player not found.");
+                            cs.sendMessage(ColorUtil.YELLOW + "Player not found.");
 
                         } else {
 
@@ -1681,17 +1743,21 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                 points = Integer.parseInt(args[2]);
 
-                            } catch (NumberFormatException e) {
+                            } catch (final NumberFormatException e) {
 
-                                cs.sendMessage(YELLOW + "Amount must be a number.");
+                                cs.sendMessage(ColorUtil.YELLOW + "Amount must be a number.");
                                 return true;
 
                             }
 
-                            Quester quester = getQuester(target.getName());
+                            final Quester quester = getQuester(target.getName());
                             quester.questPoints = points;
-                            cs.sendMessage(GREEN + target.getName() + GOLD + "\'s Quest Points have been set to " + PURPLE + points + GOLD + ".");
-                            target.sendMessage(GREEN + cs.getName() + GOLD + " has set your Quest Points to " + PURPLE + points + GOLD + ".");
+                            cs.sendMessage(ColorUtil.GREEN + target.getName() + ColorUtil.GOLD
+                                    + "\'s Quest Points have been set to " + ColorUtil.PURPLE + points + ColorUtil.GOLD
+                                    + ".");
+                            target.sendMessage(ColorUtil.GREEN + cs.getName() + ColorUtil.GOLD
+                                    + " has set your Quest Points to " + ColorUtil.PURPLE + points + ColorUtil.GOLD
+                                    + ".");
 
                             quester.saveData();
 
@@ -1699,7 +1765,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     } else {
 
-                        cs.sendMessage(RED + "You do not have access to that command.");
+                        cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
 
                     }
 
@@ -1709,7 +1775,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         Player target = null;
 
-                        for (Player p : getServer().getOnlinePlayers()) {
+                        for (final Player p: getServer().getOnlinePlayers()) {
 
                             if (p.getName().equalsIgnoreCase(args[1])) {
                                 target = p;
@@ -1720,7 +1786,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         if (target == null) {
 
-                            cs.sendMessage(YELLOW + "Player not found.");
+                            cs.sendMessage(ColorUtil.YELLOW + "Player not found.");
 
                         } else {
 
@@ -1730,16 +1796,19 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                 points = Integer.parseInt(args[2]);
 
-                            } catch (NumberFormatException e) {
+                            } catch (final NumberFormatException e) {
 
-                                cs.sendMessage(YELLOW + "Amount must be a number.");
+                                cs.sendMessage(ColorUtil.YELLOW + "Amount must be a number.");
                                 return true;
 
                             }
-                            Quester quester = getQuester(target.getName());
+                            final Quester quester = getQuester(target.getName());
                             quester.questPoints -= Math.abs(points);
-                            cs.sendMessage(GOLD + "Took away " + PURPLE + points + GOLD + " Quest Points from " + GREEN + target.getName() + GOLD + "\'s.");
-                            target.sendMessage(GREEN + cs.getName() + GOLD + " took away " + PURPLE + points + GOLD + " Quest Points.");
+                            cs.sendMessage(ColorUtil.GOLD + "Took away " + ColorUtil.PURPLE + points + ColorUtil.GOLD
+                                    + " Quest Points from " + ColorUtil.GREEN + target.getName() + ColorUtil.GOLD
+                                    + "\'s.");
+                            target.sendMessage(ColorUtil.GREEN + cs.getName() + ColorUtil.GOLD + " took away "
+                                    + ColorUtil.PURPLE + points + ColorUtil.GOLD + " Quest Points.");
 
                             quester.saveData();
 
@@ -1747,7 +1816,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     } else {
 
-                        cs.sendMessage(RED + "You do not have access to that command.");
+                        cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
 
                     }
                 } else if (args[0].equalsIgnoreCase("givepoints")) {
@@ -1756,7 +1825,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         Player target = null;
 
-                        for (Player p : getServer().getOnlinePlayers()) {
+                        for (final Player p: getServer().getOnlinePlayers()) {
 
                             if (p.getName().equalsIgnoreCase(args[1])) {
                                 target = p;
@@ -1767,7 +1836,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         if (target == null) {
 
-                            cs.sendMessage(YELLOW + "Player not found.");
+                            cs.sendMessage(ColorUtil.YELLOW + "Player not found.");
 
                         } else {
 
@@ -1777,18 +1846,21 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                 points = Integer.parseInt(args[2]);
 
-                                Quester quester = getQuester(target.getName());
+                                final Quester quester = getQuester(target.getName());
                                 quester.questPoints += Math.abs(points);
-                                cs.sendMessage(GOLD + "Gave " + PURPLE + points + GOLD + " Quest Points to " + GREEN + target.getName() + GOLD + ".");
-                                target.sendMessage(GREEN + cs.getName() + GOLD + " gave you " + PURPLE + points + GOLD + " Quest Points.");
+                                cs.sendMessage(ColorUtil.GOLD + "Gave " + ColorUtil.PURPLE + points + ColorUtil.GOLD
+                                        + " Quest Points to " + ColorUtil.GREEN + target.getName() + ColorUtil.GOLD
+                                        + ".");
+                                target.sendMessage(ColorUtil.GREEN + cs.getName() + ColorUtil.GOLD + " gave you "
+                                        + ColorUtil.PURPLE + points + ColorUtil.GOLD + " Quest Points.");
 
                                 quester.saveData();
 
                                 return true;
 
-                            } catch (NumberFormatException e) {
+                            } catch (final NumberFormatException e) {
 
-                                cs.sendMessage(YELLOW + "Amount must be a number.");
+                                cs.sendMessage(ColorUtil.YELLOW + "Amount must be a number.");
 
                             }
 
@@ -1796,7 +1868,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     } else {
 
-                        cs.sendMessage(RED + "You do not have access to that command.");
+                        cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
 
                     }
                 } else if (args[0].equalsIgnoreCase("togglegui")) {
@@ -1804,35 +1876,38 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                     if (cs.hasPermission("quests.admin.togglegui")) {
 
                         try {
-                            
-                            int i = Integer.parseInt(args[1]);
+
+                            final int i = Integer.parseInt(args[1]);
                             if (citizens.getNPCRegistry().getById(i) == null) {
-                                cs.sendMessage(RED + "Error: There is no NPC with ID " + PURPLE + i);
-                            }else if (questNPCGUIs.contains(i)) {
+                                cs.sendMessage(ColorUtil.RED + "Error: There is no NPC with ID " + ColorUtil.PURPLE + i);
+                            } else if (questNPCGUIs.contains(i)) {
                                 questNPCGUIs.remove(questNPCGUIs.indexOf(i));
                                 updateData();
-                                cs.sendMessage(PURPLE + citizens.getNPCRegistry().getById(i).getName() + YELLOW + " will no longer provide a GUI Quest Display.");
-                            }else {
+                                cs.sendMessage(ColorUtil.PURPLE + citizens.getNPCRegistry().getById(i).getName()
+                                        + ColorUtil.YELLOW + " will no longer provide a GUI Quest Display.");
+                            } else {
                                 questNPCGUIs.add(i);
                                 updateData();
-                                cs.sendMessage(PURPLE + citizens.getNPCRegistry().getById(i).getName() + YELLOW + " will now provide a GUI Quest Display.");
+                                cs.sendMessage(ColorUtil.PURPLE + citizens.getNPCRegistry().getById(i).getName()
+                                        + ColorUtil.YELLOW + " will now provide a GUI Quest Display.");
                             }
-                            
-                        } catch (NumberFormatException nfe) {
-                            cs.sendMessage(RED + "Input was not a number! Usage: /questadmin togglegui <npc id>");
-                        } catch (Exception ex) {
+
+                        } catch (final NumberFormatException nfe) {
+                            cs.sendMessage(ColorUtil.RED
+                                    + "Input was not a number! Usage: /questadmin togglegui <npc id>");
+                        } catch (final Exception ex) {
                             ex.printStackTrace();
-                            cs.sendMessage(RED + "An unknown error occurred. See console output.");
+                            cs.sendMessage(ColorUtil.RED + "An unknown error occurred. See console output.");
                         }
 
                     } else {
 
-                        cs.sendMessage(RED + "You do not have access to that command.");
+                        cs.sendMessage(ColorUtil.RED + "You do not have access to that command.");
 
                     }
                 } else {
 
-                    cs.sendMessage(YELLOW + "Unknown Questadmin command. Type /questadmin for help.");
+                    cs.sendMessage(ColorUtil.YELLOW + "Unknown Questadmin command. Type /questadmin for help.");
 
                 }
 
@@ -1846,40 +1921,54 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     }
 
+    private boolean extracted(final CommandSender cs) {
+        cs.sendMessage(ColorUtil.RED + "You do not have permission to quit Quests.");
+        return true;
+    }
+
     public void printAdminHelp(CommandSender cs) {
 
-        cs.sendMessage(RED + "- " + DARKRED + "Questadmin" + RED + " -");
+        cs.sendMessage(ColorUtil.RED + "- " + ColorUtil.DARKRED + "Questadmin" + ColorUtil.RED + " -");
         cs.sendMessage("");
-        cs.sendMessage(DARKRED + "/questadmin" + RED + " - View Questadmin help");
+        cs.sendMessage(ColorUtil.DARKRED + "/questadmin" + ColorUtil.RED + " - View Questadmin help");
         if (cs.hasPermission("quests.admin.give")) {
-            cs.sendMessage(DARKRED + "/questadmin give <player> <quest>" + RED + " - Force a player to take a Quest");
+            cs.sendMessage(ColorUtil.DARKRED + "/questadmin give <player> <quest>" + ColorUtil.RED
+                    + " - Force a player to take a Quest");
         }
         if (cs.hasPermission("quests.admin.quit")) {
-            cs.sendMessage(DARKRED + "/questadmin quit <player>" + RED + " - Force a player to quit their Quest");
+            cs.sendMessage(ColorUtil.DARKRED + "/questadmin quit <player>" + ColorUtil.RED
+                    + " - Force a player to quit their Quest");
         }
         if (cs.hasPermission("quests.admin.points")) {
-            cs.sendMessage(DARKRED + "/questadmin points <player> <amount>" + RED + " - Set a players Quest Points");
+            cs.sendMessage(ColorUtil.DARKRED + "/questadmin points <player> <amount>" + ColorUtil.RED
+                    + " - Set a players Quest Points");
         }
         if (cs.hasPermission("quests.admin.takepoints")) {
-            cs.sendMessage(DARKRED + "/questadmin takepoints <player> <amount>" + RED + " - Take a players Quest Points");
+            cs.sendMessage(ColorUtil.DARKRED + "/questadmin takepoints <player> <amount>" + ColorUtil.RED
+                    + " - Take a players Quest Points");
         }
         if (cs.hasPermission("quests.admin.givepoints")) {
-            cs.sendMessage(DARKRED + "/questadmin givepoints <player> <amount>" + RED + " - Give a player Quest Points");
+            cs.sendMessage(ColorUtil.DARKRED + "/questadmin givepoints <player> <amount>" + ColorUtil.RED
+                    + " - Give a player Quest Points");
         }
         if (cs.hasPermission("quests.admin.pointsall")) {
-            cs.sendMessage(DARKRED + "/questadmin pointsall <amount>" + RED + " - Set ALL players' Quest Points");
+            cs.sendMessage(ColorUtil.DARKRED + "/questadmin pointsall <amount>" + ColorUtil.RED
+                    + " - Set ALL players' Quest Points");
         }
         if (cs.hasPermission("quests.admin.finish")) {
-            cs.sendMessage(DARKRED + "/questadmin finish <player>" + RED + " - Immediately force Quest completion for a player");
+            cs.sendMessage(ColorUtil.DARKRED + "/questadmin finish <player>" + ColorUtil.RED
+                    + " - Immediately force Quest completion for a player");
         }
         if (cs.hasPermission("quests.admin.nextstage")) {
-            cs.sendMessage(DARKRED + "/questadmin nextstage <player>" + RED + " - Immediately force Stage completion for a player");
+            cs.sendMessage(ColorUtil.DARKRED + "/questadmin nextstage <player>" + ColorUtil.RED
+                    + " - Immediately force Stage completion for a player");
         }
         if (citizens != null && cs.hasPermission("quests.admin.togglegui")) {
-            cs.sendMessage(DARKRED + "/questadmin togglegui <npc id>" + RED + " - Toggle GUI Quest Display on an NPC");
+            cs.sendMessage(ColorUtil.DARKRED + "/questadmin togglegui <npc id>" + ColorUtil.RED
+                    + " - Toggle GUI Quest Display on an NPC");
         }
         if (cs.hasPermission("quests.admin.reload")) {
-            cs.sendMessage(DARKRED + "/questadmin reload" + RED + " - Reload all Quests");
+            cs.sendMessage(ColorUtil.DARKRED + "/questadmin reload" + ColorUtil.RED + " - Reload all Quests");
         }
 
     }
@@ -1887,9 +1976,9 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
     public void listQuests(Player player, int page) {
 
         if (quests.size() < ((page * 8) - 7)) {
-            player.sendMessage(YELLOW + "Page does not exist.");
+            player.sendMessage(ColorUtil.YELLOW + "Page does not exist.");
         } else {
-            player.sendMessage(GOLD + "- Quests -");
+            player.sendMessage(ColorUtil.GOLD + "- Quests -");
 
             int numOrder = (page - 1) * 8;
 
@@ -1915,9 +2004,9 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                 numOrder++;
             }
 
-            for (Quest quest : subQuests) {
+            for (final Quest quest: subQuests) {
 
-                player.sendMessage(YELLOW + Integer.toString(numOrder) + ". " + quest.name);
+                player.sendMessage(ColorUtil.YELLOW + Integer.toString(numOrder) + ". " + quest.name);
                 numOrder++;
 
             }
@@ -1927,7 +2016,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                 numPages++;
             }
 
-            player.sendMessage(GOLD + "- Page " + page + " of " + numPages + " -");
+            player.sendMessage(ColorUtil.GOLD + "- Page " + page + " of " + numPages + " -");
 
         }
 
@@ -1941,7 +2030,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
         loadEvents();
         loadConfig();
 
-        for (Quester quester : questers.values()) {
+        for (final Quester quester: questers.values()) {
             quester.checkQuest();
         }
 
@@ -1958,16 +2047,19 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
         if (quester == null) {
 
             if (debug == true) {
-                log.log(Level.WARNING, "[Quests] Quester data for player \"" + player + "\" not stored. Attempting manual data retrieval..");
+                Quests.log.log(Level.WARNING, "[Quests] Quester data for player \"" + player
+                        + "\" not stored. Attempting manual data retrieval..");
             }
 
             quester = new Quester(this);
             quester.name = player;
             if (quester.loadData() == false) {
-                log.severe("[Quests] Quester not found for player \"" + player + "\". Consider adding them to the Quester blacklist.");
+                Quests.log.severe("[Quests] Quester not found for player \"" + player
+                        + "\". Consider adding them to the Quester blacklist.");
             } else {
                 if (debug == true) {
-                    log.log(Level.INFO, "[Quests] Manual data retrieval succeeded for player \"" + player + "\"");
+                    Quests.log
+                            .log(Level.INFO, "[Quests] Manual data retrieval succeeded for player \"" + player + "\"");
                 }
                 questers.put(player, quester);
             }
@@ -1979,11 +2071,11 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public Map<String, Quester> getOnlineQuesters() {
 
-        Map<String, Quester> qs = new HashMap<String, Quester>();
+        final Map<String, Quester> qs = new HashMap<String, Quester>();
 
-        for (Player p : getServer().getOnlinePlayers()) {
+        for (final Player p: getServer().getOnlinePlayers()) {
 
-            Quester quester = new Quester(this);
+            final Quester quester = new Quester(this);
             quester.name = p.getName();
             if (quester.loadData() == false) {
                 quester.saveData();
@@ -2002,16 +2094,16 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
         totalQuestPoints = 0;
         boolean needsSaving = false;
 
-        FileConfiguration config = new YamlConfiguration();
-        File file = new File(this.getDataFolder(), "quests.yml");
+        final FileConfiguration config = new YamlConfiguration();
+        final File file = new File(getDataFolder(), "quests.yml");
 
         try {
 
             config.load(file);
 
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
-        } catch (InvalidConfigurationException e) {
+        } catch (final InvalidConfigurationException e) {
             e.printStackTrace();
         }
 
@@ -2023,17 +2115,17 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
             needsSaving = true;
         }
 
-        for (String s : section1.getKeys(false)) {
+        for (final String s: section1.getKeys(false)) {
 
             try {
 
-                Quest quest = new Quest();
+                final Quest quest = new Quest();
                 failedToLoad = false;
 
                 if (config.contains("quests." + s + ".name")) {
-                    quest.name = parseString(config.getString("quests." + s + ".name"), quest);
+                    quest.name = Quests.parseString(config.getString("quests." + s + ".name"), quest);
                 } else {
-                    printSevere("[Quests] Quest block \'" + s + "\' is missing " + RED + "name:");
+                    Quests.printSevere("[Quests] Quest block \'" + s + "\' is missing " + ColorUtil.RED + "name:");
                     continue;
                 }
 
@@ -2041,11 +2133,13 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (CitizensAPI.getNPCRegistry().getById(config.getInt("quests." + s + ".npc-giver-id")) != null) {
 
-                        quest.npcStart = CitizensAPI.getNPCRegistry().getById(config.getInt("quests." + s + ".npc-giver-id"));
-                        questNPCs.add(CitizensAPI.getNPCRegistry().getById(config.getInt("quests." + s + ".npc-giver-id")));
+                        quest.npcStart = CitizensAPI.getNPCRegistry().getById(
+                                config.getInt("quests." + s + ".npc-giver-id"));
+                        questNPCs.add(CitizensAPI.getNPCRegistry().getById(
+                                config.getInt("quests." + s + ".npc-giver-id")));
 
                     } else {
-                        printSevere("[Quests] npc-giver-id: for Quest " + quest.name + " is not a valid NPC id!");
+                        Quests.printSevere("[Quests] npc-giver-id: for Quest " + quest.name + " is not a valid NPC id!");
                         continue;
                     }
 
@@ -2053,12 +2147,13 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                 if (config.contains("quests." + s + ".block-start")) {
 
-                    Location location = getLocation(config.getString("quests." + s + ".block-start"));
+                    final Location location = Quests.getLocation(config.getString("quests." + s + ".block-start"));
                     if (location != null) {
                         quest.blockStart = location;
                     } else {
-                        printSevere("[Quests] block-start: for Quest " + quest.name + " is not in proper location format!");
-                        printSevere("[Quests] Proper location format is: \"WorldName x y z\"");
+                        Quests.printSevere("[Quests] block-start: for Quest " + quest.name
+                                + " is not in proper location format!");
+                        Quests.printSevere("[Quests] Proper location format is: \"WorldName x y z\"");
                         continue;
                     }
 
@@ -2066,13 +2161,13 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                 if (config.contains("quests." + s + ".region")) {
 
-                    String region = config.getString("quests." + s + ".region");
+                    final String region = config.getString("quests." + s + ".region");
                     boolean exists = false;
-                    for (World world : getServer().getWorlds()) {
+                    for (final World world: getServer().getWorlds()) {
 
-                        RegionManager rm = worldGuard.getRegionManager(world);
+                        final RegionManager rm = Quests.worldGuard.getRegionManager(world);
                         if (rm != null) {
-                            ProtectedRegion pr = rm.getRegionExact(region);
+                            final ProtectedRegion pr = rm.getRegionExact(region);
                             if (pr != null) {
                                 quest.region = region;
                                 exists = true;
@@ -2083,15 +2178,16 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                     }
 
                     if (!exists) {
-                        printSevere("[Quests] region: for Quest " + quest.name + " is not a valid WorldGuard region!");
+                        Quests.printSevere("[Quests] region: for Quest " + quest.name
+                                + " is not a valid WorldGuard region!");
                         continue;
                     }
 
                 }
-                
+
                 if (config.contains("quests." + s + ".guiDisplay")) {
 
-                    String item = config.getString("quests." + s + ".guiDisplay");
+                    final String item = config.getString("quests." + s + ".guiDisplay");
                     quest.guiDisplay = ItemUtil.readItemStack(item);
 
                 }
@@ -2101,34 +2197,34 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                     if (config.getInt("quests." + s + ".redo-delay", -999) != -999) {
                         quest.redoDelay = config.getInt("quests." + s + ".redo-delay");
                     } else {
-                        printSevere("[Quests] redo-delay: for Quest " + quest.name + " is not a number!");
+                        Quests.printSevere("[Quests] redo-delay: for Quest " + quest.name + " is not a number!");
                         continue;
                     }
 
                 }
 
                 if (config.contains("quests." + s + ".finish-message")) {
-                    quest.finished = parseString(config.getString("quests." + s + ".finish-message"), quest);
+                    quest.finished = Quests.parseString(config.getString("quests." + s + ".finish-message"), quest);
                 } else {
-                    printSevere("[Quests] Quest " + quest.name + " is missing finish-message:");
+                    Quests.printSevere("[Quests] Quest " + quest.name + " is missing finish-message:");
                     continue;
                 }
 
                 if (config.contains("quests." + s + ".ask-message")) {
-                    quest.description = parseString(config.getString("quests." + s + ".ask-message"), quest);
+                    quest.description = Quests.parseString(config.getString("quests." + s + ".ask-message"), quest);
                 } else {
-                    printSevere("[Quests] Quest " + quest.name + " is missing ask-message:");
+                    Quests.printSevere("[Quests] Quest " + quest.name + " is missing ask-message:");
                     continue;
                 }
 
                 if (config.contains("quests." + s + ".event")) {
 
-                    Event evt = Event.loadEvent(config.getString("quests." + s + ".event"), this);
+                    final Event evt = Event.loadEvent(config.getString("quests." + s + ".event"), this);
 
                     if (evt != null) {
                         quest.initialEvent = evt;
                     } else {
-                        printSevere("[Quests] Initial Event in Quest " + quest.name + " failed to load.");
+                        Quests.printSevere("[Quests] Initial Event in Quest " + quest.name + " failed to load.");
                         continue;
                     }
 
@@ -2137,20 +2233,22 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                 if (config.contains("quests." + s + ".requirements")) {
 
                     if (config.contains("quests." + s + ".requirements.fail-requirement-message")) {
-                        quest.failRequirements = parseString(config.getString("quests." + s + ".requirements.fail-requirement-message"), quest);
+                        quest.failRequirements = Quests.parseString(
+                                config.getString("quests." + s + ".requirements.fail-requirement-message"), quest);
                     } else {
-                        printSevere("[Quests] Requirements for Quest " + quest.name + " is missing fail-requirement-message:");
+                        Quests.printSevere("[Quests] Requirements for Quest " + quest.name
+                                + " is missing fail-requirement-message:");
                         continue;
                     }
 
                     if (config.contains("quests." + s + ".requirements.items")) {
 
                         if (Quests.checkList(config.getList("quests." + s + ".requirements.items"), String.class)) {
-                            List<String> itemReqs = config.getStringList("quests." + s + ".requirements.items");
+                            final List<String> itemReqs = config.getStringList("quests." + s + ".requirements.items");
                             boolean failed = false;
-                            for (String item : itemReqs) {
+                            for (final String item: itemReqs) {
 
-                                ItemStack stack = ItemUtil.readItemStack(item);
+                                final ItemStack stack = ItemUtil.readItemStack(item);
                                 if (stack != null) {
                                     quest.items.add(stack);
                                 } else {
@@ -2161,27 +2259,33 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             }
 
                             if (failed == true) {
-                                printSevere("[Quests] items: Requirement for Quest " + quest.name + " is not formatted correctly!");
+                                Quests.printSevere("[Quests] items: Requirement for Quest " + quest.name
+                                        + " is not formatted correctly!");
                                 continue;
                             }
 
                         } else {
-                            printSevere("[Quests] items: Requirement for Quest " + quest.name + " is not formatted correctly!");
+                            Quests.printSevere("[Quests] items: Requirement for Quest " + quest.name
+                                    + " is not formatted correctly!");
                             continue;
                         }
 
                         if (config.contains("quests." + s + ".requirements.remove-items")) {
 
-                            if (Quests.checkList(config.getList("quests." + s + ".requirements.remove-items"), Boolean.class)) {
+                            if (Quests.checkList(config.getList("quests." + s + ".requirements.remove-items"),
+                                    Boolean.class)) {
                                 quest.removeItems.clear();
-                                quest.removeItems.addAll(config.getBooleanList("quests." + s + ".requirements.remove-items"));
+                                quest.removeItems.addAll(config.getBooleanList("quests." + s
+                                        + ".requirements.remove-items"));
                             } else {
-                                printSevere("[Quests] remove-items: Requirement for Quest " + quest.name + " is not a list of true/false values!");
+                                Quests.printSevere("[Quests] remove-items: Requirement for Quest " + quest.name
+                                        + " is not a list of true/false values!");
                                 continue;
                             }
 
                         } else {
-                            printSevere("[Quests] Requirements for Quest " + quest.name + " is missing remove-items:");
+                            Quests.printSevere("[Quests] Requirements for Quest " + quest.name
+                                    + " is missing remove-items:");
                             continue;
                         }
                     }
@@ -2191,7 +2295,8 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         if (config.getInt("quests." + s + ".requirements.money", -999) != -999) {
                             quest.moneyReq = config.getInt("quests." + s + ".requirements.money");
                         } else {
-                            printSevere("[Quests] money: Requirement for Quest " + quest.name + " is not a number!");
+                            Quests.printSevere("[Quests] money: Requirement for Quest " + quest.name
+                                    + " is not a number!");
                             continue;
                         }
 
@@ -2202,7 +2307,8 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         if (config.getInt("quests." + s + ".requirements.quest-points", -999) != -999) {
                             quest.questPointsReq = config.getInt("quests." + s + ".requirements.quest-points");
                         } else {
-                            printSevere("[Quests] quest-points: Requirement for Quest " + quest.name + " is not a number!");
+                            Quests.printSevere("[Quests] quest-points: Requirement for Quest " + quest.name
+                                    + " is not a number!");
                             continue;
                         }
 
@@ -2210,17 +2316,19 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".requirements.quest-blocks")) {
 
-                        if (Quests.checkList(config.getList("quests." + s + ".requirements.quest-blocks"), String.class)) {
+                        if (Quests
+                                .checkList(config.getList("quests." + s + ".requirements.quest-blocks"), String.class)) {
 
-                            List<String> names = config.getStringList("quests." + s + ".requirements.quest-blocks");
+                            final List<String> names = config.getStringList("quests." + s
+                                    + ".requirements.quest-blocks");
 
                             boolean failed = false;
                             String failedQuest = "NULL";
 
-                            for (String name : names) {
+                            for (final String name: names) {
 
                                 boolean done = false;
-                                for (String string : section1.getKeys(false)) {
+                                for (final String string: section1.getKeys(false)) {
 
                                     if (config.getString("quests." + string + ".name").equalsIgnoreCase(name)) {
                                         quest.blockQuests.add(name);
@@ -2239,13 +2347,16 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             }
 
                             if (failed) {
-                                printSevere("[Quests] " + PINK + failedQuest + " inside quests: Requirement for Quest " + quest.name + " is not a valid Quest name!");
-                                printSevere("Make sure you are using the Quest name: value, and not the block name.");
+                                Quests.printSevere("[Quests] " + ColorUtil.PINK + failedQuest
+                                        + " inside quests: Requirement for Quest " + quest.name
+                                        + " is not a valid Quest name!");
+                                Quests.printSevere("Make sure you are using the Quest name: value, and not the block name.");
                                 continue;
                             }
 
                         } else {
-                            printSevere("[Quests] quest-blocks: Requirement for Quest " + quest.name + " is not a list of Quest names!");
+                            Quests.printSevere("[Quests] quest-blocks: Requirement for Quest " + quest.name
+                                    + " is not a list of Quest names!");
                             continue;
                         }
 
@@ -2255,15 +2366,15 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         if (Quests.checkList(config.getList("quests." + s + ".requirements.quests"), String.class)) {
 
-                            List<String> names = config.getStringList("quests." + s + ".requirements.quests");
+                            final List<String> names = config.getStringList("quests." + s + ".requirements.quests");
 
                             boolean failed = false;
                             String failedQuest = "NULL";
 
-                            for (String name : names) {
+                            for (final String name: names) {
 
                                 boolean done = false;
-                                for (String string : section1.getKeys(false)) {
+                                for (final String string: section1.getKeys(false)) {
 
                                     if (config.getString("quests." + string + ".name").equalsIgnoreCase(name)) {
                                         quest.neededQuests.add(name);
@@ -2282,13 +2393,15 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             }
 
                             if (failed) {
-                                printSevere("[Quests] " + failedQuest + " inside quests: Requirement for Quest " + quest.name + " is not a valid Quest name!");
-                                printSevere("Make sure you are using the Quest name: value, and not the block name.");
+                                Quests.printSevere("[Quests] " + failedQuest + " inside quests: Requirement for Quest "
+                                        + quest.name + " is not a valid Quest name!");
+                                Quests.printSevere("Make sure you are using the Quest name: value, and not the block name.");
                                 continue;
                             }
 
                         } else {
-                            printSevere("[Quests] quests: Requirement for Quest " + quest.name + " is not a list of Quest names!");
+                            Quests.printSevere("[Quests] quests: Requirement for Quest " + quest.name
+                                    + " is not a list of Quest names!");
                             continue;
                         }
 
@@ -2298,9 +2411,11 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         if (Quests.checkList(config.getList("quests." + s + ".requirements.permissions"), String.class)) {
                             quest.permissionReqs.clear();
-                            quest.permissionReqs.addAll(config.getStringList("quests." + s + ".requirements.permissions"));
+                            quest.permissionReqs.addAll(config.getStringList("quests." + s
+                                    + ".requirements.permissions"));
                         } else {
-                            printSevere("[Quests] permissions: Requirement for Quest " + quest.name + " is not a list of permissions!");
+                            Quests.printSevere("[Quests] permissions: Requirement for Quest " + quest.name
+                                    + " is not a list of permissions!");
                             continue;
                         }
 
@@ -2308,17 +2423,22 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".requirements.mcmmo-skills")) {
 
-                        if (Quests.checkList(config.getList("quests." + s + ".requirements.mcmmo-skills"), String.class)) {
+                        if (Quests
+                                .checkList(config.getList("quests." + s + ".requirements.mcmmo-skills"), String.class)) {
 
                             if (config.contains("quests." + s + ".requirements.mcmmo-amounts")) {
 
-                                if (Quests.checkList(config.getList("quests." + s + ".requirements.mcmmo-amounts"), Integer.class)) {
+                                if (Quests.checkList(config.getList("quests." + s + ".requirements.mcmmo-amounts"),
+                                        Integer.class)) {
 
-                                    List<String> skills = config.getStringList("quests." + s + ".requirements.mcmmo-skills");
-                                    List<Integer> amounts = config.getIntegerList("quests." + s + ".requirements.mcmmo-amounts");
+                                    final List<String> skills = config.getStringList("quests." + s
+                                            + ".requirements.mcmmo-skills");
+                                    final List<Integer> amounts = config.getIntegerList("quests." + s
+                                            + ".requirements.mcmmo-amounts");
 
                                     if (skills.size() != amounts.size()) {
-                                        printSevere("[Quests] mcmmo-skills: and mcmmo-amounts: in requirements: for Quest " + quest.name + " are not the same size!");
+                                        Quests.printSevere("[Quests] mcmmo-skills: and mcmmo-amounts: in requirements: for Quest "
+                                                + quest.name + " are not the same size!");
                                         continue;
                                     }
 
@@ -2326,17 +2446,20 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                     quest.mcMMOAmountReqs.addAll(amounts);
 
                                 } else {
-                                    printSevere("[Quests] mcmmo-amounts: Requirement for Quest " + quest.name + " is not a list of numbers!");
+                                    Quests.printSevere("[Quests] mcmmo-amounts: Requirement for Quest " + quest.name
+                                            + " is not a list of numbers!");
                                     continue;
                                 }
 
                             } else {
-                                printSevere("[Quests] Requirements for Quest " + quest.name + " is missing mcmmo-amounts:");
+                                Quests.printSevere("[Quests] Requirements for Quest " + quest.name
+                                        + " is missing mcmmo-amounts:");
                                 continue;
                             }
 
                         } else {
-                            printSevere("[Quests] mcmmo-skills: Requirement for Quest " + quest.name + " is not a list of skills!");
+                            Quests.printSevere("[Quests] mcmmo-skills: Requirement for Quest " + quest.name
+                                    + " is not a list of skills!");
                             continue;
                         }
 
@@ -2344,15 +2467,17 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".requirements.heroes-primary-class")) {
 
-                        String className = config.getString("quests." + s + ".requirements.heroes-primary-class");
-                        HeroClass hc = heroes.getClassManager().getClass(className);
+                        final String className = config.getString("quests." + s + ".requirements.heroes-primary-class");
+                        final HeroClass hc = Quests.heroes.getClassManager().getClass(className);
                         if (hc != null && hc.isPrimary()) {
                             quest.heroesPrimaryClassReq = hc.getName();
                         } else if (hc != null) {
-                            printSevere("[Quests] heroes-primary-class: Requirement for Quest " + quest.name + " is not a primary Heroes class!");
+                            Quests.printSevere("[Quests] heroes-primary-class: Requirement for Quest " + quest.name
+                                    + " is not a primary Heroes class!");
                             continue;
                         } else {
-                            printSevere("[Quests] heroes-primary-class: Requirement for Quest " + quest.name + " is not a valid Heroes class!");
+                            Quests.printSevere("[Quests] heroes-primary-class: Requirement for Quest " + quest.name
+                                    + " is not a valid Heroes class!");
                             continue;
                         }
 
@@ -2360,15 +2485,18 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".requirements.heroes-secondary-class")) {
 
-                        String className = config.getString("quests." + s + ".requirements.heroes-secondary-class");
-                        HeroClass hc = heroes.getClassManager().getClass(className);
+                        final String className = config.getString("quests." + s
+                                + ".requirements.heroes-secondary-class");
+                        final HeroClass hc = Quests.heroes.getClassManager().getClass(className);
                         if (hc != null && hc.isSecondary()) {
                             quest.heroesSecondaryClassReq = hc.getName();
                         } else if (hc != null) {
-                            printSevere("[Quests] heroes-secondary-class: Requirement for Quest " + quest.name + " is not a secondary Heroes class!");
+                            Quests.printSevere("[Quests] heroes-secondary-class: Requirement for Quest " + quest.name
+                                    + " is not a secondary Heroes class!");
                             continue;
                         } else {
-                            printSevere("[Quests] heroes-secondary-class: Requirement for Quest " + quest.name + " is not a valid Heroes class!");
+                            Quests.printSevere("[Quests] heroes-secondary-class: Requirement for Quest " + quest.name
+                                    + " is not a valid Heroes class!");
                             continue;
                         }
 
@@ -2376,13 +2504,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".requirements.custom-requirements")) {
 
-                        ConfigurationSection sec = config.getConfigurationSection("quests." + s + ".requirements.custom-requirements");
-                        for (String path : sec.getKeys(false)) {
+                        final ConfigurationSection sec = config.getConfigurationSection("quests." + s
+                                + ".requirements.custom-requirements");
+                        for (final String path: sec.getKeys(false)) {
 
-                            String name = sec.getString(path + ".name");
+                            final String name = sec.getString(path + ".name");
                             boolean found = false;
 
-                            for (CustomRequirement cr : customRequirements) {
+                            for (final CustomRequirement cr: customRequirements) {
                                 if (cr.getName().equalsIgnoreCase(name)) {
                                     found = true;
                                     break;
@@ -2390,14 +2519,15 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             }
 
                             if (!found) {
-                                printWarning("[Quests] Custom requirement \"" + name + "\" for Quest \"" + quest.name + "\" could not be found!");
+                                Quests.printWarning("[Quests] Custom requirement \"" + name + "\" for Quest \""
+                                        + quest.name + "\" could not be found!");
                                 continue;
                             }
 
-                            Map<String, Object> data = new HashMap<String, Object>();
-                            ConfigurationSection sec2 = sec.getConfigurationSection(path + ".data");
+                            final Map<String, Object> data = new HashMap<String, Object>();
+                            final ConfigurationSection sec2 = sec.getConfigurationSection(path + ".data");
                             if (sec2 != null) {
-                                for (String dataPath : sec2.getKeys(false)) {
+                                for (final String dataPath: sec2.getKeys(false)) {
                                     data.put(dataPath, sec2.get(dataPath));
                                 }
                             }
@@ -2412,23 +2542,23 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                 quest.plugin = this;
 
-                ConfigurationSection section2 = config.getConfigurationSection("quests." + s + ".stages.ordered");
+                final ConfigurationSection section2 = config.getConfigurationSection("quests." + s + ".stages.ordered");
 
                 int index = 1;
                 boolean stageFailed = false;
 
-                for (String s2 : section2.getKeys(false)) {
+                for (final String s2: section2.getKeys(false)) {
 
-                    Stage oStage = new Stage();
+                    final Stage oStage = new Stage();
 
-                    LinkedList<EntityType> mobsToKill = new LinkedList<EntityType>();
-                    LinkedList<Integer> mobNumToKill = new LinkedList<Integer>();
-                    LinkedList<Location> locationsToKillWithin = new LinkedList<Location>();
-                    LinkedList<Integer> radiiToKillWithin = new LinkedList<Integer>();
-                    LinkedList<String> areaNames = new LinkedList<String>();
+                    final LinkedList<EntityType> mobsToKill = new LinkedList<EntityType>();
+                    final LinkedList<Integer> mobNumToKill = new LinkedList<Integer>();
+                    final LinkedList<Location> locationsToKillWithin = new LinkedList<Location>();
+                    final LinkedList<Integer> radiiToKillWithin = new LinkedList<Integer>();
+                    final LinkedList<String> areaNames = new LinkedList<String>();
 
-                    LinkedList<Enchantment> enchantments = new LinkedList<Enchantment>();
-                    LinkedList<Material> itemsToEnchant = new LinkedList<Material>();
+                    final LinkedList<Enchantment> enchantments = new LinkedList<Enchantment>();
+                    final LinkedList<Material> itemsToEnchant = new LinkedList<Material>();
                     List<Integer> amountsToEnchant = new LinkedList<Integer>();
 
                     List<Integer> breakids = new LinkedList<Integer>();
@@ -2446,14 +2576,17 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                     List<Integer> cutids = new LinkedList<Integer>();
                     List<Integer> cutamounts = new LinkedList<Integer>();
 
-                    //Denizen script load
+                    // Denizen script load
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".script-to-run")) {
 
-                        if (ScriptRegistry.containsScript(config.getString("quests." + s + ".stages.ordered." + s2 + ".script-to-run"))) {
+                        if (ScriptRegistry.containsScript(config.getString("quests." + s + ".stages.ordered." + s2
+                                + ".script-to-run"))) {
                             trigger = new QuestTaskTrigger();
-                            oStage.script = config.getString("quests." + s + ".stages.ordered." + s2 + ".script-to-run");
+                            oStage.script = config
+                                    .getString("quests." + s + ".stages.ordered." + s2 + ".script-to-run");
                         } else {
-                            printSevere("[Quests] script-to-run: in Stage " + s2 + " of Quest " + quest.name + " is not a Denizen script!");
+                            Quests.printSevere("[Quests] script-to-run: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a Denizen script!");
                             stageFailed = true;
                             break;
                         }
@@ -2463,26 +2596,35 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                     //
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".break-block-ids")) {
 
-                        if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".break-block-ids"), Integer.class)) {
-                            breakids = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".break-block-ids");
+                        if (Quests.checkList(
+                                config.getList("quests." + s + ".stages.ordered." + s2 + ".break-block-ids"),
+                                Integer.class)) {
+                            breakids = config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                    + ".break-block-ids");
                         } else {
-                            printSevere("[Quests] break-block-ids: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                            Quests.printSevere("[Quests] break-block-ids: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a list of numbers!");
                             stageFailed = true;
                             break;
                         }
 
                         if (config.contains("quests." + s + ".stages.ordered." + s2 + ".break-block-amounts")) {
 
-                            if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".break-block-amounts"), Integer.class)) {
-                                breakamounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".break-block-amounts");
+                            if (Quests.checkList(
+                                    config.getList("quests." + s + ".stages.ordered." + s2 + ".break-block-amounts"),
+                                    Integer.class)) {
+                                breakamounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                        + ".break-block-amounts");
                             } else {
-                                printSevere("[Quests] break-block-amounts: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                                Quests.printSevere("[Quests] break-block-amounts: in Stage " + s2 + " of Quest "
+                                        + quest.name + " is not a list of numbers!");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing break-block-amounts:");
+                            Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                    + " is missing break-block-amounts:");
                             stageFailed = true;
                             break;
                         }
@@ -2491,38 +2633,48 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".damage-block-ids")) {
 
-                        if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".damage-block-ids"), Integer.class)) {
-                            damageids = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".damage-block-ids");
+                        if (Quests.checkList(
+                                config.getList("quests." + s + ".stages.ordered." + s2 + ".damage-block-ids"),
+                                Integer.class)) {
+                            damageids = config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                    + ".damage-block-ids");
                         } else {
-                            printSevere("[Quests] damage-block-ids: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                            Quests.printSevere("[Quests] damage-block-ids: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a list of numbers!");
                             stageFailed = true;
                             break;
                         }
 
                         if (config.contains("quests." + s + ".stages.ordered." + s2 + ".damage-block-amounts")) {
 
-                            if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".damage-block-amounts"), Integer.class)) {
-                                damageamounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".damage-block-amounts");
+                            if (Quests.checkList(
+                                    config.getList("quests." + s + ".stages.ordered." + s2 + ".damage-block-amounts"),
+                                    Integer.class)) {
+                                damageamounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                        + ".damage-block-amounts");
                             } else {
-                                printSevere("[Quests] damage-block-amounts: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                                Quests.printSevere("[Quests] damage-block-amounts: in Stage " + s2 + " of Quest "
+                                        + quest.name + " is not a list of numbers!");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing damage-block-amounts:");
+                            Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                    + " is missing damage-block-amounts:");
                             stageFailed = true;
                             break;
                         }
 
                     }
 
-                    for (int i : damageids) {
+                    for (final int i: damageids) {
 
                         if (Material.getMaterial(i) != null) {
                             oStage.blocksToDamage.put(Material.getMaterial(i), damageamounts.get(damageids.indexOf(i)));
                         } else {
-                            printSevere("[Quests] " + i + " inside damage-block-ids: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid item ID!");
+                            Quests.printSevere("[Quests] " + i + " inside damage-block-ids: inside Stage " + s2
+                                    + " of Quest " + quest.name + " is not a valid item ID!");
                             stageFailed = true;
                             break;
                         }
@@ -2531,38 +2683,48 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".place-block-ids")) {
 
-                        if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".place-block-ids"), Integer.class)) {
-                            placeids = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".place-block-ids");
+                        if (Quests.checkList(
+                                config.getList("quests." + s + ".stages.ordered." + s2 + ".place-block-ids"),
+                                Integer.class)) {
+                            placeids = config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                    + ".place-block-ids");
                         } else {
-                            printSevere("[Quests] place-block-ids: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                            Quests.printSevere("[Quests] place-block-ids: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a list of numbers!");
                             stageFailed = true;
                             break;
                         }
 
                         if (config.contains("quests." + s + ".stages.ordered." + s2 + ".place-block-amounts")) {
 
-                            if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".place-block-amounts"), Integer.class)) {
-                                placeamounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".place-block-amounts");
+                            if (Quests.checkList(
+                                    config.getList("quests." + s + ".stages.ordered." + s2 + ".place-block-amounts"),
+                                    Integer.class)) {
+                                placeamounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                        + ".place-block-amounts");
                             } else {
-                                printSevere("[Quests] place-block-amounts: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                                Quests.printSevere("[Quests] place-block-amounts: in Stage " + s2 + " of Quest "
+                                        + quest.name + " is not a list of numbers!");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing place-block-amounts:");
+                            Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                    + " is missing place-block-amounts:");
                             stageFailed = true;
                             break;
                         }
 
                     }
 
-                    for (int i : placeids) {
+                    for (final int i: placeids) {
 
                         if (Material.getMaterial(i) != null) {
                             oStage.blocksToPlace.put(Material.getMaterial(i), placeamounts.get(placeids.indexOf(i)));
                         } else {
-                            printSevere("[Quests] " + +i + " inside place-block-ids: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid item ID!");
+                            Quests.printSevere("[Quests] " + +i + " inside place-block-ids: inside Stage " + s2
+                                    + " of Quest " + quest.name + " is not a valid item ID!");
                             stageFailed = true;
                             break;
                         }
@@ -2571,38 +2733,47 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".use-block-ids")) {
 
-                        if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".use-block-ids"), Integer.class)) {
+                        if (Quests.checkList(
+                                config.getList("quests." + s + ".stages.ordered." + s2 + ".use-block-ids"),
+                                Integer.class)) {
                             useids = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".use-block-ids");
                         } else {
-                            printSevere("[Quests] use-block-ids: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                            Quests.printSevere("[Quests] use-block-ids: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a list of numbers!");
                             stageFailed = true;
                             break;
                         }
 
                         if (config.contains("quests." + s + ".stages.ordered." + s2 + ".use-block-amounts")) {
 
-                            if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".use-block-amounts"), Integer.class)) {
-                                useamounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".use-block-amounts");
+                            if (Quests.checkList(
+                                    config.getList("quests." + s + ".stages.ordered." + s2 + ".use-block-amounts"),
+                                    Integer.class)) {
+                                useamounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                        + ".use-block-amounts");
                             } else {
-                                printSevere("[Quests] use-block-amounts: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                                Quests.printSevere("[Quests] use-block-amounts: in Stage " + s2 + " of Quest "
+                                        + quest.name + " is not a list of numbers!");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing use-block-amounts:");
+                            Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                    + " is missing use-block-amounts:");
                             stageFailed = true;
                             break;
                         }
 
                     }
 
-                    for (int i : useids) {
+                    for (final int i: useids) {
 
                         if (Material.getMaterial(i) != null) {
                             oStage.blocksToUse.put(Material.getMaterial(i), useamounts.get(useids.indexOf(i)));
                         } else {
-                            printSevere("[Quests] " + RED + i + " inside use-block-ids: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid item ID!");
+                            Quests.printSevere("[Quests] " + ColorUtil.RED + i + " inside use-block-ids: inside Stage "
+                                    + s2 + " of Quest " + quest.name + " is not a valid item ID!");
                             stageFailed = true;
                             break;
                         }
@@ -2611,38 +2782,47 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".cut-block-ids")) {
 
-                        if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".cut-block-ids"), Integer.class)) {
+                        if (Quests.checkList(
+                                config.getList("quests." + s + ".stages.ordered." + s2 + ".cut-block-ids"),
+                                Integer.class)) {
                             cutids = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".cut-block-ids");
                         } else {
-                            printSevere("[Quests] cut-block-ids: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                            Quests.printSevere("[Quests] cut-block-ids: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a list of numbers!");
                             stageFailed = true;
                             break;
                         }
 
                         if (config.contains("quests." + s + ".stages.ordered." + s2 + ".cut-block-amounts")) {
 
-                            if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".cut-block-amounts"), Integer.class)) {
-                                cutamounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".cut-block-amounts");
+                            if (Quests.checkList(
+                                    config.getList("quests." + s + ".stages.ordered." + s2 + ".cut-block-amounts"),
+                                    Integer.class)) {
+                                cutamounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                        + ".cut-block-amounts");
                             } else {
-                                printSevere("[Quests] cut-block-amounts: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                                Quests.printSevere("[Quests] cut-block-amounts: in Stage " + s2 + " of Quest "
+                                        + quest.name + " is not a list of numbers!");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing cut-block-amounts:");
+                            Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                    + " is missing cut-block-amounts:");
                             stageFailed = true;
                             break;
                         }
 
                     }
 
-                    for (int i : cutids) {
+                    for (final int i: cutids) {
 
                         if (Material.getMaterial(i) != null) {
                             oStage.blocksToCut.put(Material.getMaterial(i), cutamounts.get(cutids.indexOf(i)));
                         } else {
-                            printSevere("[Quests] " + i + " inside cut-block-ids: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid item ID!");
+                            Quests.printSevere("[Quests] " + i + " inside cut-block-ids: inside Stage " + s2
+                                    + " of Quest " + quest.name + " is not a valid item ID!");
                             stageFailed = true;
                             break;
                         }
@@ -2652,9 +2832,11 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".fish-to-catch")) {
 
                         if (config.getInt("quests." + s + ".stages.ordered." + s2 + ".fish-to-catch", -999) != -999) {
-                            oStage.fishToCatch = config.getInt("quests." + s + ".stages.ordered." + s2 + ".fish-to-catch");
+                            oStage.fishToCatch = config.getInt("quests." + s + ".stages.ordered." + s2
+                                    + ".fish-to-catch");
                         } else {
-                            printSevere("[Quests] fish-to-catch: inside Stage " + s2 + " of Quest " + quest.name + " is not a number!");
+                            Quests.printSevere("[Quests] fish-to-catch: inside Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a number!");
                             stageFailed = true;
                             break;
                         }
@@ -2664,9 +2846,11 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".players-to-kill")) {
 
                         if (config.getInt("quests." + s + ".stages.ordered." + s2 + ".players-to-kill", -999) != -999) {
-                            oStage.playersToKill = config.getInt("quests." + s + ".stages.ordered." + s2 + ".players-to-kill");
+                            oStage.playersToKill = config.getInt("quests." + s + ".stages.ordered." + s2
+                                    + ".players-to-kill");
                         } else {
-                            printSevere("[Quests] players-to-kill: inside Stage " + s2 + " of Quest " + quest.name + " is not a number!");
+                            Quests.printSevere("[Quests] players-to-kill: inside Stage " + s2 + " of Quest "
+                                    + quest.name + " is not a number!");
                             stageFailed = true;
                             break;
                         }
@@ -2675,11 +2859,13 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".enchantments")) {
 
-                        if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".enchantments"), String.class)) {
+                        if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".enchantments"),
+                                String.class)) {
 
-                            for (String enchant : config.getStringList("quests." + s + ".stages.ordered." + s2 + ".enchantments")) {
+                            for (final String enchant: config.getStringList("quests." + s + ".stages.ordered." + s2
+                                    + ".enchantments")) {
 
-                                Enchantment e = Quests.getEnchantment(enchant);
+                                final Enchantment e = Quests.getEnchantment(enchant);
 
                                 if (e != null) {
 
@@ -2687,7 +2873,8 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                 } else {
 
-                                    printSevere("[Quests] " + enchant + " inside enchantments: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid enchantment!");
+                                    Quests.printSevere("[Quests] " + enchant + " inside enchantments: inside Stage "
+                                            + s2 + " of Quest " + quest.name + " is not a valid enchantment!");
                                     stageFailed = true;
                                     break;
 
@@ -2696,21 +2883,27 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             }
 
                         } else {
-                            printSevere("[Quests] enchantments: in Stage " + s2 + " of Quest " + quest.name + " is not a list of enchantment names!");
+                            Quests.printSevere("[Quests] enchantments: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a list of enchantment names!");
                             stageFailed = true;
                             break;
                         }
 
                         if (config.contains("quests." + s + ".stages.ordered." + s2 + ".enchantment-item-ids")) {
 
-                            if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".enchantment-item-ids"), Integer.class)) {
+                            if (Quests.checkList(
+                                    config.getList("quests." + s + ".stages.ordered." + s2 + ".enchantment-item-ids"),
+                                    Integer.class)) {
 
-                                for (int item : config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".enchantment-item-ids")) {
+                                for (final int item: config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                        + ".enchantment-item-ids")) {
 
                                     if (Material.getMaterial(item) != null) {
                                         itemsToEnchant.add(Material.getMaterial(item));
                                     } else {
-                                        printSevere("[Quests] " + item + " inside enchantment-item-ids: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid item id!");
+                                        Quests.printSevere("[Quests] " + item
+                                                + " inside enchantment-item-ids: inside Stage " + s2 + " of Quest "
+                                                + quest.name + " is not a valid item id!");
                                         stageFailed = true;
                                         break;
                                     }
@@ -2719,34 +2912,41 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                             } else {
 
-                                printSevere("[Quests] enchantment-item-ids: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                                Quests.printSevere("[Quests] enchantment-item-ids: in Stage " + s2 + " of Quest "
+                                        + quest.name + " is not a list of numbers!");
                                 stageFailed = true;
                                 break;
 
                             }
 
                         } else {
-                            printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing enchantment-item-ids:");
+                            Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                    + " is missing enchantment-item-ids:");
                             stageFailed = true;
                             break;
                         }
 
                         if (config.contains("quests." + s + ".stages.ordered." + s2 + ".enchantment-amounts")) {
 
-                            if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".enchantment-amounts"), Integer.class)) {
+                            if (Quests.checkList(
+                                    config.getList("quests." + s + ".stages.ordered." + s2 + ".enchantment-amounts"),
+                                    Integer.class)) {
 
-                                amountsToEnchant = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".enchantment-amounts");
+                                amountsToEnchant = config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                        + ".enchantment-amounts");
 
                             } else {
 
-                                printSevere("[Quests] enchantment-amounts: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                                Quests.printSevere("[Quests] enchantment-amounts: in Stage " + s2 + " of Quest "
+                                        + quest.name + " is not a list of numbers!");
                                 stageFailed = true;
                                 break;
 
                             }
 
                         } else {
-                            printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing enchantment-amounts:");
+                            Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                    + " is missing enchantment-amounts:");
                             stageFailed = true;
                             break;
                         }
@@ -2757,17 +2957,21 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".npc-ids-to-talk-to")) {
 
-                        if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".npc-ids-to-talk-to"), Integer.class)) {
+                        if (Quests.checkList(
+                                config.getList("quests." + s + ".stages.ordered." + s2 + ".npc-ids-to-talk-to"),
+                                Integer.class)) {
 
-                            npcIdsToTalkTo = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".npc-ids-to-talk-to");
-                            for (int i : npcIdsToTalkTo) {
+                            npcIdsToTalkTo = config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                    + ".npc-ids-to-talk-to");
+                            for (final int i: npcIdsToTalkTo) {
 
                                 if (CitizensAPI.getNPCRegistry().getById(i) != null) {
 
                                     questNPCs.add(CitizensAPI.getNPCRegistry().getById(i));
 
                                 } else {
-                                    printSevere("[Quests] " + i + " inside npc-ids-to-talk-to: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid NPC id!");
+                                    Quests.printSevere("[Quests] " + i + " inside npc-ids-to-talk-to: inside Stage "
+                                            + s2 + " of Quest " + quest.name + " is not a valid NPC id!");
                                     stageFailed = true;
                                     break;
                                 }
@@ -2775,7 +2979,8 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             }
 
                         } else {
-                            printSevere("[Quests] npc-ids-to-talk-to: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                            Quests.printSevere("[Quests] npc-ids-to-talk-to: in Stage " + s2 + " of Quest "
+                                    + quest.name + " is not a list of numbers!");
                             stageFailed = true;
                             break;
                         }
@@ -2784,30 +2989,38 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     List<String> itemsToDeliver;
                     List<Integer> itemDeliveryTargetIds;
-                    LinkedList<String> deliveryMessages = new LinkedList<String>();
+                    final LinkedList<String> deliveryMessages = new LinkedList<String>();
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".items-to-deliver")) {
 
-                        if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".items-to-deliver"), String.class)) {
+                        if (Quests.checkList(
+                                config.getList("quests." + s + ".stages.ordered." + s2 + ".items-to-deliver"),
+                                String.class)) {
 
                             if (config.contains("quests." + s + ".stages.ordered." + s2 + ".npc-delivery-ids")) {
 
-                                if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".npc-delivery-ids"), Integer.class)) {
+                                if (Quests.checkList(
+                                        config.getList("quests." + s + ".stages.ordered." + s2 + ".npc-delivery-ids"),
+                                        Integer.class)) {
 
                                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".delivery-messages")) {
 
-                                        itemsToDeliver = config.getStringList("quests." + s + ".stages.ordered." + s2 + ".items-to-deliver");
-                                        itemDeliveryTargetIds = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".npc-delivery-ids");
-                                        deliveryMessages.addAll(config.getStringList("quests." + s + ".stages.ordered." + s2 + ".delivery-messages"));
+                                        itemsToDeliver = config.getStringList("quests." + s + ".stages.ordered." + s2
+                                                + ".items-to-deliver");
+                                        itemDeliveryTargetIds = config.getIntegerList("quests." + s
+                                                + ".stages.ordered." + s2 + ".npc-delivery-ids");
+                                        deliveryMessages.addAll(config.getStringList("quests." + s + ".stages.ordered."
+                                                + s2 + ".delivery-messages"));
 
-                                        for (String item : itemsToDeliver) {
+                                        for (final String item: itemsToDeliver) {
 
-                                            ItemStack is = ItemUtil.readItemStack(item);
+                                            final ItemStack is = ItemUtil.readItemStack(item);
 
                                             if (is != null) {
 
-                                                int npcId = itemDeliveryTargetIds.get(itemsToDeliver.indexOf(item));
-                                                NPC npc = CitizensAPI.getNPCRegistry().getById(npcId);
+                                                final int npcId = itemDeliveryTargetIds.get(itemsToDeliver
+                                                        .indexOf(item));
+                                                final NPC npc = CitizensAPI.getNPCRegistry().getById(npcId);
 
                                                 if (npc != null) {
 
@@ -2816,13 +3029,17 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                                     oStage.deliverMessages = deliveryMessages;
 
                                                 } else {
-                                                    printSevere("[Quests] " + npcId + " inside npc-delivery-ids: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid NPC id!");
+                                                    Quests.printSevere("[Quests] " + npcId
+                                                            + " inside npc-delivery-ids: inside Stage " + s2
+                                                            + " of Quest " + quest.name + " is not a valid NPC id!");
                                                     stageFailed = true;
                                                     break;
                                                 }
 
                                             } else {
-                                                printSevere("[Quests] " + item + " inside items-to-deliver: inside Stage " + s2 + " of Quest " + quest.name + " is not formatted properly!");
+                                                Quests.printSevere("[Quests] " + item
+                                                        + " inside items-to-deliver: inside Stage " + s2 + " of Quest "
+                                                        + quest.name + " is not formatted properly!");
                                                 stageFailed = true;
                                                 break;
                                             }
@@ -2830,25 +3047,29 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                         }
 
                                     } else {
-                                        printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing delivery-messages:");
+                                        Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                                + " is missing delivery-messages:");
                                         stageFailed = true;
                                         break;
                                     }
 
                                 } else {
-                                    printSevere("[Quests] npc-delivery-ids: in Stage " + s2 + " of Quest " + PURPLE + quest.name + " is not a list of NPC ids!");
+                                    Quests.printSevere("[Quests] npc-delivery-ids: in Stage " + s2 + " of Quest "
+                                            + ColorUtil.PURPLE + quest.name + " is not a list of NPC ids!");
                                     stageFailed = true;
                                     break;
                                 }
 
                             } else {
-                                printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing npc-delivery-ids:");
+                                Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                        + " is missing npc-delivery-ids:");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] items-to-deliver: in Stage " + s2 + " of Quest " + quest.name + " is not formatted properly!");
+                            Quests.printSevere("[Quests] items-to-deliver: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not formatted properly!");
                             stageFailed = true;
                             break;
                         }
@@ -2860,15 +3081,21 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".npc-ids-to-kill")) {
 
-                        if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".npc-ids-to-kill"), Integer.class)) {
+                        if (Quests.checkList(
+                                config.getList("quests." + s + ".stages.ordered." + s2 + ".npc-ids-to-kill"),
+                                Integer.class)) {
 
                             if (config.contains("quests." + s + ".stages.ordered." + s2 + ".npc-kill-amounts")) {
 
-                                if (checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".npc-kill-amounts"), Integer.class)) {
+                                if (Quests.checkList(
+                                        config.getList("quests." + s + ".stages.ordered." + s2 + ".npc-kill-amounts"),
+                                        Integer.class)) {
 
-                                    npcIds = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".npc-ids-to-kill");
-                                    npcAmounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".npc-kill-amounts");
-                                    for (int i : npcIds) {
+                                    npcIds = config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                            + ".npc-ids-to-kill");
+                                    npcAmounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                            + ".npc-kill-amounts");
+                                    for (final int i: npcIds) {
 
                                         if (CitizensAPI.getNPCRegistry().getById(i) != null) {
 
@@ -2877,13 +3104,17 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                                 oStage.citizenNumToKill.add(npcAmounts.get(npcIds.indexOf(i)));
                                                 questNPCs.add(CitizensAPI.getNPCRegistry().getById(i));
                                             } else {
-                                                printSevere("[Quests] " + npcAmounts.get(npcIds.indexOf(i)) + " inside npc-kill-amounts: inside Stage " + s2 + " of Quest " + quest.name + " is not a positive number!");
+                                                Quests.printSevere("[Quests] " + npcAmounts.get(npcIds.indexOf(i))
+                                                        + " inside npc-kill-amounts: inside Stage " + s2 + " of Quest "
+                                                        + quest.name + " is not a positive number!");
                                                 stageFailed = true;
                                                 break;
                                             }
 
                                         } else {
-                                            printSevere("[Quests] " + i + " inside npc-ids-to-kill: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid NPC id!");
+                                            Quests.printSevere("[Quests] " + i
+                                                    + " inside npc-ids-to-kill: inside Stage " + s2 + " of Quest "
+                                                    + quest.name + " is not a valid NPC id!");
                                             stageFailed = true;
                                             break;
                                         }
@@ -2891,19 +3122,22 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                     }
 
                                 } else {
-                                    printSevere("[Quests] npc-kill-amounts: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                                    Quests.printSevere("[Quests] npc-kill-amounts: in Stage " + s2 + " of Quest "
+                                            + quest.name + " is not a list of numbers!");
                                     stageFailed = true;
                                     break;
                                 }
 
                             } else {
-                                printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing npc-kill-amounts:");
+                                Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                        + " is missing npc-kill-amounts:");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] npc-ids-to-kill: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                            Quests.printSevere("[Quests] npc-ids-to-kill: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a list of numbers!");
                             stageFailed = true;
                             break;
                         }
@@ -2912,12 +3146,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".mobs-to-kill")) {
 
-                        if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".mobs-to-kill"), String.class)) {
+                        if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".mobs-to-kill"),
+                                String.class)) {
 
-                            List<String> mobNames = config.getStringList("quests." + s + ".stages.ordered." + s2 + ".mobs-to-kill");
-                            for (String mob : mobNames) {
+                            final List<String> mobNames = config.getStringList("quests." + s + ".stages.ordered." + s2
+                                    + ".mobs-to-kill");
+                            for (final String mob: mobNames) {
 
-                                EntityType type = getMobType(mob);
+                                final EntityType type = Quests.getMobType(mob);
 
                                 if (type != null) {
 
@@ -2925,7 +3161,8 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                 } else {
 
-                                    printSevere("[Quests] " + mob + " inside mobs-to-kill: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid mob name!");
+                                    Quests.printSevere("[Quests] " + mob + " inside mobs-to-kill: inside Stage " + s2
+                                            + " of Quest " + quest.name + " is not a valid mob name!");
                                     stageFailed = true;
                                     break;
 
@@ -2934,16 +3171,20 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             }
 
                         } else {
-                            printSevere("[Quests] mobs-to-kill: in Stage " + s2 + " of Quest " + quest.name + " is not a list of mob names!");
+                            Quests.printSevere("[Quests] mobs-to-kill: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a list of mob names!");
                             stageFailed = true;
                             break;
                         }
 
                         if (config.contains("quests." + s + ".stages.ordered." + s2 + ".mob-amounts")) {
 
-                            if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".mob-amounts"), Integer.class)) {
+                            if (Quests.checkList(
+                                    config.getList("quests." + s + ".stages.ordered." + s2 + ".mob-amounts"),
+                                    Integer.class)) {
 
-                                for (int i : config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".mob-amounts")) {
+                                for (final int i: config.getIntegerList("quests." + s + ".stages.ordered." + s2
+                                        + ".mob-amounts")) {
 
                                     mobNumToKill.add(i);
 
@@ -2951,14 +3192,16 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                             } else {
 
-                                printSevere("[Quests] mob-amounts: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                                Quests.printSevere("[Quests] mob-amounts: in Stage " + s2 + " of Quest " + quest.name
+                                        + " is not a list of numbers!");
                                 stageFailed = true;
                                 break;
 
                             }
 
                         } else {
-                            printSevere("[Quests] Stage " + s2 + " of Quest " + PURPLE + quest.name + " is missing mob-amounts:");
+                            Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + ColorUtil.PURPLE + quest.name
+                                    + " is missing mob-amounts:");
                             stageFailed = true;
                             break;
                         }
@@ -2967,13 +3210,16 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".locations-to-kill")) {
 
-                        if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".locations-to-kill"), String.class)) {
+                        if (Quests.checkList(
+                                config.getList("quests." + s + ".stages.ordered." + s2 + ".locations-to-kill"),
+                                String.class)) {
 
-                            List<String> locations = config.getStringList("quests." + s + ".stages.ordered." + s2 + ".locations-to-kill");
+                            final List<String> locations = config.getStringList("quests." + s + ".stages.ordered." + s2
+                                    + ".locations-to-kill");
 
-                            for (String loc : locations) {
+                            for (final String loc: locations) {
 
-                                String[] info = loc.split(" ");
+                                final String[] info = loc.split(" ");
                                 if (info.length == 4) {
                                     double x;
                                     double y;
@@ -2982,25 +3228,30 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                         x = Double.parseDouble(info[1]);
                                         y = Double.parseDouble(info[2]);
                                         z = Double.parseDouble(info[3]);
-                                    } catch (NumberFormatException e) {
-                                        printSevere("[Quests] " + loc + " inside mobs-to-kill: inside Stage " + s2 + " of Quest " + quest.name + " is not in proper location format!");
-                                        printSevere("[Quests] Proper location format is: \"WorldName x y z\"");
+                                    } catch (final NumberFormatException e) {
+                                        Quests.printSevere("[Quests] " + loc + " inside mobs-to-kill: inside Stage "
+                                                + s2 + " of Quest " + quest.name + " is not in proper location format!");
+                                        Quests.printSevere("[Quests] Proper location format is: \"WorldName x y z\"");
                                         stageFailed = true;
                                         break;
                                     }
 
                                     if (getServer().getWorld(info[0]) != null) {
-                                        Location finalLocation = new Location(getServer().getWorld(info[0]), x, y, z);
+                                        final Location finalLocation = new Location(getServer().getWorld(info[0]), x,
+                                                y, z);
                                         locationsToKillWithin.add(finalLocation);
                                     } else {
-                                        printSevere("[Quests] " + info[0] + " inside mobs-to-kill: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid world name!");
+                                        Quests.printSevere("[Quests] " + info[0]
+                                                + " inside mobs-to-kill: inside Stage " + s2 + " of Quest "
+                                                + quest.name + " is not a valid world name!");
                                         stageFailed = true;
                                         break;
                                     }
 
                                 } else {
-                                    printSevere("[Quests] " + loc + " inside mobs-to-kill: inside Stage " + s2 + " of Quest " + quest.name + " is not in proper location format!");
-                                    printSevere("[Quests] Proper location format is: \"WorldName x y z\"");
+                                    Quests.printSevere("[Quests] " + loc + " inside mobs-to-kill: inside Stage " + s2
+                                            + " of Quest " + quest.name + " is not in proper location format!");
+                                    Quests.printSevere("[Quests] Proper location format is: \"WorldName x y z\"");
                                     stageFailed = true;
                                     break;
                                 }
@@ -3008,53 +3259,64 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             }
 
                         } else {
-                            printSevere("[Quests] locations-to-kill: in Stage " + s2 + " of Quest " + quest.name + " is not a list of locations!");
+                            Quests.printSevere("[Quests] locations-to-kill: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a list of locations!");
                             stageFailed = true;
                             break;
                         }
 
                         if (config.contains("quests." + s + ".stages.ordered." + s2 + ".kill-location-radii")) {
 
-                            if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".kill-location-radii"), Integer.class)) {
+                            if (Quests.checkList(
+                                    config.getList("quests." + s + ".stages.ordered." + s2 + ".kill-location-radii"),
+                                    Integer.class)) {
 
-                                List<Integer> radii = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".kill-location-radii");
-                                for (int i : radii) {
+                                final List<Integer> radii = config.getIntegerList("quests." + s + ".stages.ordered."
+                                        + s2 + ".kill-location-radii");
+                                for (final int i: radii) {
 
                                     radiiToKillWithin.add(i);
 
                                 }
 
                             } else {
-                                printSevere("[Quests] kill-location-radii: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                                Quests.printSevere("[Quests] kill-location-radii: in Stage " + s2 + " of Quest "
+                                        + quest.name + " is not a list of numbers!");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing kill-location-radii:");
+                            Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                    + " is missing kill-location-radii:");
                             stageFailed = true;
                             break;
                         }
 
                         if (config.contains("quests." + s + ".stages.ordered." + s2 + ".kill-location-names")) {
 
-                            if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".kill-location-names"), String.class)) {
+                            if (Quests.checkList(
+                                    config.getList("quests." + s + ".stages.ordered." + s2 + ".kill-location-names"),
+                                    String.class)) {
 
-                                List<String> locationNames = config.getStringList("quests." + s + ".stages.ordered." + s2 + ".kill-location-names");
-                                for (String name : locationNames) {
+                                final List<String> locationNames = config.getStringList("quests." + s
+                                        + ".stages.ordered." + s2 + ".kill-location-names");
+                                for (final String name: locationNames) {
 
                                     areaNames.add(name);
 
                                 }
 
                             } else {
-                                printSevere("[Quests] kill-location-names: in Stage " + s2 + " of Quest " + quest.name + " is not a list of names!");
+                                Quests.printSevere("[Quests] kill-location-names: in Stage " + s2 + " of Quest "
+                                        + quest.name + " is not a list of names!");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing kill-location-names:");
+                            Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                    + " is missing kill-location-names:");
                             stageFailed = true;
                             break;
                         }
@@ -3067,11 +3329,11 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                     oStage.radiiToKillWithin = radiiToKillWithin;
                     oStage.areaNames = areaNames;
 
-                    Map<Map<Enchantment, Material>, Integer> enchants = new HashMap<Map<Enchantment, Material>, Integer>();
+                    final Map<Map<Enchantment, Material>, Integer> enchants = new HashMap<Map<Enchantment, Material>, Integer>();
 
-                    for (Enchantment e : enchantments) {
+                    for (final Enchantment e: enchantments) {
 
-                        Map<Enchantment, Material> map = new HashMap<Enchantment, Material>();
+                        final Map<Enchantment, Material> map = new HashMap<Enchantment, Material>();
                         map.put(e, itemsToEnchant.get(enchantments.indexOf(e)));
                         enchants.put(map, amountsToEnchant.get(enchantments.indexOf(e)));
 
@@ -3079,9 +3341,9 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     oStage.itemsToEnchant = enchants;
 
-                    Map<Material, Integer> breakMap = new EnumMap<Material, Integer>(Material.class);
+                    final Map<Material, Integer> breakMap = new EnumMap<Material, Integer>(Material.class);
 
-                    for (int i : breakids) {
+                    for (final int i: breakids) {
 
                         breakMap.put(Material.getMaterial(i), breakamounts.get(breakids.indexOf(i)));
 
@@ -3095,13 +3357,16 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".locations-to-reach")) {
 
-                        if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".locations-to-reach"), String.class)) {
+                        if (Quests.checkList(
+                                config.getList("quests." + s + ".stages.ordered." + s2 + ".locations-to-reach"),
+                                String.class)) {
 
-                            List<String> locations = config.getStringList("quests." + s + ".stages.ordered." + s2 + ".locations-to-reach");
+                            final List<String> locations = config.getStringList("quests." + s + ".stages.ordered." + s2
+                                    + ".locations-to-reach");
 
-                            for (String loc : locations) {
+                            for (final String loc: locations) {
 
-                                String[] info = loc.split(" ");
+                                final String[] info = loc.split(" ");
                                 if (info.length == 4) {
                                     double x;
                                     double y;
@@ -3110,25 +3375,31 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                         x = Double.parseDouble(info[1]);
                                         y = Double.parseDouble(info[2]);
                                         z = Double.parseDouble(info[3]);
-                                    } catch (NumberFormatException e) {
-                                        printSevere("[Quests] " + loc + " inside locations-to-reach: inside Stage " + s2 + " of Quest " + quest.name + " is not in proper location format!");
-                                        printSevere("[Quests] Proper location format is: \"WorldName x y z\"");
+                                    } catch (final NumberFormatException e) {
+                                        Quests.printSevere("[Quests] " + loc
+                                                + " inside locations-to-reach: inside Stage " + s2 + " of Quest "
+                                                + quest.name + " is not in proper location format!");
+                                        Quests.printSevere("[Quests] Proper location format is: \"WorldName x y z\"");
                                         stageFailed = true;
                                         break;
                                     }
 
                                     if (getServer().getWorld(info[0]) != null) {
-                                        Location finalLocation = new Location(getServer().getWorld(info[0]), x, y, z);
+                                        final Location finalLocation = new Location(getServer().getWorld(info[0]), x,
+                                                y, z);
                                         oStage.locationsToReach.add(finalLocation);
                                     } else {
-                                        printSevere("[Quests] " + info[0] + " inside locations-to-reach: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid world name!");
+                                        Quests.printSevere("[Quests] " + info[0]
+                                                + " inside locations-to-reach: inside Stage " + s2 + " of Quest "
+                                                + quest.name + " is not a valid world name!");
                                         stageFailed = true;
                                         break;
                                     }
 
                                 } else {
-                                    printSevere("[Quests] " + loc + " inside mobs-to-kill: inside Stage " + s2 + " of Quest " + quest.name + " is not in proper location format!");
-                                    printSevere("[Quests] Proper location format is: \"WorldName x y z\"");
+                                    Quests.printSevere("[Quests] " + loc + " inside mobs-to-kill: inside Stage " + s2
+                                            + " of Quest " + quest.name + " is not in proper location format!");
+                                    Quests.printSevere("[Quests] Proper location format is: \"WorldName x y z\"");
                                     stageFailed = true;
                                     break;
                                 }
@@ -3136,53 +3407,64 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             }
 
                         } else {
-                            printSevere("[Quests] locations-to-reach: in Stage " + s2 + " of Quest " + quest.name + " is not a list of locations!");
+                            Quests.printSevere("[Quests] locations-to-reach: in Stage " + s2 + " of Quest "
+                                    + quest.name + " is not a list of locations!");
                             stageFailed = true;
                             break;
                         }
 
                         if (config.contains("quests." + s + ".stages.ordered." + s2 + ".reach-location-radii")) {
 
-                            if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".reach-location-radii"), Integer.class)) {
+                            if (Quests.checkList(
+                                    config.getList("quests." + s + ".stages.ordered." + s2 + ".reach-location-radii"),
+                                    Integer.class)) {
 
-                                List<Integer> radii = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".reach-location-radii");
-                                for (int i : radii) {
+                                final List<Integer> radii = config.getIntegerList("quests." + s + ".stages.ordered."
+                                        + s2 + ".reach-location-radii");
+                                for (final int i: radii) {
 
                                     oStage.radiiToReachWithin.add(i);
 
                                 }
 
                             } else {
-                                printSevere("[Quests] reach-location-radii: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                                Quests.printSevere("[Quests] reach-location-radii: in Stage " + s2 + " of Quest "
+                                        + quest.name + " is not a list of numbers!");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing reach-location-radii:");
+                            Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                    + " is missing reach-location-radii:");
                             stageFailed = true;
                             break;
                         }
 
                         if (config.contains("quests." + s + ".stages.ordered." + s2 + ".reach-location-names")) {
 
-                            if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".reach-location-names"), String.class)) {
+                            if (Quests.checkList(
+                                    config.getList("quests." + s + ".stages.ordered." + s2 + ".reach-location-names"),
+                                    String.class)) {
 
-                                List<String> locationNames = config.getStringList("quests." + s + ".stages.ordered." + s2 + ".reach-location-names");
-                                for (String name : locationNames) {
+                                final List<String> locationNames = config.getStringList("quests." + s
+                                        + ".stages.ordered." + s2 + ".reach-location-names");
+                                for (final String name: locationNames) {
 
                                     oStage.locationNames.add(name);
 
                                 }
 
                             } else {
-                                printSevere("[Quests] reach-location-names: in Stage " + s2 + " of Quest " + quest.name + " is not a list of names!");
+                                Quests.printSevere("[Quests] reach-location-names: in Stage " + s2 + " of Quest "
+                                        + quest.name + " is not a list of names!");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing reach-location-names:");
+                            Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                    + " is missing reach-location-names:");
                             stageFailed = true;
                             break;
                         }
@@ -3191,16 +3473,21 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".mobs-to-tame")) {
 
-                        if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".mobs-to-tame"), String.class)) {
+                        if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".mobs-to-tame"),
+                                String.class)) {
 
                             if (config.contains("quests." + s + ".stages.ordered." + s2 + ".mob-tame-amounts")) {
 
-                                if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".mob-tame-amounts"), Integer.class)) {
+                                if (Quests.checkList(
+                                        config.getList("quests." + s + ".stages.ordered." + s2 + ".mob-tame-amounts"),
+                                        Integer.class)) {
 
-                                    List<String> mobs = config.getStringList("quests." + s + ".stages.ordered." + s2 + ".mobs-to-tame");
-                                    List<Integer> mobAmounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".mob-tame-amounts");
+                                    final List<String> mobs = config.getStringList("quests." + s + ".stages.ordered."
+                                            + s2 + ".mobs-to-tame");
+                                    final List<Integer> mobAmounts = config.getIntegerList("quests." + s
+                                            + ".stages.ordered." + s2 + ".mob-tame-amounts");
 
-                                    for (String mob : mobs) {
+                                    for (final String mob: mobs) {
 
                                         if (mob.equalsIgnoreCase("Wolf")) {
 
@@ -3211,7 +3498,9 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                             oStage.mobsToTame.put(EntityType.OCELOT, mobAmounts.get(mobs.indexOf(mob)));
 
                                         } else {
-                                            printSevere("[Quests] " + mob + " inside mobs-to-tame: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid tameable mob!");
+                                            Quests.printSevere("[Quests] " + mob
+                                                    + " inside mobs-to-tame: inside Stage " + s2 + " of Quest "
+                                                    + quest.name + " is not a valid tameable mob!");
                                             stageFailed = true;
                                             break;
                                         }
@@ -3219,19 +3508,22 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                     }
 
                                 } else {
-                                    printSevere("[Quests] mob-tame-amounts: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                                    Quests.printSevere("[Quests] mob-tame-amounts: in Stage " + s2 + " of Quest "
+                                            + quest.name + " is not a list of numbers!");
                                     stageFailed = true;
                                     break;
                                 }
 
                             } else {
-                                printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing mob-tame-amounts:");
+                                Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                        + " is missing mob-tame-amounts:");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] mobs-to-tame: in Stage " + s2 + " of Quest " + quest.name + " is not a list of mob names!");
+                            Quests.printSevere("[Quests] mobs-to-tame: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a list of mob names!");
                             stageFailed = true;
                             break;
                         }
@@ -3240,84 +3532,108 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".sheep-to-shear")) {
 
-                        if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".sheep-to-shear"), String.class)) {
+                        if (Quests.checkList(
+                                config.getList("quests." + s + ".stages.ordered." + s2 + ".sheep-to-shear"),
+                                String.class)) {
 
                             if (config.contains("quests." + s + ".stages.ordered." + s2 + ".sheep-amounts")) {
 
-                                if (Quests.checkList(config.getList("quests." + s + ".stages.ordered." + s2 + ".sheep-amounts"), Integer.class)) {
+                                if (Quests.checkList(
+                                        config.getList("quests." + s + ".stages.ordered." + s2 + ".sheep-amounts"),
+                                        Integer.class)) {
 
-                                    List<String> sheep = config.getStringList("quests." + s + ".stages.ordered." + s2 + ".sheep-to-shear");
-                                    List<Integer> shearAmounts = config.getIntegerList("quests." + s + ".stages.ordered." + s2 + ".sheep-amounts");
+                                    final List<String> sheep = config.getStringList("quests." + s + ".stages.ordered."
+                                            + s2 + ".sheep-to-shear");
+                                    final List<Integer> shearAmounts = config.getIntegerList("quests." + s
+                                            + ".stages.ordered." + s2 + ".sheep-amounts");
 
-                                    for (String color : sheep) {
+                                    for (final String color: sheep) {
 
                                         if (color.equalsIgnoreCase("Black")) {
 
-                                            oStage.sheepToShear.put(DyeColor.BLACK, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.BLACK,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("Blue")) {
 
-                                            oStage.sheepToShear.put(DyeColor.BLUE, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.BLUE,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("Brown")) {
 
-                                            oStage.sheepToShear.put(DyeColor.BROWN, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.BROWN,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("Cyan")) {
 
-                                            oStage.sheepToShear.put(DyeColor.CYAN, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.CYAN,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("Gray")) {
 
-                                            oStage.sheepToShear.put(DyeColor.GRAY, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.GRAY,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("Green")) {
 
-                                            oStage.sheepToShear.put(DyeColor.GREEN, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.GREEN,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("LightBlue")) {
 
-                                            oStage.sheepToShear.put(DyeColor.LIGHT_BLUE, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.LIGHT_BLUE,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("Lime")) {
 
-                                            oStage.sheepToShear.put(DyeColor.LIME, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.LIME,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("Magenta")) {
 
-                                            oStage.sheepToShear.put(DyeColor.MAGENTA, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.MAGENTA,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("Orange")) {
 
-                                            oStage.sheepToShear.put(DyeColor.ORANGE, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.ORANGE,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("Pink")) {
 
-                                            oStage.sheepToShear.put(DyeColor.PINK, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.PINK,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("Purple")) {
 
-                                            oStage.sheepToShear.put(DyeColor.PURPLE, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.PURPLE,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("Red")) {
 
-                                            oStage.sheepToShear.put(DyeColor.RED, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.RED,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("Silver")) {
 
-                                            oStage.sheepToShear.put(DyeColor.SILVER, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.SILVER,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("White")) {
 
-                                            oStage.sheepToShear.put(DyeColor.WHITE, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.WHITE,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else if (color.equalsIgnoreCase("Yellow")) {
 
-                                            oStage.sheepToShear.put(DyeColor.YELLOW, shearAmounts.get(sheep.indexOf(color)));
+                                            oStage.sheepToShear.put(DyeColor.YELLOW,
+                                                    shearAmounts.get(sheep.indexOf(color)));
 
                                         } else {
 
-                                            printSevere("[Quests] " + color + " inside sheep-to-shear: inside Stage " + s2 + " of Quest " + quest.name + " is not a valid color!");
+                                            Quests.printSevere("[Quests] " + color
+                                                    + " inside sheep-to-shear: inside Stage " + s2 + " of Quest "
+                                                    + quest.name + " is not a valid color!");
                                             stageFailed = true;
                                             break;
 
@@ -3326,67 +3642,75 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                     }
 
                                 } else {
-                                    printSevere("[Quests] sheep-amounts: in Stage " + s2 + " of Quest " + quest.name + " is not a list of numbers!");
+                                    Quests.printSevere("[Quests] sheep-amounts: in Stage " + s2 + " of Quest "
+                                            + quest.name + " is not a list of numbers!");
                                     stageFailed = true;
                                     break;
                                 }
 
                             } else {
-                                printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing sheep-amounts:");
+                                Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                        + " is missing sheep-amounts:");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] sheep-to-shear: in Stage " + s2 + " of Quest " + quest.name + " is not a list of colors!");
+                            Quests.printSevere("[Quests] sheep-to-shear: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a list of colors!");
                             stageFailed = true;
                             break;
                         }
 
                     }
-                    
+
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".password-displays")) {
-                        
-                        List<String> displays = config.getStringList("quests." + s + ".stages.ordered." + s2 + ".password-displays");
-                        
+
+                        final List<String> displays = config.getStringList("quests." + s + ".stages.ordered." + s2
+                                + ".password-displays");
+
                         if (config.contains("quests." + s + ".stages.ordered." + s2 + ".password-phrases")) {
-                            
-                            List<String> phrases = config.getStringList("quests." + s + ".stages.ordered." + s2 + ".password-phrases");
-                            if(displays.size() == phrases.size()) {
-                                
-                                for(int passIndex = 0; passIndex < displays.size(); passIndex++){
-                                    
+
+                            final List<String> phrases = config.getStringList("quests." + s + ".stages.ordered." + s2
+                                    + ".password-phrases");
+                            if (displays.size() == phrases.size()) {
+
+                                for (int passIndex = 0; passIndex < displays.size(); passIndex++) {
+
                                     oStage.passwordDisplays.add(displays.get(passIndex));
-                                    LinkedList<String> answers = new LinkedList<String>();
+                                    final LinkedList<String> answers = new LinkedList<String>();
                                     answers.addAll(Arrays.asList(phrases.get(passIndex).split("\\|")));
                                     oStage.passwordPhrases.add(answers);
-                                    
+
                                 }
-                                
+
                             } else {
-                                printSevere("[Quests] password-displays and password-phrases in Stage " + s2 + " of Quest " + quest.name + " are not the same size!");
+                                Quests.printSevere("[Quests] password-displays and password-phrases in Stage " + s2
+                                        + " of Quest " + quest.name + " are not the same size!");
                                 stageFailed = true;
                                 break;
                             }
-                            
+
                         } else {
-                            printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing password-phrases!");
+                            Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                    + " is missing password-phrases!");
                             stageFailed = true;
                             break;
                         }
-                        
+
                     }
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".custom-objectives")) {
 
-                        ConfigurationSection sec = config.getConfigurationSection("quests." + s + ".stages.ordered." + s2 + ".custom-objectives");
-                        for (String path : sec.getKeys(false)) {
+                        final ConfigurationSection sec = config.getConfigurationSection("quests." + s
+                                + ".stages.ordered." + s2 + ".custom-objectives");
+                        for (final String path: sec.getKeys(false)) {
 
-                            String name = sec.getString(path + ".name");
-                            int count = sec.getInt(path + ".count");
+                            final String name = sec.getString(path + ".name");
+                            final int count = sec.getInt(path + ".count");
                             CustomObjective found = null;
 
-                            for (CustomObjective cr : customObjectives) {
+                            for (final CustomObjective cr: customObjectives) {
                                 if (cr.getName().equalsIgnoreCase(name)) {
                                     found = cr;
                                     break;
@@ -3394,14 +3718,15 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             }
 
                             if (found == null) {
-                                printWarning("[Quests] Custom objective \"" + name + "\" for Stage " + s2 + " of Quest \"" + quest.name + "\" could not be found!");
+                                Quests.printWarning("[Quests] Custom objective \"" + name + "\" for Stage " + s2
+                                        + " of Quest \"" + quest.name + "\" could not be found!");
                                 continue;
                             }
 
-                            Map<String, Object> data = new HashMap<String, Object>();
-                            ConfigurationSection sec2 = sec.getConfigurationSection(path + ".data");
+                            final Map<String, Object> data = new HashMap<String, Object>();
+                            final ConfigurationSection sec2 = sec.getConfigurationSection(path + ".data");
                             if (sec2 != null) {
-                                for (String dataPath : sec2.getKeys(false)) {
+                                for (final String dataPath: sec2.getKeys(false)) {
                                     data.put(dataPath, sec2.get(dataPath));
                                 }
                             }
@@ -3410,14 +3735,16 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                             oStage.customObjectiveCounts.add(count);
                             oStage.customObjectiveData.add(data);
 
-                            try{
-                                
+                            try {
+
                                 getServer().getPluginManager().registerEvents(found, this);
-                                
-                            }catch (Exception e){
-                                printWarning("[Quests] Failed to register events for custom objective \"" + name + "\" in Stage " + s2 + " of Quest \"" + quest.name + "\". Does the objective class listen for events?");
-                                if(debug){
-                                    printWarning("[Quests] Error log:");
+
+                            } catch (final Exception e) {
+                                Quests.printWarning("[Quests] Failed to register events for custom objective \"" + name
+                                        + "\" in Stage " + s2 + " of Quest \"" + quest.name
+                                        + "\". Does the objective class listen for events?");
+                                if (debug) {
+                                    Quests.printWarning("[Quests] Error log:");
                                     e.printStackTrace();
                                 }
                             }
@@ -3425,21 +3752,24 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         }
 
                     }
-                    
+
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".objective-override")) {
-                        
-                        oStage.objectiveOverride = config.getString("quests." + s + ".stages.ordered." + s2 + ".objective-override");
-                        
+
+                        oStage.objectiveOverride = config.getString("quests." + s + ".stages.ordered." + s2
+                                + ".objective-override");
+
                     }
-                    
+
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".start-event")) {
 
-                        Event evt = Event.loadEvent(config.getString("quests." + s + ".stages.ordered." + s2 + ".start-event"), this);
+                        final Event evt = Event.loadEvent(
+                                config.getString("quests." + s + ".stages.ordered." + s2 + ".start-event"), this);
 
                         if (evt != null) {
                             oStage.startEvent = evt;
                         } else {
-                            printSevere("[Quests] start-event: in Stage " + s2 + " of Quest " + quest.name + " failed to load.");
+                            Quests.printSevere("[Quests] start-event: in Stage " + s2 + " of Quest " + quest.name
+                                    + " failed to load.");
                             stageFailed = true;
                             break;
                         }
@@ -3448,32 +3778,37 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".finish-event")) {
 
-                        Event evt = Event.loadEvent(config.getString("quests." + s + ".stages.ordered." + s2 + ".finish-event"), this);
+                        final Event evt = Event.loadEvent(
+                                config.getString("quests." + s + ".stages.ordered." + s2 + ".finish-event"), this);
 
                         if (evt != null) {
                             oStage.finishEvent = evt;
                         } else {
-                            printSevere("[Quests] finish-event: in Stage " + s2 + " of Quest " + quest.name + " failed to load.");
+                            Quests.printSevere("[Quests] finish-event: in Stage " + s2 + " of Quest " + quest.name
+                                    + " failed to load.");
                             stageFailed = true;
                             break;
                         }
 
                     }
 
-                    //Legacy support
+                    // Legacy support
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".event")) {
 
-                        Event evt = Event.loadEvent(config.getString("quests." + s + ".stages.ordered." + s2 + ".event"), this);
+                        final Event evt = Event.loadEvent(
+                                config.getString("quests." + s + ".stages.ordered." + s2 + ".event"), this);
 
                         if (evt != null) {
                             oStage.finishEvent = evt;
-                            printInfo("[Quests] Converting event: in Stage " + s2 + " of Quest " + quest.name + " to finish-event:");
-                            String old = config.getString("quests." + s + ".stages.ordered." + s2 + ".event");
+                            Quests.printInfo("[Quests] Converting event: in Stage " + s2 + " of Quest " + quest.name
+                                    + " to finish-event:");
+                            final String old = config.getString("quests." + s + ".stages.ordered." + s2 + ".event");
                             config.set("quests." + s + ".stages.ordered." + s2 + ".finish-event", old);
                             config.set("quests." + s + ".stages.ordered." + s2 + ".event", null);
                             needsSaving = true;
                         } else {
-                            printSevere("[Quests] event: in Stage " + s2 + " of Quest " + quest.name + " failed to load.");
+                            Quests.printSevere("[Quests] event: in Stage " + s2 + " of Quest " + quest.name
+                                    + " failed to load.");
                             stageFailed = true;
                             break;
                         }
@@ -3483,12 +3818,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".death-event")) {
 
-                        Event evt = Event.loadEvent(config.getString("quests." + s + ".stages.ordered." + s2 + ".death-event"), this);
+                        final Event evt = Event.loadEvent(
+                                config.getString("quests." + s + ".stages.ordered." + s2 + ".death-event"), this);
 
                         if (evt != null) {
                             oStage.deathEvent = evt;
                         } else {
-                            printSevere("[Quests] death-event: in Stage " + s2 + " of Quest " + quest.name + " failed to load.");
+                            Quests.printSevere("[Quests] death-event: in Stage " + s2 + " of Quest " + quest.name
+                                    + " failed to load.");
                             stageFailed = true;
                             break;
                         }
@@ -3497,12 +3834,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".disconnect-event")) {
 
-                        Event evt = Event.loadEvent(config.getString("quests." + s + ".stages.ordered." + s2 + ".disconnect-event"), this);
+                        final Event evt = Event.loadEvent(
+                                config.getString("quests." + s + ".stages.ordered." + s2 + ".disconnect-event"), this);
 
                         if (evt != null) {
                             oStage.disconnectEvent = evt;
                         } else {
-                            printSevere("[Quests] disconnect-event: in Stage " + s2 + " of Quest " + quest.name + " failed to load.");
+                            Quests.printSevere("[Quests] disconnect-event: in Stage " + s2 + " of Quest " + quest.name
+                                    + " failed to load.");
                             stageFailed = true;
                             break;
                         }
@@ -3517,18 +3856,22 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                                 if (config.isList("quests." + s + ".stages.ordered." + s2 + ".chat-event-triggers")) {
 
-                                    List<String> chatEvents = config.getStringList("quests." + s + ".stages.ordered." + s2 + ".chat-events");
-                                    List<String> chatEventTriggers = config.getStringList("quests." + s + ".stages.ordered." + s2 + ".chat-event-triggers");
+                                    final List<String> chatEvents = config.getStringList("quests." + s
+                                            + ".stages.ordered." + s2 + ".chat-events");
+                                    final List<String> chatEventTriggers = config.getStringList("quests." + s
+                                            + ".stages.ordered." + s2 + ".chat-event-triggers");
                                     boolean loadEventFailed = false;
 
                                     for (int i = 0; i < chatEvents.size(); i++) {
 
-                                        Event evt = Event.loadEvent(chatEvents.get(i), this);
+                                        final Event evt = Event.loadEvent(chatEvents.get(i), this);
 
                                         if (evt != null) {
                                             oStage.chatEvents.put(chatEventTriggers.get(i), evt);
                                         } else {
-                                            printSevere("[Quests] " + chatEvents.get(i) + " inside of chat-events: in Stage " + s2 + " of Quest " + quest.name + " failed to load.");
+                                            Quests.printSevere("[Quests] " + chatEvents.get(i)
+                                                    + " inside of chat-events: in Stage " + s2 + " of Quest "
+                                                    + quest.name + " failed to load.");
                                             stageFailed = true;
                                             loadEventFailed = true;
                                             break;
@@ -3541,19 +3884,22 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                     }
 
                                 } else {
-                                    printSevere("[Quests] chat-event-triggers in Stage " + s2 + " of Quest " + quest.name + " is not in list format!");
+                                    Quests.printSevere("[Quests] chat-event-triggers in Stage " + s2 + " of Quest "
+                                            + quest.name + " is not in list format!");
                                     stageFailed = true;
                                     break;
                                 }
 
                             } else {
-                                printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name + " is missing chat-event-triggers!");
+                                Quests.printSevere("[Quests] Stage " + s2 + " of Quest " + quest.name
+                                        + " is missing chat-event-triggers!");
                                 stageFailed = true;
                                 break;
                             }
 
                         } else {
-                            printSevere("[Quests] chat-events in Stage " + s2 + " of Quest " + quest.name + " is not in list format!");
+                            Quests.printSevere("[Quests] chat-events in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not in list format!");
                             stageFailed = true;
                             break;
                         }
@@ -3565,7 +3911,8 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         if (config.getLong("quests." + s + ".stages.ordered." + s2 + ".delay", -999) != -999) {
                             oStage.delay = config.getLong("quests." + s + ".stages.ordered." + s2 + ".delay");
                         } else {
-                            printSevere("[Quests] delay: in Stage " + s2 + " of Quest " + quest.name + " is not a number!");
+                            Quests.printSevere("[Quests] delay: in Stage " + s2 + " of Quest " + quest.name
+                                    + " is not a number!");
                             stageFailed = true;
                             break;
                         }
@@ -3574,23 +3921,26 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".delay-message")) {
 
-                        oStage.delayMessage = config.getString("quests." + s + ".stages.ordered." + s2 + ".delay-message");
+                        oStage.delayMessage = config.getString("quests." + s + ".stages.ordered." + s2
+                                + ".delay-message");
 
                     }
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".start-message")) {
 
-                        oStage.startMessage = config.getString("quests." + s + ".stages.ordered." + s2 + ".start-message");
+                        oStage.startMessage = config.getString("quests." + s + ".stages.ordered." + s2
+                                + ".start-message");
 
                     }
 
                     if (config.contains("quests." + s + ".stages.ordered." + s2 + ".complete-message")) {
 
-                        oStage.completeMessage = config.getString("quests." + s + ".stages.ordered." + s2 + ".complete-message");
+                        oStage.completeMessage = config.getString("quests." + s + ".stages.ordered." + s2
+                                + ".complete-message");
 
                     }
 
-                    LinkedList<Integer> ids = new LinkedList<Integer>();
+                    final LinkedList<Integer> ids = new LinkedList<Integer>();
                     if (npcIdsToTalkTo != null) {
                         ids.addAll(npcIdsToTalkTo);
                     }
@@ -3608,21 +3958,22 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                     continue;
                 }
 
-                //Load rewards
+                // Load rewards
                 if (config.contains("quests." + s + ".rewards.items")) {
 
                     if (Quests.checkList(config.getList("quests." + s + ".rewards.items"), String.class)) {
 
                         boolean failed = false;
-                        for (String item : config.getStringList("quests." + s + ".rewards.items")) {
+                        for (final String item: config.getStringList("quests." + s + ".rewards.items")) {
 
                             try {
-                                ItemStack stack = ItemUtil.readItemStack(item);
+                                final ItemStack stack = ItemUtil.readItemStack(item);
                                 if (stack != null) {
                                     quest.itemRewards.add(stack);
                                 }
-                            } catch (Exception e) {
-                                printSevere("[Quests] " + item + " in items: Reward in Quest " + quest.name + " is not properly formatted!");
+                            } catch (final Exception e) {
+                                Quests.printSevere("[Quests] " + item + " in items: Reward in Quest " + quest.name
+                                        + " is not properly formatted!");
                                 failed = true;
                                 break;
                             }
@@ -3634,7 +3985,8 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         }
 
                     } else {
-                        printSevere("[Quests] items: Reward in Quest " + quest.name + " is not a list of strings!");
+                        Quests.printSevere("[Quests] items: Reward in Quest " + quest.name
+                                + " is not a list of strings!");
                         continue;
                     }
 
@@ -3645,7 +3997,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                     if (config.getInt("quests." + s + ".rewards.money", -999) != -999) {
                         quest.moneyReward = config.getInt("quests." + s + ".rewards.money");
                     } else {
-                        printSevere("[Quests] money: Reward in Quest " + quest.name + " is not a number!");
+                        Quests.printSevere("[Quests] money: Reward in Quest " + quest.name + " is not a number!");
                         continue;
                     }
 
@@ -3656,7 +4008,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                     if (config.getInt("quests." + s + ".rewards.exp", -999) != -999) {
                         quest.exp = config.getInt("quests." + s + ".rewards.exp");
                     } else {
-                        printSevere("[Quests] exp: Reward in Quest " + quest.name + " is not a number!");
+                        Quests.printSevere("[Quests] exp: Reward in Quest " + quest.name + " is not a number!");
                         continue;
                     }
 
@@ -3668,7 +4020,8 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         quest.commands.clear();
                         quest.commands.addAll(config.getStringList("quests." + s + ".rewards.commands"));
                     } else {
-                        printSevere("[Quests] commands: Reward in Quest " + quest.name + " is not a list of commands!");
+                        Quests.printSevere("[Quests] commands: Reward in Quest " + quest.name
+                                + " is not a list of commands!");
                         continue;
                     }
 
@@ -3680,7 +4033,8 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         quest.permissions.clear();
                         quest.permissions.addAll(config.getStringList("quests." + s + ".rewards.permissions"));
                     } else {
-                        printSevere("[Quests] permissions: Reward in Quest " + quest.name + " is not a list of permissions!");
+                        Quests.printSevere("[Quests] permissions: Reward in Quest " + quest.name
+                                + " is not a list of permissions!");
                         continue;
                     }
 
@@ -3692,7 +4046,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         quest.questPoints = config.getInt("quests." + s + ".rewards.quest-points");
                         totalQuestPoints += quest.questPoints;
                     } else {
-                        printSevere("[Quests] quest-points: Reward in Quest " + quest.name + " is not a number!");
+                        Quests.printSevere("[Quests] quest-points: Reward in Quest " + quest.name + " is not a number!");
                         continue;
                     }
 
@@ -3704,13 +4058,15 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         if (config.contains("quests." + s + ".rewards.mcmmo-levels")) {
 
-                            if (Quests.checkList(config.getList("quests." + s + ".rewards.mcmmo-levels"), Integer.class)) {
+                            if (Quests
+                                    .checkList(config.getList("quests." + s + ".rewards.mcmmo-levels"), Integer.class)) {
 
                                 boolean failed = false;
-                                for (String skill : config.getStringList("quests." + s + ".rewards.mcmmo-skills")) {
+                                for (final String skill: config.getStringList("quests." + s + ".rewards.mcmmo-skills")) {
 
                                     if (Quests.getMcMMOSkill(skill) == null) {
-                                        printSevere("[Quests] " + skill + " in mcmmo-skills: Reward in Quest " + quest.name + " is not a valid mcMMO skill name!");
+                                        Quests.printSevere("[Quests] " + skill + " in mcmmo-skills: Reward in Quest "
+                                                + quest.name + " is not a valid mcMMO skill name!");
                                         failed = true;
                                         break;
                                     }
@@ -3724,20 +4080,23 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                 quest.mcmmoAmounts.clear();
 
                                 quest.mcmmoSkills.addAll(config.getStringList("quests." + s + ".rewards.mcmmo-skills"));
-                                quest.mcmmoAmounts.addAll(config.getIntegerList("quests." + s + ".rewards.mcmmo-levels"));
+                                quest.mcmmoAmounts.addAll(config
+                                        .getIntegerList("quests." + s + ".rewards.mcmmo-levels"));
 
                             } else {
-                                printSevere("[Quests] mcmmo-levels: Reward in Quest " + quest.name + " is not a list of numbers!");
+                                Quests.printSevere("[Quests] mcmmo-levels: Reward in Quest " + quest.name
+                                        + " is not a list of numbers!");
                                 continue;
                             }
 
                         } else {
-                            printSevere("[Quests] Rewards for Quest " + quest.name + " is missing mcmmo-levels:");
+                            Quests.printSevere("[Quests] Rewards for Quest " + quest.name + " is missing mcmmo-levels:");
                             continue;
                         }
 
                     } else {
-                        printSevere("[Quests] mcmmo-skills: Reward in Quest " + quest.name + " is not a list of mcMMO skill names!");
+                        Quests.printSevere("[Quests] mcmmo-skills: Reward in Quest " + quest.name
+                                + " is not a list of mcMMO skill names!");
                         continue;
                     }
                 }
@@ -3748,13 +4107,17 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
                         if (config.contains("quests." + s + ".rewards.heroes-exp-amounts")) {
 
-                            if (Quests.checkList(config.getList("quests." + s + ".rewards.heroes-exp-amounts"), Double.class)) {
+                            if (Quests.checkList(config.getList("quests." + s + ".rewards.heroes-exp-amounts"),
+                                    Double.class)) {
 
                                 boolean failed = false;
-                                for (String heroClass : config.getStringList("quests." + s + ".rewards.heroes-exp-classes")) {
+                                for (final String heroClass: config.getStringList("quests." + s
+                                        + ".rewards.heroes-exp-classes")) {
 
                                     if (Quests.heroes.getClassManager().getClass(heroClass) == null) {
-                                        printSevere("[Quests] " + heroClass + " in heroes-exp-classes: Reward in Quest " + quest.name + " is not a valid Heroes class name!");
+                                        Quests.printSevere("[Quests] " + heroClass
+                                                + " in heroes-exp-classes: Reward in Quest " + quest.name
+                                                + " is not a valid Heroes class name!");
                                         failed = true;
                                         break;
                                     }
@@ -3767,21 +4130,26 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                                 quest.heroesClasses.clear();
                                 quest.heroesAmounts.clear();
 
-                                quest.heroesClasses.addAll(config.getStringList("quests." + s + ".rewards.heroes-exp-classes"));
-                                quest.heroesAmounts.addAll(config.getDoubleList("quests." + s + ".rewards.heroes-exp-amounts"));
+                                quest.heroesClasses.addAll(config.getStringList("quests." + s
+                                        + ".rewards.heroes-exp-classes"));
+                                quest.heroesAmounts.addAll(config.getDoubleList("quests." + s
+                                        + ".rewards.heroes-exp-amounts"));
 
                             } else {
-                                printSevere("[Quests] heroes-exp-amounts: Reward in Quest " + quest.name + " is not a list of experience amounts (decimal numbers)!");
+                                Quests.printSevere("[Quests] heroes-exp-amounts: Reward in Quest " + quest.name
+                                        + " is not a list of experience amounts (decimal numbers)!");
                                 continue;
                             }
 
                         } else {
-                            printSevere("[Quests] Rewards for Quest " + quest.name + " is missing heroes-exp-amounts:");
+                            Quests.printSevere("[Quests] Rewards for Quest " + quest.name
+                                    + " is missing heroes-exp-amounts:");
                             continue;
                         }
 
                     } else {
-                        printSevere("[Quests] heroes-exp-classes: Reward in Quest " + quest.name + " is not a list of Heroes classes!");
+                        Quests.printSevere("[Quests] heroes-exp-classes: Reward in Quest " + quest.name
+                                + " is not a list of Heroes classes!");
                         continue;
                     }
                 }
@@ -3791,10 +4159,11 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                     if (Quests.checkList(config.getList("quests." + s + ".rewards.phat-loots"), String.class)) {
 
                         boolean failed = false;
-                        for (String loot : config.getStringList("quests." + s + ".rewards.phat-loots")) {
+                        for (final String loot: config.getStringList("quests." + s + ".rewards.phat-loots")) {
 
                             if (PhatLootsAPI.getPhatLoot(loot) == null) {
-                                printSevere("[Quests] " + loot + " in phat-loots: Reward in Quest " + quest.name + " is not a valid PhatLoot name!");
+                                Quests.printSevere("[Quests] " + loot + " in phat-loots: Reward in Quest " + quest.name
+                                        + " is not a valid PhatLoot name!");
                                 failed = true;
                                 break;
                             }
@@ -3808,20 +4177,22 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         quest.phatLootRewards.addAll(config.getStringList("quests." + s + ".rewards.phat-loots"));
 
                     } else {
-                        printSevere("[Quests] phat-loots: Reward in Quest " + quest.name + " is not a list of PhatLoots!");
+                        Quests.printSevere("[Quests] phat-loots: Reward in Quest " + quest.name
+                                + " is not a list of PhatLoots!");
                         continue;
                     }
                 }
-                
+
                 if (config.contains("quests." + s + ".rewards.custom-rewards")) {
 
-                    ConfigurationSection sec = config.getConfigurationSection("quests." + s + ".rewards.custom-rewards");
-                    for (String path : sec.getKeys(false)) {
+                    final ConfigurationSection sec = config.getConfigurationSection("quests." + s
+                            + ".rewards.custom-rewards");
+                    for (final String path: sec.getKeys(false)) {
 
-                        String name = sec.getString(path + ".name");
+                        final String name = sec.getString(path + ".name");
                         boolean found = false;
 
-                        for (CustomReward cr : customRewards) {
+                        for (final CustomReward cr: customRewards) {
                             if (cr.getName().equalsIgnoreCase(name)) {
                                 found = true;
                                 break;
@@ -3829,14 +4200,15 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                         }
 
                         if (!found) {
-                            printWarning("[Quests] Custom reward \"" + name + "\" for Quest \"" + quest.name + "\" could not be found!");
+                            Quests.printWarning("[Quests] Custom reward \"" + name + "\" for Quest \"" + quest.name
+                                    + "\" could not be found!");
                             continue;
                         }
 
-                        Map<String, Object> data = new HashMap<String, Object>();
-                        ConfigurationSection sec2 = sec.getConfigurationSection(path + ".data");
+                        final Map<String, Object> data = new HashMap<String, Object>();
+                        final ConfigurationSection sec2 = sec.getConfigurationSection(path + ".data");
                         if (sec2 != null) {
-                            for (String dataPath : sec2.getKeys(false)) {
+                            for (final String dataPath: sec2.getKeys(false)) {
                                 data.put(dataPath, sec2.get(dataPath));
                             }
                         }
@@ -3854,19 +4226,19 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
                     config.save(file);
                 }
 
-            } catch (IOException e) {
+            } catch (final IOException e) {
 
                 if (debug == false) {
-                    log.log(Level.SEVERE, "[Quests] Failed to load Quest \"" + s + "\". Skipping.");
+                    Quests.log.log(Level.SEVERE, "[Quests] Failed to load Quest \"" + s + "\". Skipping.");
                 } else {
-                    log.log(Level.SEVERE, "[Quests] Failed to load Quest \"" + s + "\". Error log:");
+                    Quests.log.log(Level.SEVERE, "[Quests] Failed to load Quest \"" + s + "\". Error log:");
                     e.printStackTrace();
                 }
 
             }
 
             if (failedToLoad == true) {
-                log.log(Level.SEVERE, "[Quests] Failed to load Quest \"" + s + "\". Skipping.");
+                Quests.log.log(Level.SEVERE, "[Quests] Failed to load Quest \"" + s + "\". Skipping.");
             }
 
         }
@@ -3875,25 +4247,25 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public void loadEvents() {
 
-        YamlConfiguration config = new YamlConfiguration();
-        File eventsFile = new File(this.getDataFolder(), "events.yml");
+        final YamlConfiguration config = new YamlConfiguration();
+        final File eventsFile = new File(getDataFolder(), "events.yml");
 
         try {
             config.load(eventsFile);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
-        } catch (InvalidConfigurationException e) {
+        } catch (final InvalidConfigurationException e) {
             e.printStackTrace();
         }
 
-        ConfigurationSection sec = config.getConfigurationSection("events");
-        for (String s : sec.getKeys(false)) {
+        final ConfigurationSection sec = config.getConfigurationSection("events");
+        for (final String s: sec.getKeys(false)) {
 
-            Event event = Event.loadEvent(s, this);
+            final Event event = Event.loadEvent(s, this);
             if (event != null) {
                 events.add(event);
             } else {
-                log.log(Level.SEVERE, "[Quests] Failed to load Event \"" + s + "\". Skipping.");
+                Quests.log.log(Level.SEVERE, "[Quests] Failed to load Event \"" + s + "\". Skipping.");
             }
 
         }
@@ -3908,31 +4280,31 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
             parsed = parsed.replaceAll("<npc>", quest.npcStart.getName());
         }
 
-        parsed = parsed.replaceAll("<black>", BLACK.toString());
-        parsed = parsed.replaceAll("<darkblue>", DARKBLUE.toString());
-        parsed = parsed.replaceAll("<darkgreen>", DARKGREEN.toString());
-        parsed = parsed.replaceAll("<darkaqua>", DARKAQUA.toString());
-        parsed = parsed.replaceAll("<darkred>", DARKRED.toString());
-        parsed = parsed.replaceAll("<purple>", PURPLE.toString());
-        parsed = parsed.replaceAll("<gold>", GOLD.toString());
-        parsed = parsed.replaceAll("<grey>", GRAY.toString());
-        parsed = parsed.replaceAll("<gray>", GRAY.toString());
-        parsed = parsed.replaceAll("<darkgrey>", DARKGRAY.toString());
-        parsed = parsed.replaceAll("<darkgray>", DARKGRAY.toString());
-        parsed = parsed.replaceAll("<blue>", BLUE.toString());
-        parsed = parsed.replaceAll("<green>", GREEN.toString());
-        parsed = parsed.replaceAll("<aqua>", AQUA.toString());
-        parsed = parsed.replaceAll("<red>", RED.toString());
-        parsed = parsed.replaceAll("<pink>", PINK.toString());
-        parsed = parsed.replaceAll("<yellow>", YELLOW.toString());
-        parsed = parsed.replaceAll("<white>", WHITE.toString());
+        parsed = parsed.replaceAll("<black>", ColorUtil.BLACK.toString());
+        parsed = parsed.replaceAll("<darkblue>", ColorUtil.DARKBLUE.toString());
+        parsed = parsed.replaceAll("<darkgreen>", ColorUtil.DARKGREEN.toString());
+        parsed = parsed.replaceAll("<darkaqua>", ColorUtil.DARKAQUA.toString());
+        parsed = parsed.replaceAll("<darkred>", ColorUtil.DARKRED.toString());
+        parsed = parsed.replaceAll("<purple>", ColorUtil.PURPLE.toString());
+        parsed = parsed.replaceAll("<gold>", ColorUtil.GOLD.toString());
+        parsed = parsed.replaceAll("<grey>", ColorUtil.GRAY.toString());
+        parsed = parsed.replaceAll("<gray>", ColorUtil.GRAY.toString());
+        parsed = parsed.replaceAll("<darkgrey>", ColorUtil.DARKGRAY.toString());
+        parsed = parsed.replaceAll("<darkgray>", ColorUtil.DARKGRAY.toString());
+        parsed = parsed.replaceAll("<blue>", ColorUtil.BLUE.toString());
+        parsed = parsed.replaceAll("<green>", ColorUtil.GREEN.toString());
+        parsed = parsed.replaceAll("<aqua>", ColorUtil.AQUA.toString());
+        parsed = parsed.replaceAll("<red>", ColorUtil.RED.toString());
+        parsed = parsed.replaceAll("<pink>", ColorUtil.PINK.toString());
+        parsed = parsed.replaceAll("<yellow>", ColorUtil.YELLOW.toString());
+        parsed = parsed.replaceAll("<white>", ColorUtil.WHITE.toString());
 
-        parsed = parsed.replaceAll("<random>", MAGIC.toString());
-        parsed = parsed.replaceAll("<italic>", ITALIC.toString());
-        parsed = parsed.replaceAll("<bold>", BOLD.toString());
-        parsed = parsed.replaceAll("<underline>", UNDERLINE.toString());
-        parsed = parsed.replaceAll("<strike>", STRIKETHROUGH.toString());
-        parsed = parsed.replaceAll("<reset>", RESET.toString());
+        parsed = parsed.replaceAll("<random>", ColorUtil.MAGIC.toString());
+        parsed = parsed.replaceAll("<italic>", ColorUtil.ITALIC.toString());
+        parsed = parsed.replaceAll("<bold>", ColorUtil.BOLD.toString());
+        parsed = parsed.replaceAll("<underline>", ColorUtil.UNDERLINE.toString());
+        parsed = parsed.replaceAll("<strike>", ColorUtil.STRIKETHROUGH.toString());
+        parsed = parsed.replaceAll("<reset>", ColorUtil.RESET.toString());
         parsed = ChatColor.translateAlternateColorCodes('&', parsed);
 
         return parsed;
@@ -3946,31 +4318,31 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
             parsed = parsed.replaceAll("<npc>", npc.getName());
         }
 
-        parsed = parsed.replaceAll("<black>", BLACK.toString());
-        parsed = parsed.replaceAll("<darkblue>", DARKBLUE.toString());
-        parsed = parsed.replaceAll("<darkgreen>", DARKGREEN.toString());
-        parsed = parsed.replaceAll("<darkaqua>", DARKAQUA.toString());
-        parsed = parsed.replaceAll("<darkred>", DARKRED.toString());
-        parsed = parsed.replaceAll("<purple>", PURPLE.toString());
-        parsed = parsed.replaceAll("<gold>", GOLD.toString());
-        parsed = parsed.replaceAll("<grey>", GRAY.toString());
-        parsed = parsed.replaceAll("<gray>", GRAY.toString());
-        parsed = parsed.replaceAll("<darkgrey>", DARKGRAY.toString());
-        parsed = parsed.replaceAll("<darkgray>", DARKGRAY.toString());
-        parsed = parsed.replaceAll("<blue>", BLUE.toString());
-        parsed = parsed.replaceAll("<green>", GREEN.toString());
-        parsed = parsed.replaceAll("<aqua>", AQUA.toString());
-        parsed = parsed.replaceAll("<red>", RED.toString());
-        parsed = parsed.replaceAll("<pink>", PINK.toString());
-        parsed = parsed.replaceAll("<yellow>", YELLOW.toString());
-        parsed = parsed.replaceAll("<white>", WHITE.toString());
+        parsed = parsed.replaceAll("<black>", ColorUtil.BLACK.toString());
+        parsed = parsed.replaceAll("<darkblue>", ColorUtil.DARKBLUE.toString());
+        parsed = parsed.replaceAll("<darkgreen>", ColorUtil.DARKGREEN.toString());
+        parsed = parsed.replaceAll("<darkaqua>", ColorUtil.DARKAQUA.toString());
+        parsed = parsed.replaceAll("<darkred>", ColorUtil.DARKRED.toString());
+        parsed = parsed.replaceAll("<purple>", ColorUtil.PURPLE.toString());
+        parsed = parsed.replaceAll("<gold>", ColorUtil.GOLD.toString());
+        parsed = parsed.replaceAll("<grey>", ColorUtil.GRAY.toString());
+        parsed = parsed.replaceAll("<gray>", ColorUtil.GRAY.toString());
+        parsed = parsed.replaceAll("<darkgrey>", ColorUtil.DARKGRAY.toString());
+        parsed = parsed.replaceAll("<darkgray>", ColorUtil.DARKGRAY.toString());
+        parsed = parsed.replaceAll("<blue>", ColorUtil.BLUE.toString());
+        parsed = parsed.replaceAll("<green>", ColorUtil.GREEN.toString());
+        parsed = parsed.replaceAll("<aqua>", ColorUtil.AQUA.toString());
+        parsed = parsed.replaceAll("<red>", ColorUtil.RED.toString());
+        parsed = parsed.replaceAll("<pink>", ColorUtil.PINK.toString());
+        parsed = parsed.replaceAll("<yellow>", ColorUtil.YELLOW.toString());
+        parsed = parsed.replaceAll("<white>", ColorUtil.WHITE.toString());
 
-        parsed = parsed.replaceAll("<random>", MAGIC.toString());
-        parsed = parsed.replaceAll("<italic>", ITALIC.toString());
-        parsed = parsed.replaceAll("<bold>", BOLD.toString());
-        parsed = parsed.replaceAll("<underline>", UNDERLINE.toString());
-        parsed = parsed.replaceAll("<strike>", STRIKETHROUGH.toString());
-        parsed = parsed.replaceAll("<reset>", RESET.toString());
+        parsed = parsed.replaceAll("<random>", ColorUtil.MAGIC.toString());
+        parsed = parsed.replaceAll("<italic>", ColorUtil.ITALIC.toString());
+        parsed = parsed.replaceAll("<bold>", ColorUtil.BOLD.toString());
+        parsed = parsed.replaceAll("<underline>", ColorUtil.UNDERLINE.toString());
+        parsed = parsed.replaceAll("<strike>", ColorUtil.STRIKETHROUGH.toString());
+        parsed = parsed.replaceAll("<reset>", ColorUtil.RESET.toString());
         parsed = ChatColor.translateAlternateColorCodes('&', parsed);
 
         return parsed;
@@ -3981,31 +4353,31 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
         String parsed = s;
 
-        parsed = parsed.replaceAll("<black>", BLACK.toString());
-        parsed = parsed.replaceAll("<darkblue>", DARKBLUE.toString());
-        parsed = parsed.replaceAll("<darkgreen>", DARKGREEN.toString());
-        parsed = parsed.replaceAll("<darkaqua>", DARKAQUA.toString());
-        parsed = parsed.replaceAll("<darkred>", DARKRED.toString());
-        parsed = parsed.replaceAll("<purple>", PURPLE.toString());
-        parsed = parsed.replaceAll("<gold>", GOLD.toString());
-        parsed = parsed.replaceAll("<grey>", GRAY.toString());
-        parsed = parsed.replaceAll("<gray>", GRAY.toString());
-        parsed = parsed.replaceAll("<darkgrey>", DARKGRAY.toString());
-        parsed = parsed.replaceAll("<darkgray>", DARKGRAY.toString());
-        parsed = parsed.replaceAll("<blue>", BLUE.toString());
-        parsed = parsed.replaceAll("<green>", GREEN.toString());
-        parsed = parsed.replaceAll("<aqua>", AQUA.toString());
-        parsed = parsed.replaceAll("<red>", RED.toString());
-        parsed = parsed.replaceAll("<pink>", PINK.toString());
-        parsed = parsed.replaceAll("<yellow>", YELLOW.toString());
-        parsed = parsed.replaceAll("<white>", WHITE.toString());
+        parsed = parsed.replaceAll("<black>", ColorUtil.BLACK.toString());
+        parsed = parsed.replaceAll("<darkblue>", ColorUtil.DARKBLUE.toString());
+        parsed = parsed.replaceAll("<darkgreen>", ColorUtil.DARKGREEN.toString());
+        parsed = parsed.replaceAll("<darkaqua>", ColorUtil.DARKAQUA.toString());
+        parsed = parsed.replaceAll("<darkred>", ColorUtil.DARKRED.toString());
+        parsed = parsed.replaceAll("<purple>", ColorUtil.PURPLE.toString());
+        parsed = parsed.replaceAll("<gold>", ColorUtil.GOLD.toString());
+        parsed = parsed.replaceAll("<grey>", ColorUtil.GRAY.toString());
+        parsed = parsed.replaceAll("<gray>", ColorUtil.GRAY.toString());
+        parsed = parsed.replaceAll("<darkgrey>", ColorUtil.DARKGRAY.toString());
+        parsed = parsed.replaceAll("<darkgray>", ColorUtil.DARKGRAY.toString());
+        parsed = parsed.replaceAll("<blue>", ColorUtil.BLUE.toString());
+        parsed = parsed.replaceAll("<green>", ColorUtil.GREEN.toString());
+        parsed = parsed.replaceAll("<aqua>", ColorUtil.AQUA.toString());
+        parsed = parsed.replaceAll("<red>", ColorUtil.RED.toString());
+        parsed = parsed.replaceAll("<pink>", ColorUtil.PINK.toString());
+        parsed = parsed.replaceAll("<yellow>", ColorUtil.YELLOW.toString());
+        parsed = parsed.replaceAll("<white>", ColorUtil.WHITE.toString());
 
-        parsed = parsed.replaceAll("<random>", MAGIC.toString());
-        parsed = parsed.replaceAll("<italic>", ITALIC.toString());
-        parsed = parsed.replaceAll("<bold>", BOLD.toString());
-        parsed = parsed.replaceAll("<underline>", UNDERLINE.toString());
-        parsed = parsed.replaceAll("<strike>", STRIKETHROUGH.toString());
-        parsed = parsed.replaceAll("<reset>", RESET.toString());
+        parsed = parsed.replaceAll("<random>", ColorUtil.MAGIC.toString());
+        parsed = parsed.replaceAll("<italic>", ColorUtil.ITALIC.toString());
+        parsed = parsed.replaceAll("<bold>", ColorUtil.BOLD.toString());
+        parsed = parsed.replaceAll("<underline>", ColorUtil.UNDERLINE.toString());
+        parsed = parsed.replaceAll("<strike>", ColorUtil.STRIKETHROUGH.toString());
+        parsed = parsed.replaceAll("<reset>", ColorUtil.RESET.toString());
         parsed = ChatColor.translateAlternateColorCodes('&', parsed);
 
         return parsed;
@@ -4015,35 +4387,37 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
     private boolean setupEconomy() {
         try {
 
-            RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+            final RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager()
+                    .getRegistration(net.milkbowl.vault.economy.Economy.class);
             if (economyProvider != null) {
-                economy = economyProvider.getProvider();
+                Quests.economy = economyProvider.getProvider();
             }
 
-            return (economy != null);
+            return (Quests.economy != null);
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return false;
         }
     }
 
     private boolean setupPermissions() {
-        RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
+        final RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager()
+                .getRegistration(net.milkbowl.vault.permission.Permission.class);
         if (permissionProvider != null) {
-            permission = permissionProvider.getProvider();
+            Quests.permission = permissionProvider.getProvider();
         }
-        return (permission != null);
+        return (Quests.permission != null);
     }
 
     private static Map<String, Integer> sort(Map<String, Integer> unsortedMap) {
 
-        List<Entry<String, Integer>> list = new LinkedList<Entry<String, Integer>>(unsortedMap.entrySet());
+        final List<Entry<String, Integer>> list = new LinkedList<Entry<String, Integer>>(unsortedMap.entrySet());
 
         Collections.sort(list, new Comparator<Entry<String, Integer>>() {
             @Override
             public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2) {
-                int i = o1.getValue();
-                int i2 = o2.getValue();
+                final int i = o1.getValue();
+                final int i2 = o2.getValue();
                 if (i < i2) {
                     return 1;
                 } else if (i == i2) {
@@ -4054,8 +4428,8 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
             }
         });
 
-        Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
-        for (Entry<String, Integer> entry : list) {
+        final Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
+        for (final Entry<String, Integer> entry: list) {
             sortedMap.put(entry.getKey(), entry.getValue());
         }
         return sortedMap;
@@ -4063,31 +4437,31 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public static void printSevere(String s) {
 
-        //s = ChatColor.stripColor(s);
-        log.severe(s);
+        // s = ChatColor.stripColor(s);
+        Quests.log.severe(s);
 
     }
 
     public static void printWarning(String s) {
 
-        //s = ChatColor.stripColor(s);
-        log.warning(s);
+        // s = ChatColor.stripColor(s);
+        Quests.log.warning(s);
 
     }
 
     public static void printInfo(String s) {
 
-        //s = ChatColor.stripColor(s);
-        log.info(s);
+        // s = ChatColor.stripColor(s);
+        Quests.log.info(s);
 
     }
 
     public boolean hasItem(Player player, ItemStack is) {
 
-        Inventory inv = player.getInventory();
+        final Inventory inv = player.getInventory();
         int playerAmount = 0;
 
-        for (ItemStack stack : inv.getContents()) {
+        for (final ItemStack stack: inv.getContents()) {
 
             if (stack != null) {
 
@@ -4104,7 +4478,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public static Location getLocation(String arg) {
 
-        String[] info = arg.split(" ");
+        final String[] info = arg.split(" ");
         if (info.length != 4) {
             return null;
         }
@@ -4117,7 +4491,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
             x = Double.parseDouble(info[1]);
             y = Double.parseDouble(info[2]);
             z = Double.parseDouble(info[3]);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             return null;
         }
 
@@ -4125,7 +4499,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
             return null;
         }
 
-        Location finalLocation = new Location(Bukkit.getServer().getWorld(info[0]), x, y, z);
+        final Location finalLocation = new Location(Bukkit.getServer().getWorld(info[0]), x, y, z);
 
         return finalLocation;
 
@@ -4302,12 +4676,12 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
         String message = "";
 
-        long days = milliseconds / 86400000;
-        long hours = (milliseconds % 86400000) / 3600000;
-        long minutes = ((milliseconds % 86400000) % 3600000) / 60000;
-        long seconds = (((milliseconds % 86400000) % 3600000) % 60000) / 1000;
-        long milliSeconds2 = (((milliseconds % 86400000) % 3600000) % 60000) % 1000;
-        
+        final long days = milliseconds / 86400000;
+        final long hours = (milliseconds % 86400000) / 3600000;
+        final long minutes = ((milliseconds % 86400000) % 3600000) / 60000;
+        final long seconds = (((milliseconds % 86400000) % 3600000) % 60000) / 1000;
+        final long milliSeconds2 = (((milliseconds % 86400000) % 3600000) % 60000) % 1000;
+
         if (days > 0) {
 
             if (days == 1) {
@@ -4360,19 +4734,20 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
         return message;
 
     }
+
     private static final String thou[] = {"", "M", "MM", "MMM"};
     private static final String hund[] = {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
-    private static final String ten[] = {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
+    private static final String ten[]  = {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
     private static final String unit[] = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
 
     public static String getNumeral(int i) {
 
-        int th = i / 1000;
-        int h = (i / 100) % 10;
-        int t = (i / 10) % 10;
-        int u = i % 10;
+        final int th = i / 1000;
+        final int h = (i / 100) % 10;
+        final int t = (i / 10) % 10;
+        final int u = i % 10;
 
-        return thou[th] + hund[h] + ten[t] + unit[u];
+        return Quests.thou[th] + Quests.hund[h] + Quests.ten[t] + Quests.unit[u];
 
     }
 
@@ -4464,14 +4839,14 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public static void addItem(Player p, ItemStack i) {
 
-        PlayerInventory inv = p.getInventory();
-        HashMap<Integer, ItemStack> leftover = inv.addItem(i);
+        final PlayerInventory inv = p.getInventory();
+        final HashMap<Integer, ItemStack> leftover = inv.addItem(i);
 
         if (leftover != null) {
 
             if (leftover.isEmpty() == false) {
 
-                for (ItemStack i2 : leftover.values()) {
+                for (final ItemStack i2: leftover.values()) {
                     p.getWorld().dropItem(p.getLocation(), i2);
                 }
 
@@ -4505,12 +4880,12 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public static boolean removeItem(Inventory inventory, ItemStack is) {
 
-        int type = is.getTypeId();
-        int amount = is.getAmount();
-        HashMap<Integer, ? extends ItemStack> allItems = inventory.all(type);
-        HashMap<Integer, Integer> removeFrom = new HashMap<Integer, Integer>();
+        final int type = is.getTypeId();
+        final int amount = is.getAmount();
+        final HashMap<Integer, ? extends ItemStack> allItems = inventory.all(type);
+        final HashMap<Integer, Integer> removeFrom = new HashMap<Integer, Integer>();
         int foundAmount = 0;
-        for (Map.Entry<Integer, ? extends ItemStack> item : allItems.entrySet()) {
+        for (final Map.Entry<Integer, ? extends ItemStack> item: allItems.entrySet()) {
 
             if (ItemUtil.compareItems(is, item.getValue(), true) == 0) {
 
@@ -4530,9 +4905,9 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
         }
         if (foundAmount == amount) {
 
-            for (Map.Entry<Integer, Integer> toRemove : removeFrom.entrySet()) {
+            for (final Map.Entry<Integer, Integer> toRemove: removeFrom.entrySet()) {
 
-                ItemStack item = inventory.getItem(toRemove.getKey());
+                final ItemStack item = inventory.getItem(toRemove.getKey());
                 if (item.getAmount() - toRemove.getValue() <= 0) {
                     inventory.clear(toRemove.getKey());
                 } else {
@@ -4549,7 +4924,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public boolean checkQuester(String name) {
 
-        for (String s : questerBlacklist) {
+        for (final String s: questerBlacklist) {
 
             if (Quests.checkQuester(name, s)) {
                 return true;
@@ -4591,7 +4966,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
             return false;
         }
 
-        for (Object o : list) {
+        for (final Object o: list) {
 
             if (c.isAssignableFrom(o.getClass()) == false) {
                 return false;
@@ -4605,7 +4980,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public Quest getQuest(String s) {
 
-        for (Quest q : quests) {
+        for (final Quest q: quests) {
             if (q.name.equalsIgnoreCase(s)) {
                 return q;
             }
@@ -4616,13 +4991,13 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public Quest findQuest(String s) {
 
-        for (Quest q : quests) {
+        for (final Quest q: quests) {
             if (q.name.equalsIgnoreCase(s)) {
                 return q;
             }
         }
 
-        for (Quest q : quests) {
+        for (final Quest q: quests) {
             if (q.name.toLowerCase().contains(s.toLowerCase())) {
                 return q;
             }
@@ -4634,7 +5009,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public Event getEvent(String s) {
 
-        for (Event e : events) {
+        for (final Event e: events) {
             if (e.name.equalsIgnoreCase(s)) {
                 return e;
             }
@@ -4654,7 +5029,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
         int count = 0;
 
-        for (ItemStack i : inv.getContents()) {
+        for (final ItemStack i: inv.getContents()) {
 
             if (i != null) {
                 if (i.getType().equals(m)) {
@@ -4980,8 +5355,9 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public void snoop() {
 
-        String ip = getServer().getIp().trim();
-        if (ip.isEmpty() || ip.startsWith("192") || ip.startsWith("localhost") || ip.startsWith("127") || ip.startsWith("0.0")) {
+        final String ip = getServer().getIp().trim();
+        if (ip.isEmpty() || ip.startsWith("192") || ip.startsWith("localhost") || ip.startsWith("127")
+                || ip.startsWith("0.0")) {
             return;
         }
 
@@ -4994,31 +5370,32 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
         try {
 
-            Date date = new Date(System.currentTimeMillis());
-            Timestamp stamp = new Timestamp(date.getTime());
-            String arguments = "arg1=" + getServer().getIp()
-                    + "&arg2=" + ((Integer) getServer().getPort()).toString()
-                    + "&arg3=" + URLEncoder.encode(getServer().getServerName().replaceAll("'", "''").replaceAll("\"", "''"), "UTF-8")
-                    + "&arg4=" + URLEncoder.encode(getServer().getMotd().replaceAll("'", "''").replaceAll("\"", "''"), "UTF-8")
-                    + "&arg5=" + quests.size()
-                    + "&arg6=" + (citizens != null ? "true" : "false")
-                    + "&arg7=" + URLEncoder.encode(stamp.toString(), "UTF-8");
-            URL url = new URL("http://www.blackvein.net/php/quests.php?" + arguments);
-            URLConnection yc = url.openConnection();
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(
-                            yc.getInputStream()));
+            final Date date = new Date(System.currentTimeMillis());
+            final Timestamp stamp = new Timestamp(date.getTime());
+            final String arguments = "arg1="
+                    + getServer().getIp()
+                    + "&arg2="
+                    + ((Integer) getServer().getPort()).toString()
+                    + "&arg3="
+                    + URLEncoder.encode(getServer().getServerName().replaceAll("'", "''").replaceAll("\"", "''"),
+                            "UTF-8") + "&arg4="
+                    + URLEncoder.encode(getServer().getMotd().replaceAll("'", "''").replaceAll("\"", "''"), "UTF-8")
+                    + "&arg5=" + quests.size() + "&arg6=" + (citizens != null ? "true" : "false") + "&arg7="
+                    + URLEncoder.encode(stamp.toString(), "UTF-8");
+            final URL url = new URL("http://www.blackvein.net/php/quests.php?" + arguments);
+            final URLConnection yc = url.openConnection();
+            final BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
             String inputLine;
 
             while ((inputLine = in.readLine()) != null) {
                 if (inputLine.equalsIgnoreCase("false")) {
-                    printWarning("[Quests] An error occurred inserting data into the snooper database!");
+                    Quests.printWarning("[Quests] An error occurred inserting data into the snooper database!");
                 }
             }
             in.close();
 
-        } catch (Exception e) {
-            printWarning("[Quests] An error occurred inserting data into the snooper database!");
+        } catch (final Exception e) {
+            Quests.printWarning("[Quests] An error occurred inserting data into the snooper database!");
         }
 
     }
@@ -5027,30 +5404,29 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
         try {
 
-            String arguments = "arg1=" + getServer().getIp() + "&arg2=" + ((Integer) getServer().getPort()).toString();
-            URL url = new URL("http://www.blackvein.net/php/quests_del.php?" + arguments);
-            URLConnection yc = url.openConnection();
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(
-                            yc.getInputStream()));
+            final String arguments = "arg1=" + getServer().getIp() + "&arg2="
+                    + ((Integer) getServer().getPort()).toString();
+            final URL url = new URL("http://www.blackvein.net/php/quests_del.php?" + arguments);
+            final URLConnection yc = url.openConnection();
+            final BufferedReader in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
             String inputLine;
 
             while ((inputLine = in.readLine()) != null) {
                 if (inputLine.equalsIgnoreCase("false")) {
-                    printWarning("[Quests] An error occurred removing old data from the snooper database!");
+                    Quests.printWarning("[Quests] An error occurred removing old data from the snooper database!");
                 }
             }
             in.close();
 
-        } catch (Exception e) {
-            printWarning("[Quests] An error occurred removing old data from the snooper database!");
+        } catch (final Exception e) {
+            Quests.printWarning("[Quests] An error occurred removing old data from the snooper database!");
         }
 
     }
 
     public boolean hasQuest(NPC npc, Quester quester) {
 
-        for (Quest quest : quests) {
+        for (final Quest quest: quests) {
 
             if (quest.npcStart != null && quester.completedQuests.contains(quest.name) == false) {
 
@@ -5067,7 +5443,7 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public static int getMCMMOSkillLevel(SkillType st, String player) {
 
-        McMMOPlayer mPlayer = UserManager.getPlayer(player);
+        final McMMOPlayer mPlayer = UserManager.getPlayer(player);
         if (mPlayer == null) {
             return -1;
         }
@@ -5078,45 +5454,45 @@ public class Quests extends JavaPlugin implements ConversationAbandonedListener,
 
     public Hero getHero(String player) {
 
-        Player p = getServer().getPlayer(player);
+        final Player p = getServer().getPlayer(player);
         if (p == null) {
             return null;
         }
 
-        return heroes.getCharacterManager().getHero(p);
+        return Quests.heroes.getCharacterManager().getHero(p);
 
     }
 
     public boolean testPrimaryHeroesClass(String primaryClass, String player) {
 
-        Hero hero = getHero(player);
+        final Hero hero = getHero(player);
         return hero.getHeroClass().getName().equalsIgnoreCase(primaryClass);
 
     }
 
     public boolean testSecondaryHeroesClass(String secondaryClass, String player) {
 
-        Hero hero = getHero(player);
+        final Hero hero = getHero(player);
         return hero.getHeroClass().getName().equalsIgnoreCase(secondaryClass);
 
     }
-    
+
     public void updateData() {
-        
-        YamlConfiguration config = new YamlConfiguration();
-        File dataFile = new File(this.getDataFolder(), "data.yml");
-        
+
+        final YamlConfiguration config = new YamlConfiguration();
+        final File dataFile = new File(getDataFolder(), "data.yml");
+
         try {
             config.load(dataFile);
             config.set("npc-gui", questNPCGUIs);
             config.save(dataFile);
-        } catch (Exception e) {
-            log.severe("[Quests] Unable to update data file.");
-            if(debug) {
-                log.severe("[Quests] Error log:");
+        } catch (final Exception e) {
+            Quests.log.severe("[Quests] Unable to update data file.");
+            if (debug) {
+                Quests.log.severe("[Quests] Error log:");
                 e.printStackTrace();
-            }else {
-                log.severe("[Quests] Enable debug to view the error log.");
+            } else {
+                Quests.log.severe("[Quests] Enable debug to view the error log.");
             }
             return;
         }

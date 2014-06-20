@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,129 +15,139 @@ import org.bukkit.inventory.ItemStack;
 
 public class Stage {
 
-    Map<Material, Integer> blocksToDamage = new EnumMap<Material, Integer>(Material.class);
-    Map<Material, Integer> blocksToBreak = new EnumMap<Material, Integer>(Material.class);
-    Map<Material, Integer> blocksToPlace = new EnumMap<Material, Integer>(Material.class);
-    Map<Material, Integer> blocksToUse = new EnumMap<Material, Integer>(Material.class);
-    Map<Material, Integer> blocksToCut = new EnumMap<Material, Integer>(Material.class);
-    Integer fishToCatch;
-    Integer playersToKill;
-    Map<Map<Enchantment, Material>, Integer> itemsToEnchant = new HashMap<Map<Enchantment, Material>, Integer>();
+    Map<Material, Integer>                          blocksToDamage          = new EnumMap<Material, Integer>(
+                                                                                    Material.class);
+    Map<Material, Integer>                          blocksToBreak           = new EnumMap<Material, Integer>(
+                                                                                    Material.class);
+    Map<Material, Integer>                          blocksToPlace           = new EnumMap<Material, Integer>(
+                                                                                    Material.class);
+    Map<Material, Integer>                          blocksToUse             = new EnumMap<Material, Integer>(
+                                                                                    Material.class);
+    Map<Material, Integer>                          blocksToCut             = new EnumMap<Material, Integer>(
+                                                                                    Material.class);
+    Integer                                         fishToCatch;
+    Integer                                         playersToKill;
+    Map<Map<Enchantment, Material>, Integer>        itemsToEnchant          = new HashMap<Map<Enchantment, Material>, Integer>();
 
-    LinkedList<EntityType> mobsToKill = new LinkedList<EntityType>();
-    LinkedList<Integer> mobNumToKill = new LinkedList<Integer>();
-    LinkedList<Location> locationsToKillWithin = new LinkedList<Location>();
-    LinkedList<Integer> radiiToKillWithin = new LinkedList<Integer>();
-    LinkedList<String> areaNames = new LinkedList<String>();
+    LinkedList<EntityType>                          mobsToKill              = new LinkedList<EntityType>();
+    LinkedList<Integer>                             mobNumToKill            = new LinkedList<Integer>();
+    LinkedList<Location>                            locationsToKillWithin   = new LinkedList<Location>();
+    LinkedList<Integer>                             radiiToKillWithin       = new LinkedList<Integer>();
+    LinkedList<String>                              areaNames               = new LinkedList<String>();
 
-    LinkedList<ItemStack> itemsToDeliver = new LinkedList<ItemStack>();
-    LinkedList<Integer> itemDeliveryTargets = new LinkedList<Integer>(){
+    LinkedList<ItemStack>                           itemsToDeliver          = new LinkedList<ItemStack>();
+    LinkedList<Integer>                             itemDeliveryTargets     = new LinkedList<Integer>() {
 
-        @Override
-        public boolean equals(Object o) {
+                                                                                @Override
+                                                                                public boolean equals(Object o) {
 
-            if (o instanceof LinkedList) {
+                                                                                    if (o instanceof LinkedList) {
 
-                LinkedList<Integer> otherList = (LinkedList<Integer>) o;
+                                                                                        final LinkedList<Integer> otherList = (LinkedList<Integer>) o;
 
-                for (Integer i : this) {
+                                                                                        for (final Integer i: this) {
 
-                    Integer other = otherList.get(this.indexOf(i));
-                    if (other != i) {
-                        return false;
-                    }
-                }
+                                                                                            final Integer other = otherList
+                                                                                                    .get(indexOf(i));
+                                                                                            if (other != i) {
+                                                                                                return false;
+                                                                                            }
+                                                                                        }
 
-            }
+                                                                                    }
 
-            return true;
+                                                                                    return true;
 
-        }
+                                                                                }
 
-    };
-    public LinkedList<String> deliverMessages = new LinkedList<String>();
+                                                                            };
+    public LinkedList<String>                       deliverMessages         = new LinkedList<String>();
 
-    public LinkedList<Integer> citizensToInteract = new LinkedList<Integer>(){
+    public LinkedList<Integer>                      citizensToInteract      = new LinkedList<Integer>() {
 
-        @Override
-        public boolean equals(Object o) {
+                                                                                @Override
+                                                                                public boolean equals(Object o) {
 
-            if (o instanceof LinkedList) {
+                                                                                    if (o instanceof LinkedList) {
 
-                LinkedList<Integer> otherList = (LinkedList<Integer>) o;
+                                                                                        final LinkedList<Integer> otherList = (LinkedList<Integer>) o;
 
-                for (Integer i : this) {
+                                                                                        for (final Integer i: this) {
 
-                    Integer other = otherList.get(this.indexOf(i));
-                    if (other != i) {
-                        return false;
-                    }
-                }
+                                                                                            final Integer other = otherList
+                                                                                                    .get(indexOf(i));
+                                                                                            if (other != i) {
+                                                                                                return false;
+                                                                                            }
+                                                                                        }
 
-            }
+                                                                                    }
 
-            return true;
+                                                                                    return true;
 
-        }
+                                                                                }
 
-    };
-    public LinkedList<Integer> citizensToKill = new LinkedList<Integer>() {
+                                                                            };
+    public LinkedList<Integer>                      citizensToKill          = new LinkedList<Integer>() {
 
-        @Override
-        public boolean equals(Object o) {
+                                                                                @Override
+                                                                                public boolean equals(Object o) {
 
-            if (o instanceof LinkedList) {
+                                                                                    if (o instanceof LinkedList) {
 
-                LinkedList<Integer> otherList = (LinkedList<Integer>) o;
+                                                                                        final LinkedList<Integer> otherList = (LinkedList<Integer>) o;
 
-                for (Integer i : this) {
+                                                                                        for (final Integer i: this) {
 
-                    Integer other = otherList.get(this.indexOf(i));
-                    if (other != i) {
-                        return false;
-                    }
-                }
+                                                                                            final Integer other = otherList
+                                                                                                    .get(indexOf(i));
+                                                                                            if (other != i) {
+                                                                                                return false;
+                                                                                            }
+                                                                                        }
 
-            }
+                                                                                    }
 
-            return true;
+                                                                                    return true;
 
-        }
+                                                                                }
 
-    };
-    public LinkedList<Integer> citizenNumToKill = new LinkedList<Integer>();
+                                                                            };
+    public LinkedList<Integer>                      citizenNumToKill        = new LinkedList<Integer>();
 
-    public LinkedList<Location> locationsToReach = new LinkedList<Location>();
-    public LinkedList<Integer> radiiToReachWithin = new LinkedList<Integer>();
-    public LinkedList<World> worldsToReachWithin = new LinkedList<World>();
-    public LinkedList<String> locationNames = new LinkedList<String>();
-    public Map<EntityType, Integer> mobsToTame = new EnumMap<EntityType, Integer>(EntityType.class);
-    public Map<DyeColor, Integer> sheepToShear = new EnumMap<DyeColor, Integer>(DyeColor.class);
-    public Map<EnumMap<Material, Integer>, Boolean> itemsToCraft = new HashMap<EnumMap<Material, Integer>, Boolean>();
-    public LinkedList<CustomObjective> customObjectives = new LinkedList<CustomObjective>();
-    public LinkedList<Integer> customObjectiveCounts = new LinkedList<Integer>();
-    public LinkedList<String> customObjectiveDisplays = new LinkedList<String>();
-    public LinkedList<Map<String, Object>> customObjectiveData = new LinkedList<Map<String, Object>>();
-    public LinkedList<String> passwordDisplays = new LinkedList<String>();
-    public LinkedList<LinkedList<String>> passwordPhrases = new LinkedList<LinkedList<String>>();
-    public String script;
-    public Event startEvent = null;
-    public Event deathEvent = null;
-    public Map<String, Event> chatEvents = new HashMap<String, Event>();
-    public Event disconnectEvent = null;
-    public Event finishEvent = null;
-    public long delay = -1;
-    public String delayMessage = null;
-    public String completeMessage = null;
-    public String startMessage = null;
-    public String objectiveOverride = null;
+    public LinkedList<Location>                     locationsToReach        = new LinkedList<Location>();
+    public LinkedList<Integer>                      radiiToReachWithin      = new LinkedList<Integer>();
+    public LinkedList<World>                        worldsToReachWithin     = new LinkedList<World>();
+    public LinkedList<String>                       locationNames           = new LinkedList<String>();
+    public Map<EntityType, Integer>                 mobsToTame              = new EnumMap<EntityType, Integer>(
+                                                                                    EntityType.class);
+    public Map<DyeColor, Integer>                   sheepToShear            = new EnumMap<DyeColor, Integer>(
+                                                                                    DyeColor.class);
+    public Map<EnumMap<Material, Integer>, Boolean> itemsToCraft            = new HashMap<EnumMap<Material, Integer>, Boolean>();
+    public LinkedList<CustomObjective>              customObjectives        = new LinkedList<CustomObjective>();
+    public LinkedList<Integer>                      customObjectiveCounts   = new LinkedList<Integer>();
+    public LinkedList<String>                       customObjectiveDisplays = new LinkedList<String>();
+    public LinkedList<Map<String, Object>>          customObjectiveData     = new LinkedList<Map<String, Object>>();
+    public LinkedList<String>                       passwordDisplays        = new LinkedList<String>();
+    public LinkedList<LinkedList<String>>           passwordPhrases         = new LinkedList<LinkedList<String>>();
+    public String                                   script;
+    public Event                                    startEvent              = null;
+    public Event                                    deathEvent              = null;
+    public Map<String, Event>                       chatEvents              = new HashMap<String, Event>();
+    public Event                                    disconnectEvent         = null;
+    public Event                                    finishEvent             = null;
+    public long                                     delay                   = -1;
+    public String                                   delayMessage            = null;
+    public String                                   completeMessage         = null;
+    public String                                   startMessage            = null;
+    public String                                   objectiveOverride       = null;
 
     @Override
     public boolean equals(Object o) {
 
         if (o instanceof Stage) {
 
-            Stage other = (Stage) o;
+            final Stage other = (Stage) o;
 
             if (other.blocksToDamage.equals(blocksToDamage) == false) {
                 return false;
@@ -202,15 +213,15 @@ public class Stage {
                 return false;
             }
 
-            if (other.itemsToDeliver.equals(itemsToDeliver) == false){
+            if (other.itemsToDeliver.equals(itemsToDeliver) == false) {
                 return false;
             }
 
-            if (other.itemDeliveryTargets.equals(itemDeliveryTargets) == false){
+            if (other.itemDeliveryTargets.equals(itemDeliveryTargets) == false) {
                 return false;
             }
 
-            if (other.deliverMessages.equals(deliverMessages) == false){
+            if (other.deliverMessages.equals(deliverMessages) == false) {
                 return false;
             }
 
@@ -253,23 +264,23 @@ public class Stage {
             if (other.itemsToCraft.equals(itemsToCraft) == false) {
                 return false;
             }
-            
+
             if (other.customObjectives.equals(customObjectives) == false) {
                 return false;
             }
-            
+
             if (other.customObjectiveDisplays.equals(customObjectiveDisplays) == false) {
                 return false;
             }
-            
+
             if (other.customObjectiveData.equals(customObjectiveData) == false) {
                 return false;
             }
-            
+
             if (other.passwordDisplays.equals(passwordDisplays) == false) {
                 return false;
             }
-            
+
             if (other.passwordPhrases.equals(passwordPhrases) == false) {
                 return false;
             }
@@ -314,11 +325,13 @@ public class Stage {
                 return false;
             }
 
-            if(other.chatEvents.equals(chatEvents) == false)
+            if (other.chatEvents.equals(chatEvents) == false) {
                 return false;
+            }
 
-            if(other.delay != delay)
+            if (other.delay != delay) {
                 return false;
+            }
 
             if (other.delayMessage != null && delayMessage != null) {
                 if (other.delayMessage.equals(delayMessage) == false) {
@@ -349,7 +362,7 @@ public class Stage {
             } else if (other.completeMessage == null && completeMessage != null) {
                 return false;
             }
-            
+
             if (other.objectiveOverride != null && objectiveOverride != null) {
                 if (other.objectiveOverride.equals(objectiveOverride) == false) {
                     return false;
@@ -365,6 +378,5 @@ public class Stage {
         return true;
 
     }
-
 
 }
